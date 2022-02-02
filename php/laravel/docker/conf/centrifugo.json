@@ -1,0 +1,18 @@
+{
+  "port": 8000,
+  "engine": "memory",
+  "api_key": "some-long-api-key-which-you-should-keep-secret",
+  "allowed_origins": [
+    "http://localhost",
+    "http://127.0.0.1"
+  ],
+  "proxy_connect_endpoint": "http://nginx/centrifugo/connect/",
+  "proxy_http_headers": [
+    "Cookie"
+  ],
+  "namespaces": [
+    {
+      "name": "personal"
+    }
+  ]
+}
