@@ -7,7 +7,7 @@ and have all telemetry correlate in single views across the Datadog platform.
 - Infrastructure -- VMs, Docker, Live Containers, K8s, and more
 
 The example application is from the [Centrifugal example library](https://github.com/centrifugal/examples/tree/master/php_laravel_chat_tutorial)
-on Github.
+on Github. It is based on [this Centrifugal blog article](https://centrifugal.dev/blog/2021/12/14/laravel-multi-room-chat-tutorial). 
 
 ![demo](https://raw.githubusercontent.com/centrifugal/examples/master/php_laravel_chat_tutorial/demo.gif)
 
