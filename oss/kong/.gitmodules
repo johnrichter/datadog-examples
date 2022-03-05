@@ -1,6 +1,0 @@
-[submodule "deps/nodejs-docker"]
-	path = deps/nodejs-docker
-	url = git@github.com:brunormferreira/nodejs-docker.git
-[submodule "deps/konga"]
-	path = deps/konga
-	url = git@github.com:pantsel/konga.git

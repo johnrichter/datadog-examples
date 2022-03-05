@@ -6,7 +6,7 @@ x-kong-config: &kong-env
   KONG_PG_HOST: db
   KONG_PG_USER: kong
   KONG_PG_PASSWORD: kong
-  KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+  # KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
 
 volumes:
   kong_data: {}
@@ -51,7 +51,8 @@ services:
     restart: on-failure
 
   kong:
-    image: kong:latest"
+    image: "kong:2.7.1"
+    container_name: kong
     user: "${KONG_USER:-kong}"
     depends_on:
       - db
@@ -125,7 +126,7 @@ services:
       - kong_data:/var/lib/postgresql/data
 
   konga-bootstrap:
-    image: konga:v0.14.9
+    image: pantsel/konga:0.14.9
     entrypoint: "node ./bin/konga.js prepare --adapter postgres --uri postgresql://kong:kong@db:5432/konga | echo"
     depends_on:
       - db
@@ -142,11 +143,11 @@ services:
     restart: on-failure
 
   konga:
-    image: konga:v0.14.9
+    image: pantsel/konga:0.14.9
     depends_on:
-      - kong
       - db
       - konga-bootstrap
+      - kong
     environment:
       <<: *kong-env
       HOST: "0.0.0.0"
@@ -165,6 +166,8 @@ services:
 
   example_api:
     image: nodejs-docker:latest
+    build:
+      context: ./deps/nodejs-docker
     depends_on:
       - kong
     networks:

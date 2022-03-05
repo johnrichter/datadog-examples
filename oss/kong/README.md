@@ -28,23 +28,29 @@ $ ./init.sh
 $ docker compose up
 $ curl -X POST http://localhost:8001/plugins/ \
     --data "name=prometheus"
-$ curl -X POST http://localhost:8001/plugins/ \
-    --data "name=datadog"  \
-    --data "config.host=datadog" \
-    --data "config.port=8125" \
-    --data "config.metrics=" \
-    --data "config.prefix=kong"
+$ curl -X POST -H 'Content-Type: application/json' http://localhost:8001/plugins/ \
+    --data '{
+      "name": "datadog",
+      "config": {
+        "host": "datadog-agent",
+        "port": 8125,
+        "prefix": "kong_plugin",
+        "service_name_tag": "service"
+      }
+    }'
 $ curl -i -X POST \
   --url http://localhost:8001/services/ \
   --data 'name=example-service' \
   --data 'url=http://example_api:3333/api/pizzas'
-$ curl -i -X POST \
+$ curl -i -X POST -H 'Content-Type: application/json' \
   --url http://localhost:8001/services/example-service/routes \
-  --data 'name=example-route'
-  --data 'paths[]=/example'
+  --data '{
+    "name": "example-route",
+    "paths": ["/example"]
+  }'
 ```
 
-If you prefer you can open Konga on http://localhost:9000 to configure the service instead of leveraging the Kong Admin API.
+If you prefer you can open Konga on http://localhost:9000 to configure the service instead of leveraging the Kong Admin API. You'll need to create a new connection to Kong in the Konga UI by using `http://kong:8001` or `http://localhost:8001` as the URL.
 
 Send in some traffic and then open Datadog to explore the [`kong.*` metrics](https://app.datadoghq.com/metric/summary?filter=kong.), Kong [Dashboards](https://app.datadoghq.com/dashboard/lists?q=kong), and [Kong logs](https://app.datadoghq.com/logs?query=source%3Akong).
 
