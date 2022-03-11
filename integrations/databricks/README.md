@@ -1,8 +1,9 @@
 # Datadog & Databricks
 
 This script is a better alternative to the scripts included in the Datadog documentation for
-integrating with Databricks. Follow the steps in the offical documentation, but use this script
-instead of the one provided.
+integrating with Databricks. [Follow the steps in the offical documentation](https://docs.datadoghq.com/integrations/databricks),
+but use this script instead of the one provided. A detailed blog post for monitoring Databricks with
+Datadog is [here](https://www.datadoghq.com/blog/databricks-monitoring-datadog/).
 
 The script is meant to install on all nodes, driver and worker, but if you just want one or the
 other, just remove the if/else and the section for the node type that you don't want to instrument
