@@ -1,6 +1,6 @@
-[submodule "oss/kong/deps/nodejs-docker"]
-	path = oss/kong/deps/nodejs-docker
+[submodule "integrations/kong/deps/nodejs-docker"]
+	path = integrations/kong/deps/nodejs-docker
 	url = git@github.com:brunormferreira/nodejs-docker.git
-[submodule "oss/kong/deps/konga"]
-	path = oss/kong/deps/konga
+[submodule "integrations/kong/deps/konga"]
+	path = integrations/kong/deps/konga
 	url = git@github.com:pantsel/konga.git

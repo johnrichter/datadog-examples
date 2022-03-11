@@ -1,0 +1,115 @@
+## Default values for Datadog Agent
+## See Datadog helm documentation to learn more:
+## https://docs.datadoghq.com/agent/kubernetes/helm/
+##
+## A full example of this file with documentation and commends can be found at
+## https://github.com/DataDog/helm-charts/blob/main/charts/datadog/values.yaml
+
+targetSystem: "linux"
+registry: gcr.io/datadoghq
+datadog:
+  # https://app.datadoghq.com/organization-settings/api-keys
+  apiKey: <DATADOG_API_KEY>
+  # https://app.datadoghq.com/organization-settings/application-keys
+  appKey:  <DATADOG_APP_KEY>
+  site:  us3.datadoghq.com
+  kubeStateMetricsEnabled: false
+  kubeStateMetricsCore:
+    enabled: true
+    labelsAsTags:
+      pod:
+        "*": "%%label%%"
+      node:
+        "*": "%%label%%"
+  # podLabelsAsTags:
+  #   "*": "%%label%%"
+  nodeLabelsAsTags:
+    "*": "%%label%%"
+  namespaceLabelsAsTags:
+    "*": "%%label%%"
+  containerExclude: "image:gcr.io/datadoghq/.*"
+  tags: []
+  kubelet:
+    host:
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+    tlsVerify: true # false
+    hostCAPath: /etc/kubernetes/certs/kubeletserver.crt
+  dogstatsd:
+    port: 8125
+    nonLocalTraffic: true
+  logs:
+    enabled: true
+    containerCollectAll: true
+    autoMultiLineDetection: false
+  apm:
+    socketEnabled: true
+    socketPath: /var/run/datadog/apm.socket
+    hostSocketPath: /var/run/datadog/
+    portEnabled: true
+    port: 8126
+  ## Universal Service Monitoring is currently in private beta.
+  ## See https://www.datadoghq.com/blog/universal-service-monitoring-datadog/ for more details and private beta signup. Requires Linux Kernel 4.4.0 or newer for eBPF support
+  serviceMonitoring:
+    enabled: false
+  processAgent:
+    enabled: true
+    processCollection: true
+    processDiscovery: true
+  # Requires Linux Kernel 4.4.0 or newer for eBPF support
+  networkMonitoring:
+    enabled: true
+  # Provide additional check configurations (static and Autodiscovery)
+  ## Each key becomes a file in /conf.d
+  confd: {}
+  #   redisdb.yaml: |-
+  #     init_config:
+  #     instances:
+  #       - host: "name"
+  #         port: "6379"
+  #   kubernetes_state.yaml: |-
+  #     ad_identifiers:
+  #       - kube-state-metrics
+  #     init_config:
+  #     instances:
+  #       - kube_state_url: http://%%host%%:8080/metrics
+
+  # Provide additional custom checks as python code
+  ## Each key becomes a file in /checks.d
+  checksd: {}
+  #   service.py: |-
+
+clusterAgent:
+  enabled: true
+  image:
+    tag: 1.17.0
+  replicas: 1
+  metricsProvider:
+    enabled: true
+    useDatadogMetrics: true
+    aggregator: avg
+
+agents:
+  enabled: true
+  image:
+    name: agent
+    tag: 7.33.0
+    # agents.image.tagSuffix -- Suffix to append to Agent tag
+    ##  jmx        to enable jmx fetch collection
+    ##  servercore to get Windows images based on servercore
+    tagSuffix: ""
+
+clusterChecksRunner:
+  enabled: false
+  image:
+    name: agent
+    tag: 7.33.0
+    # clusterChecksRunner.image.tagSuffix -- Suffix to append to Agent tag
+    ##  jmx        to enable jmx fetch collection
+    ##  servercore to get Windows images based on servercore
+    tagSuffix: ""
+
+datadog-crds:
+  crds:
+    datadogMetrics: true
