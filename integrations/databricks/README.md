@@ -48,7 +48,8 @@ Worker-node-specific configuration
     - `us3.datadoghq.com`
     - `us5.datadoghq.com`
 - `DD_API_KEY` (**required**)
-  - Obtain from \_\_\_.datadoghq.\_\_\_/organization-settings/api-keys (replace the domain with the domain you use to access Datadog)
+  - Obtain from `___.datadoghq.___/organization-settings/api-keys`
+    - Replace the domain with the domain you use to access Datadog
 - `DD_ENV` (**required**)
   - This is an important tag that is integral to [Datadog's Unified Service Tagging standard](https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging).
   - Examples: `prod`, `dev`, `qa`, `local`, `test`

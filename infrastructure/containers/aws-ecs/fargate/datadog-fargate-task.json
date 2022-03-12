@@ -1,0 +1,273 @@
+{
+    "ipcMode": null,
+    "executionRoleArn": "<YOUR ECS EXECUTION ARN>",
+    "containerDefinitions": [
+        {
+            "dnsSearchDomains": null,
+            "environmentFiles": null,
+            "logConfiguration": {
+                "logDriver": "awsfirelens",
+                "secretOptions": null,
+                "options": {
+                    "dd_message_key": "log",
+                    "apikey": "<DD API KEY>",
+                    "provider": "ecs",
+                    "dd_service": "agent",
+                    "Host": "http-intake.logs.<DD SITE>",
+                    "TLS": "on",
+                    "dd_source": "agent",
+                    "dd_tags": "customer:tbd",
+                    "Name": "datadog"
+                }
+            },
+            "entryPoint": null,
+            "portMappings": [
+                {
+                    "hostPort": 8125,
+                    "protocol": "udp",
+                    "containerPort": 8125
+                },
+                {
+                    "hostPort": 8126,
+                    "protocol": "tcp",
+                    "containerPort": 8126
+                }
+            ],
+            "command": null,
+            "linuxParameters": null,
+            "cpu": 10,
+            "environment": [
+                {
+                    "name": "DD_API_KEY",
+                    "value": "<DD API KEY>"
+                },
+                {
+                    "name": "DD_SITE",
+                    "value": "<DD SITE>"
+                },
+                {
+                    "name": "DD_DOCKER_LABELS_AS_TAGS",
+                    "value": "{\"*\":\"%%label%%\"}"
+                },
+                {
+                    "name": "DD_PROCESS_AGENT_ENABLED",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_KUBERNETES_POD_LABELS_AS_TAGS",
+                    "value": "{\"*\":\"%%label%%\"}"
+                },
+                {
+                    "name": "ECS_FARGATE",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_APM_ENABLED",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_AC_EXCLUDE",
+                    "value": "name:datadog-agent"
+                },
+                {
+                    "name": "DD_ENV",
+                    "value": "<ENV>"
+                },
+                {
+                    "name": "DD_TAGS",
+                    "value": "<CUSTOM TAGS>"
+                },
+                {
+                    "name": "DD_LOG_LEVEL",
+                    "value": "INFO"
+                }
+            ],
+            "resourceRequirements": null,
+            "ulimits": null,
+            "dnsServers": null,
+            "mountPoints": [],
+            "workingDirectory": null,
+            "secrets": null,
+            "dockerSecurityOptions": null,
+            "memory": null,
+            "memoryReservation": 256,
+            "volumesFrom": [],
+            "stopTimeout": null,
+            "image": "datadog/agent:7",
+            "startTimeout": null,
+            "firelensConfiguration": null,
+            "dependsOn": null,
+            "disableNetworking": null,
+            "interactive": null,
+            "healthCheck": null,
+            "essential": true,
+            "links": null,
+            "hostname": null,
+            "extraHosts": null,
+            "pseudoTerminal": null,
+            "user": null,
+            "readonlyRootFilesystem": null,
+            "dockerLabels": null,
+            "systemControls": null,
+            "privileged": null,
+            "name": "datadog-agent"
+        },
+        {
+            "dnsSearchDomains": null,
+            "environmentFiles": null,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "secretOptions": null,
+                "options": {
+                    "awslogs-group": "/ecs/<YOUR TASK NAME>",
+                    "awslogs-region": "<AWS REGION>",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "entryPoint": null,
+            "portMappings": [],
+            "command": null,
+            "linuxParameters": null,
+            "cpu": 0,
+            "environment": [],
+            "resourceRequirements": null,
+            "ulimits": null,
+            "dnsServers": null,
+            "mountPoints": [],
+            "workingDirectory": null,
+            "secrets": null,
+            "dockerSecurityOptions": null,
+            "memory": null,
+            "memoryReservation": null,
+            "volumesFrom": [],
+            "stopTimeout": null,
+            "image": "amazon/aws-for-fluent-bit:stable",
+            "startTimeout": null,
+            "firelensConfiguration": {
+                "type": "fluentbit",
+                "options": {
+                    "enable-ecs-log-metadata": "true"
+                }
+            },
+            "dependsOn": null,
+            "disableNetworking": null,
+            "interactive": null,
+            "healthCheck": null,
+            "essential": true,
+            "links": null,
+            "hostname": null,
+            "extraHosts": null,
+            "pseudoTerminal": null,
+            "user": "0",
+            "readonlyRootFilesystem": null,
+            "dockerLabels": null,
+            "systemControls": null,
+            "privileged": null,
+            "name": "log_router"
+        },
+        {
+            "dnsSearchDomains": null,
+            "environmentFiles": null,
+            "logConfiguration": {
+                "logDriver": "awsfirelens",
+                "secretOptions": null,
+                "options": {
+                    "dd_message_key": "log",
+                    "apiKey": "<DD API KEY>",
+                    "provider": "ecs",
+                    "dd_service": "<SERVICE NAME>",
+                    "Host": "http-intake.logs.<DD SITE>",
+                    "TLS": "on",
+                    "dd_source": "<SERVICE NAME>",
+                    "dd_tags": "my-tag:my-tag-value,another-tag:another-value",
+                    "Name": "datadog"
+                }
+            },
+            "entryPoint": null,
+            "portMappings": [],
+            "command": null,
+            "linuxParameters": null,
+            "cpu": 0,
+            "environment": [
+                {
+                    "name": "DD_TRACE_ENABLED",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_TRACE_DEBUG",
+                    "value": "false"
+                },
+                {
+                    "name": "DD_LOGS_INJECTION",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_PROFILING_ENABLED",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_ENV",
+                    "value": "<ENV>"
+                },
+                {
+                    "name": "DD_SERVICE",
+                    "value": "<SERVICE NAME>"
+                },
+                {
+                    "name": "DD_VERSION",
+                    "value": "<VERSION>"
+                },
+                {
+                    "name": "DD_SERVICE_MAPPING",
+                    "value": "<SERVICE MAPPING>"
+                }
+            ],
+            "resourceRequirements": null,
+            "ulimits": null,
+            "dnsServers": null,
+            "mountPoints": [],
+            "workingDirectory": null,
+            "secrets": null,
+            "dockerSecurityOptions": null,
+            "memory": null,
+            "memoryReservation": null,
+            "volumesFrom": [],
+            "stopTimeout": null,
+            "image": "<YOUR CUSTOM APP IMAGE>",
+            "startTimeout": null,
+            "firelensConfiguration": null,
+            "dependsOn": null,
+            "disableNetworking": null,
+            "interactive": null,
+            "healthCheck": null,
+            "essential": true,
+            "links": null,
+            "hostname": null,
+            "extraHosts": null,
+            "pseudoTerminal": null,
+            "user": null,
+            "readonlyRootFilesystem": null,
+            "dockerLabels": null,
+            "systemControls": null,
+            "privileged": null,
+            "name": "<YOUR CUSTOM APP NAME>"
+        }
+    ],
+    "memory": "<YOUR MEMORY SETTING>",
+    "taskRoleArn": "<YOUR ECS EXECUTION ARN>",
+    "family": "<YOUR TASK NAME>",
+    "pidMode": null,
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "networkMode": "awsvpc",
+    "runtimePlatform": {
+        "operatingSystemFamily": "LINUX",
+        "cpuArchitecture": null
+    },
+    "cpu": "<YOUR CPU SETTING>",
+    "inferenceAccelerators": [],
+    "proxyConfiguration": null,
+    "volumes": [],
+    "tags": []
+}
