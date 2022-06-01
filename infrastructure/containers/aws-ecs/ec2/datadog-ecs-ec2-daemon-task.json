@@ -1,0 +1,163 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "datadog-agent",
+            "image": "datadog/agent:7",
+            "cpu": 100,
+            "memory": 512,
+            "portMappings": [
+                {
+                    "containerPort": 8125,
+                    "hostPort": 8125,
+                    "protocol": "udp"
+                },
+                {
+                    "containerPort": 8126,
+                    "hostPort": 8126,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "DD_API_KEY",
+                    "value": "<DD API KEY>"
+                },
+                {
+                    "name": "DD_SITE",
+                    "value": "<DD SITE>"
+                },
+                {
+                    "name": "DD_ENV",
+                    "value": "<ENV>"
+                },
+                {
+                    "name": "DD_TAGS",
+                    "value": "<CUSTOM TAGS>"
+                },
+                {
+                    "name": "DD_LOG_LEVEL",
+                    "value": "INFO"
+                },
+                {
+                    "name": "DD_DOCKER_LABELS_AS_TAGS",
+                    "value": "{\"*\":\"%%label%%\"}"
+                },
+                {
+                    "name": "DD_PROCESS_AGENT_ENABLED",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_APM_ENABLED",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_APM_NON_LOCAL_TRAFFIC",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_SYSTEM_PROBE_ENABLED",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_AC_EXCLUDE",
+                    "value": "name:datadog-agent"
+                },
+                {
+                    "name": "DD_LOGS_ENABLED",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL",
+                    "value": "true"
+                },
+                {
+                    "name": "DD_DOGSTATSD_NON_LOCAL_TRAFFIC",
+                    "value": "true"
+                }
+            ],
+            "mountPoints": [
+                {
+                    "sourceVolume": "docker_sock",
+                    "containerPath": "/var/run/docker.sock",
+                    "readOnly": true
+                },
+                {
+                    "sourceVolume": "proc",
+                    "containerPath": "/host/proc/",
+                    "readOnly": true
+                },
+                {
+                    "sourceVolume": "cgroup",
+                    "containerPath": "/host/sys/fs/cgroup",
+                    "readOnly": true
+                },
+                {
+                    "sourceVolume": "debug",
+                    "containerPath": "/sys/kernel/debug"
+                }
+            ],
+            "volumesFrom": [],
+            "linuxParameters": {
+                "capabilities": {
+                    "add": [
+                        "SYS_ADMIN",
+                        "SYS_RESOURCE",
+                        "SYS_PTRACE",
+                        "NET_ADMIN",
+                        "NET_BROADCAST",
+                        "NET_RAW",
+                        "IPC_LOCK",
+                        "CHOWN"
+                    ]
+                }
+            }
+        }
+    ],
+    "family": "<YOUR TASK NAME>",
+    "taskRoleArn": "<YOUR ECS ROLE ARN>",
+    "executionRoleArn": "<YOUR ECS EXECUTION ARN>",
+    "networkMode": "bridge",
+    "volumes": [
+        {
+            "name": "docker_sock",
+            "host": {
+                "sourcePath": "/var/run/docker.sock"
+            }
+        },
+        {
+            "name": "proc",
+            "host": {
+                "sourcePath": "/proc/"
+            }
+        },
+        {
+            "name": "cgroup",
+            "host": {
+                "sourcePath": "/sys/fs/cgroup/"
+            }
+        },
+        {
+            "name": "debug",
+            "host": {
+                "sourcePath": "/sys/kernel/debug"
+            }
+        }
+    ],
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EXTERNAL",
+        "EC2"
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "cpu": "128",
+    "memory": "512",
+    "tags": []
+}

@@ -1,17 +1,21 @@
 # Databricks notebook source
 # MAGIC %sh
 # MAGIC hostip=$(hostname -I | xargs)
-# MAGIC echo "IP: ${hostip}"
+# MAGIC
+# MAGIC echo "System Information"
 # MAGIC echo """
-# MAGIC DD_SITE=${DD_SITE}
-# MAGIC DD_ENV=${DD_ENV}
-# MAGIC DD_API_KEY=${DD_API_KEY}
-# MAGIC DD_TAGS=${DD_TAGS}
-# MAGIC CUSTOM_DD_TAGS=${CUSTOM_DD_TAGS}
 # MAGIC host_ip: ${hostip}
 # MAGIC databricks_cluster_id: ${DB_CLUSTER_ID}
 # MAGIC databricks_cluster_name: ${DB_CLUSTER_NAME}
 # MAGIC user: """ $(whoami)
+# MAGIC echo ""
+# MAGIC echo "Environment Variables"
+# MAGIC echo "
+# MAGIC DD_SITE=${DD_SITE}
+# MAGIC DD_ENV=${DD_ENV}
+# MAGIC DD_API_KEY=${DD_API_KEY}
+# MAGIC CUSTOM_DD_TAGS=${CUSTOM_DD_TAGS}
+# MAGIC "
 
 # COMMAND ----------
 
