@@ -7,3 +7,6 @@
 [submodule "integrations/aws/cloudwatch/metric-streams/opentelemetry-proto"]
 	path = integrations/aws/cloudwatch/metric-streams/opentelemetry-proto
 	url = https://github.com/open-telemetry/opentelemetry-proto.git
+[submodule "integrations/aws/cloudwatch/metric-streams/troubleshooting/opentelemetry-proto"]
+	path = integrations/aws/cloudwatch/metric-streams/troubleshooting/opentelemetry-proto
+	url = https://github.com/open-telemetry/opentelemetry-proto.git
