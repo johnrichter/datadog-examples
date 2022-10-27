@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "google-protobuf": "^3.21.2"
+  },
+  "volta": {
+    "node": "16.18.0",
+    "yarn": "3.2.4"
+  }
+}

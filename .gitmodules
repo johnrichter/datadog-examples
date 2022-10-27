@@ -4,3 +4,6 @@
 [submodule "integrations/kong/deps/konga"]
 	path = integrations/kong/deps/konga
 	url = git@github.com:pantsel/konga.git
+[submodule "integrations/aws/cloudwatch/metric-streams/opentelemetry-proto"]
+	path = integrations/aws/cloudwatch/metric-streams/opentelemetry-proto
+	url = https://github.com/open-telemetry/opentelemetry-proto.git
