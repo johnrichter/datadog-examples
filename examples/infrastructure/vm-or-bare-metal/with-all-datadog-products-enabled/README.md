@@ -1,8 +1,6 @@
 # Overview
 
-This module enables every feature of the Datadog agent. The default configurations within should work with any linux based system running kernel version 4.15.0+ or has eBPF features backported to match.
-
-There are a few OS-specific customizations that are required and noted below.
+Default configuration with all Datadog features and products enabled. The default configurations within should work with any linux based system running kernel version 4.15.0+ or has eBPF features backported to match. There are a few OS-specific customizations that are required and noted below.
 
 # Linux (Kernel versions >4.4, <4.15)
 

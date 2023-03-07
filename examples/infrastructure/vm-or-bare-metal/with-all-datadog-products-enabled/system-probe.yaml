@@ -1,7 +1,7 @@
 ###############################################
 ## System Probe Security Agent Configuration ##
 ##                                           ##
-## security-agent.yaml                       ##
+## system-probe.yaml                         ##
 ##                                           ##
 ## Settings to sent logs to Datadog are      ##
 ## fetched from section `logs_config`        ##

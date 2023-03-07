@@ -8,19 +8,21 @@ Configuations in these examples are meant to be used in Datadog trials or as sta
 >
 > ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
 
+Also check out [Storedog](https://github.com/DataDog/storedog), a complete full-stack app with Datadog monitoring that can be used for testing and playing around with Datadog.
+
 ## Structure
 
 ```bash
 .
-├   # Scripts to generate deployment diagrams pertaining to
-├   # architectures and install flows
+│   # Scripts to generate deployment diagrams pertaining to
+│   # architectures and install flows
 ├── diagrams
-├   # Examples of how to get started with Datadog and
-├   # configure Datadog products for various use cases and
-├   # requirements
+│   # Examples of how to get started with Datadog and
+│   # configure Datadog products for various use cases and
+│   # requirements
 ├── examples
-├   # Simple lab environments that can be used for testing
-├   # the provided examples and other Datadog products
+│   # Simple lab environments that can be used for testing
+│   # the provided examples and other Datadog products
 └── testing
 ```
 
