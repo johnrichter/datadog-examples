@@ -72,6 +72,19 @@ git clone --recursive git@github.com:johnrichter/datadog-examples.git
     - [ ] Architecture Diagram
     - [ ] APM Auto-injection install flow
 
+**APM**
+
+- [ ] Update Nodejs example. Service mapping, plugin configuration, latest libs
+- [ ] Update PCF example. latest libs
+- Library auto injection example
+  - [ ] Containers
+  - [ ] Host
+
+> Maybe pull examples from these?
+>
+> - https://github.com/DataDog/trace-examples
+> - https://github.com/DataDog/sandbox
+
 **Networking**
 
 - NDM
