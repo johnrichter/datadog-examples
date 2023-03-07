@@ -1,0 +1,50 @@
+###############################################
+## System Probe Security Agent Configuration ##
+##                                           ##
+## security-agent.yaml                       ##
+##                                           ##
+## Settings to sent logs to Datadog are      ##
+## fetched from section `logs_config`        ##
+## in datadog.yaml                           ##
+###############################################
+
+runtime_security_config:
+
+  ## @param enabled - boolean - optional - default: false
+  ## @env DD_RUNTIME_SECURITY_CONFIG_ENABLED - boolean - optional - default: false
+  ## Set to true to enable Cloud Workload Security (CWS).
+  ## https://docs.datadoghq.com/security/cloud_workload_security/
+  enabled: true
+
+########################################
+## System Probe Network Configuration ##
+########################################
+
+network_config:
+
+  ## @param enabled - boolean - optional - default: false
+  ## Set to true to enable the Network Module of the System Probe
+  ## https://docs.datadoghq.com/network_monitoring/performance/
+  enabled: true
+
+#############################################################
+## System Probe Universal Service monitoring Configuration ##
+#############################################################
+
+service_monitoring_config:
+
+  ## @param enabled - boolean - optional - default: false
+  ## Set to true to enable the Universal Service Monitoring Module of the System Probe
+  ## https://docs.datadoghq.com/universal_service_monitoring/
+  enabled: true
+
+#############################################
+## System Probe Data Streams Configuration ##
+#############################################
+
+data_streams_config:
+
+  ## @param enabled - boolean - optional - default: false
+  ## Set to true to enable the Data Streams Module of the System Probe
+  ## https://docs.datadoghq.com/data_streams/
+  enabled: true

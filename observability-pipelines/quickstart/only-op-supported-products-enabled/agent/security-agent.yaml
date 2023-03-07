@@ -1,0 +1,49 @@
+##########
+## Note ##
+##########
+#
+# Vector does not yet support all telemetry types and data intakes for
+# every Datadog product. This configuration disables all features except
+# for metrics, traces, and logs that will be forwarded through Vector.
+#
+# Please see the following for a full list of data intakes used for
+# Datadog products.
+#
+# https://docs.datadoghq.com/agent/guide/network/
+#
+# CWS is not supported by Vector
+#
+##########
+
+##########################################
+## Security Agent Runtime Configuration ##
+##                                      ##
+## security-agent.yaml                  ##
+##                                      ##
+## Settings to sent logs to Datadog are ##
+## fetched from section `logs_config`   ##
+## in datadog.yaml                      ##
+##########################################
+
+runtime_security_config:
+
+  ## @param enabled - boolean - optional - default: false
+  ## @env DD_RUNTIME_SECURITY_CONFIG_ENABLED - boolean - optional - default: false
+  ## Set to true to enable Cloud Workload Security (CWS).
+  ## https://docs.datadoghq.com/security/cloud_workload_security/
+  enabled: false
+
+  ## @param fim_enabled - boolean - optional - default: false
+  ## Set to true to enable the File Integrity Monitoring (FIM) feature of Cloud Workload Security (CWS).
+  ## https://docs.datadoghq.com/security/cloud_workload_security/
+  fim_enabled: false
+
+  ## @param network - custom object - optional
+  ## Network section is used to configure Cloud Workload Security (CWS) network features.
+  ## https://docs.datadoghq.com/security/cloud_workload_security/
+  network:
+
+    ## @param enabled - boolean - optional - default: true
+    ## @env DD_RUNTIME_SECURITY_CONFIG_NETWORK_ENABLED - boolean - optional - default: true
+    ## Set to true to activate the CWS network detections.
+    enabled: false

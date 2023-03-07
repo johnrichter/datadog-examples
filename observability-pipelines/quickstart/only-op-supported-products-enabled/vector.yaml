@@ -1,0 +1,51 @@
+# Note that due to the criticality of Vector when deployed as a proxy for
+# the Datadog Agent, please read the following guide before going to
+# production, for design and architecture considerations.
+# https://vector.dev/docs/setup/going-to-prod/
+
+# Used for the command `vector top`
+api:
+  enabled: true
+
+sources:
+  datadog_agent:
+    type: datadog_agent
+    address: 0.0.0.0:8226 # Use the port of your choice
+    # Splits output into `<sink name>.(metrics|logs|traces)`
+    multiple_outputs: true
+    # Keeps the API key that is sent from the Datadog Agent
+    store_api_key: true
+    # Configure to enable SSL on incoming connections
+    # https://vector.dev/docs/reference/configuration/sources/datadog_agent/#tls
+    # tls: null
+
+# transforms: {}
+
+sinks:
+  datadog_metrics:
+    type: datadog_metrics
+    inputs:
+      - datadog_agent.metrics
+    # The DD API Key used when the data does not have one stored (attached)
+    default_api_key: <Datadog API Key>
+    acknowledgements:
+      enabled: true
+  datadog_logs:
+    type: datadog_logs
+    inputs:
+      - datadog_agent.logs
+    # The DD API Key used when the data does not have one stored (attached)
+    default_api_key: <Datadog API Key>
+    compression: gzip
+    acknowledgements:
+      enabled: true
+  # Development status: BETA
+  datadog_traces:
+    type: datadog_traces
+    inputs:
+      - datadog_agent.traces
+    # The DD API Key used when the data does not have one stored (attached)
+    default_api_key: <Datadog API Key>
+    compression: gzip
+    acknowledgements:
+      enabled: true

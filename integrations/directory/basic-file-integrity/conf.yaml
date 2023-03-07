@@ -1,0 +1,121 @@
+init_config:
+instances:
+  ###
+  # Linux
+  ###
+
+  # Datadog Agent
+  - directory: "/etc/datadog-agent"
+    name: agent_config_dir
+    dirtagname: directory
+    filetagname: file
+    filegauges: true
+    pattern: "datadog.y*ml"
+    tags:
+      - "team:security"
+      - "fim_check:datadog_agent_config"
+    exclude_dirs:
+      - "^.*$"
+    # Every 15 seconds (the default), Lowest possible is 1 second
+    min_collection_interval: 15
+
+  # Vector
+  - directory: "/etc/vector"
+    name: "vector_config_dir"
+    dirtagname: "directory"
+    filetagname: "file"
+    filegauges: true
+    pattern: "vector.y*ml" # Config as YAML
+    tags:
+      - "team:security"
+      - "fim_check:vector_config"
+    exclude_dirs:
+      - "^.*$"
+    # Every 15 seconds (the default), Lowest possible is 1 second
+    min_collection_interval: 15
+  - directory: "/etc/vector"
+    name: "vector_config_dir"
+    dirtagname: "directory"
+    filetagname: "file"
+    filegauges: true
+    pattern: "vector.toml" # Config as TOML
+    tags:
+      - "team:security"
+      - "fim_check:vector_config"
+    exclude_dirs:
+      - "^.*$"
+    # Every 15 seconds (the default), Lowest possible is 1 second
+    min_collection_interval: 15
+  - directory: "/etc/vector"
+    name: "vector_config_dir"
+    dirtagname: "directory"
+    filetagname: "file"
+    filegauges: true
+    pattern: "vector.json" # Config as JSON
+    tags:
+      - "team:security"
+      - "fim_check:vector_config"
+    exclude_dirs:
+      - "^.*$"
+    # Every 15 seconds (the default), Lowest possible is 1 second
+    min_collection_interval: 15
+
+  ###
+  # Windows
+  ###
+
+  # Datadog Agent
+  - directory: "C:\\ProgramData\\Datadog"
+    name: agent_config_dir
+    dirtagname: directory
+    filetagname: file
+    filegauges: true
+    pattern: "datadog.y*ml"
+    tags:
+      - "team:security"
+      - "fim_check:datadog_agent_config"
+    exclude_dirs:
+      - "^.*$"
+    # Every 15 seconds (the default), Lowest possible is 1 second
+    min_collection_interval: 15
+
+  # Vector
+  - directory: "C:\\Program Files\\Vector\\config"
+    name: "vector_config_dir"
+    dirtagname: "directory"
+    filetagname: "file"
+    filegauges: true
+    pattern: "vector.y*ml" # Config as YAML
+    tags:
+      - "team:security"
+      - "fim_check:vector_config"
+    exclude_dirs:
+      - "^.*$"
+    # Every 15 seconds (the default), Lowest possible is 1 second
+    min_collection_interval: 15
+  - directory: "C:\\Program Files\\Vector\\config"
+    name: "vector_config_dir"
+    dirtagname: "directory"
+    filetagname: "file"
+    filegauges: true
+    pattern: "vector.toml" # Config as TOML
+    tags:
+      - "team:security"
+      - "fim_check:vector_config"
+    exclude_dirs:
+      - "^.*$"
+    # Every 15 seconds (the default), Lowest possible is 1 second
+    min_collection_interval: 15
+  - directory: "C:\\Program Files\\Vector\\config"
+    name: "vector_config_dir"
+    dirtagname: "directory"
+    filetagname: "file"
+    filegauges: true
+    pattern: "vector.json" # Config as JSON
+    tags:
+      - "team:security"
+      - "fim_check:vector_config"
+    exclude_dirs:
+      - "^.*$"
+    # Every 15 seconds (the default), Lowest possible is 1 second
+    min_collection_interval: 15

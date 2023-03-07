@@ -1,0 +1,30 @@
+{
+    "name": "Vector Config {{file.name}} modified on {{host.name}}",
+    "type": "query alert",
+    "query": "change(min(last_5m),last_30m):min:system.disk.directory.file.modified_sec_ago{team:security,fim_check:vector_config} by {host,file} < 0",
+    "message": "{{#is_alert}}\nThe Vector config file containing the [Datadog API Key](https://app.datadoghq.com/organization-settings/api-keys) as been modified. Please verify the API key.\n{{/is_alert}}\n\n{{#is_no_data}}\n{{host.name}} is no longer reporting file integrity information for the Vector config file containing the [Datadog API Key](https://app.datadoghq.com/organization-settings/api-keys). Please verify this system is healthy, running with the correct API key, and has not been compromised. \n{{/is_no_data}} \n\nHost: {{host.name}} \nFile: {{file.name}}",
+    "tags": [
+        "team:security"
+    ],
+    "options": {
+        "thresholds": {
+            "critical": 0
+        },
+        "notify_audit": true,
+        "require_full_window": true,
+        "notify_no_data": true,
+        "renotify_interval": 20,
+        "include_tags": true,
+        "new_group_delay": 60,
+        "no_data_timeframe": 10,
+        "renotify_statuses": [
+            "alert",
+            "no data"
+        ],
+        "escalation_message": "⚠️ This is a renotification ⚠️",
+        "renotify_occurrences": 3,
+        "silenced": {}
+    },
+    "priority": 1,
+    "restricted_roles": []
+}

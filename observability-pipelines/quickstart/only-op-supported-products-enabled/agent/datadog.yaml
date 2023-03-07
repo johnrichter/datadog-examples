@@ -1,0 +1,237 @@
+##########
+## Note ##
+##########
+#
+# Observability Pipelines does not yet support all telemetry types and data intakes for
+# every Datadog product. This configuration disables all features except
+# for metrics, traces, and logs that will be forwarded through Observability Pipelines.
+#
+# Please see the following for a full list of data intakes used for
+# Datadog products.
+#
+# https://docs.datadoghq.com/agent/guide/network/
+#
+# To use these features while development on Observability Pipelines and Observability
+# Pipelines continues the recommended path is to leverage a proxy server
+# to forward this data to Datadog. The Agent will forward metrics,
+# traces, and logs through Observability Pipelines and everything else through the proxy.
+# See `proxy` section above.
+#
+# https://docs.datadoghq.com/agent/proxy/
+#
+# Inventories, Live Process, Live Containers, CSPM, CWS, USM, NDM traps, and NDM netflows
+# are not supported by OP and are turned off in these configs
+#
+###########
+
+# Required for the Agent to run, but can be bogus value. If bogus, relies on OP to be using a
+# valid API key for all Datadog Sinks
+api_key: abcd
+
+# Add to DD Agent datadog.yaml conf. If TLS has been configured on
+# the datadog_agent source use https instead.
+vector:
+  metrics:
+    enabled: true
+    url: "http://<dns addr or ip>:<Observability Pipelines datadog_agent source port>"
+  logs:
+    enabled: true
+    url: "http://<dns addr or ip>:<Observability Pipelines datadog_agent source port>"
+  traces:
+    enabled: true
+    url: "http://<dns addr or ip>:<Observability Pipelines datadog_agent source port>"
+
+# The Agent can send its own configuration to Datadog to be displayed in
+# the `Agent Configuration` section of the host detail panel. The Agent
+# configuration is scrubbed of any sensitive information.
+#
+# https://docs.datadoghq.com/infrastructure/list/
+inventories_configuration_enabled: false
+
+##############################################################
+## Live Process and Live Container Collection Configuration ##
+##############################################################
+
+## @param process_config - custom object - optional
+## Enter specific configurations for your Process data collection.
+## Uncomment this parameter and the one below to enable them.
+process_config:
+
+  ## @param process_collection - custom object - optional
+  ## Specifies settings for collecting processes.
+  ## https://docs.datadoghq.com/infrastructure/process
+  process_collection:
+
+    ## @param enabled - boolean - optional - default: false
+    ## Enables collection of information about running processes.
+    enabled: false
+
+  ## @param container_collection - custom object - optional
+  ## Specifies settings for collecting containers.
+  ## https://docs.datadoghq.com/infrastructure/livecontainers/
+  container_collection:
+    ## @param enabled - boolean - optional - default: true
+    ## Enables collection of information about running containers.
+    enabled: false
+
+  ## @param process_discovery - custom object - optional
+  ## Specifies custom settings for the `process_discovery` object.
+  process_discovery:
+
+    ## @param enabled - boolean - optional - default: true
+    ## Toggles the `process_discovery` check. If enabled, this check gathers information about running integrations.
+    ## https://docs.datadoghq.com/infrastructure/process/#monitoring-third-party-software
+    enabled: false
+
+##################################
+## Log collection Configuration ##
+##################################
+
+## @param logs_enabled - boolean - optional - default: false
+## @env DD_LOGS_ENABLED - boolean - optional - default: false
+## Enable Datadog Agent log collection by setting logs_enabled to true.
+logs_enabled: true
+
+####################################
+## Trace Collection Configuration ##
+####################################
+
+## @param apm_config - custom object - optional
+## Enter specific configurations for your trace collection.
+## Uncomment this parameter and the one below to enable them.
+## See https://docs.datadoghq.com/agent/apm/
+apm_config:
+
+  ## @param enabled - boolean - optional - default: true
+  ## @env DD_APM_ENABLED - boolean - optional - default: true
+  ## Set to true to enable the APM Agent.
+  enabled: true
+
+###################################
+## OpenTelemetry Configuration   ##
+###################################
+
+## @param otlp_config - custom object - optional
+## This section configures OTLP ingest in the Datadog Agent.
+otlp_config:
+
+  ## @param receiver - custom object - optional
+  ## The receiver configuration. It follows the OpenTelemetry Collector's OTLP Receiver Configuration.
+  ## This template lists the most commonly used settings; see the OpenTelemetry Collector documentation
+  ## for a full list of available settings:
+  ## https://github.com/open-telemetry/opentelemetry-collector/blob/main/receiver/otlpreceiver/config.md
+  receiver:
+
+    ## @param protocols - custom object - optional
+    ## Configuration for the supported protocols.
+    protocols:
+
+        ## @param grpc - custom object - optional
+        ## Configuration for OTLP/gRPC listener.
+        ## Setting this as an empty section enables the OTLP/gRPC listener with default options.
+        grpc:
+
+          ## @param endpoint - string - optional - default: 0.0.0.0:4317
+          ## @env DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT - string - optional - default: 0.0.0.0:4317
+          ## The OTLP/gRPC listener endpoint.
+          endpoint: 0.0.0.0:4317
+
+        ## @param http - custom object - optional
+        ## Configuration for OTLP/HTTP listener.
+        ## Setting this as an empty section enables the OTLP/HTTP listener with default options.
+        http:
+
+          ## @param endpoint - string - optional - default: 0.0.0.0:4318
+          ## @env DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT - string - optional - default: 0.0.0.0:4318
+          ## The OTLP/HTTP listener endpoint.
+          endpoint: 0.0.0.0:4318
+
+
+########################################
+## Database Monitoring Configuration  ##
+########################################
+
+## DBM is not supported by Observability Pipelines and must be turned off
+
+## Database Monitoring is not configured in this file. This product is enabled within the respective
+## Database integration config, e.g. Postgres, MySQL, using the `dbm` option in each integration
+## instance. DBM is not supported by Observability Pipelines and must be turned off
+## https://docs.datadoghq.com/database_monitoring/
+
+###################################
+## Network Devices Configuration ##
+###################################
+
+## @param network_devices - custom object - optional
+## Configuration related to Network Devices Monitoring
+## https://docs.datadoghq.com/network_monitoring/devices
+network_devices:
+
+  ## @param snmp_traps - custom object - optional
+  ## This section configures SNMP traps collection.
+  ## Traps are forwarded as logs and can be found in the logs explorer with a source:snmp-traps query
+  ## https://docs.datadoghq.com/network_monitoring/devices/snmp_traps
+  snmp_traps:
+
+    ## @param enabled - boolean - optional - default: false
+    ## Set to true to enable collection of traps.
+    enabled: false
+
+  ## @param netflow - custom object - optional
+  ## This section configures NDM NetFlow (and sFlow, IPFIX) collection.
+  ## https://docs.datadoghq.com/network_monitoring/devices/netflow
+  netflow:
+
+    ## @param enabled - boolean - optional - default: false
+    ## Set to true to enable collection of NetFlow traffic.
+    enabled: false
+
+## @param snmp_listener - custom object - optional
+## Creates and schedules a listener to automatically discover your SNMP devices.
+## Discovered devices can then be monitored with the SNMP integration by using
+## the auto_conf.yaml file provided by default.
+snmp_listener:
+
+  ## @param configs - list - required
+  ## The actual list of configurations used to discover SNMP devices in various subnets.
+  ## Example:
+  ## configs:
+  ##  - network_address: 10.0.0.0/24
+  ##    snmp_version: 1
+  ##    community_string: public
+  ##  - network_address: 10.0.1.0/28
+  ##    community_string: public
+  ##    ignored_ip_addresses:
+  ##      - 10.0.1.0
+  ##      - 10.0.1.1
+  ##
+  ## https://github.com/DataDog/datadog-agent/blob/main/pkg/config/config_template.yaml#L777
+  configs: []
+
+#############################################
+## Security Agent Compliance Configuration ##
+#############################################
+
+# @param compliance_config - custom object - optional
+## Enter specific configuration for continuous compliance checks.
+compliance_config:
+
+  ## @param enabled - boolean - optional - default: false
+  ## @env DD_COMPLIANCE_CONFIG_ENABLED - boolean - optional - default: false
+  ## Set to true to enable Cloud Security Posture Management (CSPM).
+  ## https://docs.datadoghq.com/security/cspm/
+  enabled: false
+
+#################################
+## Agent Logging Configuration ##
+##                             ##
+## Useful for agent debugging  ##
+## purposes                    ##
+#################################
+
+## @param log_level - string - optional - default: info
+## @env DD_LOG_LEVEL - string - optional - default: info
+## Minimum log level of the Datadog Agent.
+## Valid log levels are: trace, debug, info, warn, error, critical, and off.
+## Note: When using the 'off' log level, quotes are mandatory.
+log_level: 'info'
