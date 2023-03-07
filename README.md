@@ -8,7 +8,21 @@ Configuations in these examples are meant to be used in Datadog trials or as sta
 >
 > ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
 
-# Cloning
+## Structure
+
+```bash
+.
+├   # Scripts to generate deployment diagrams pertaining to
+├   # architectures and install flows
+├── diagrams
+├   # Examples of how to get started with Datadog and
+├   # configure Datadog products for various use cases and
+├   # requirements
+├── examples
+├   # Simple lab environments that can be used for testing
+├   # the provided examples and other Datadog products
+└── testing
+```
 
 This repo uses submodules. Use recursive clone to download all submodules.
 
@@ -18,38 +32,56 @@ git clone --recursive git@github.com:johnrichter/datadog-examples.git
 
 # TODO
 
-Containers
+## Examples
+
+**Hosts**
+
+- Diagrams
+  - [ ] Bare metal deployment architecture
+  - [ ] Bare metal APM Auto-injection install flow
+  - [ ] External Agent (for Databases, SNMP, etc)
+
+**Integrations**
+
+- General
+  - Diagrams
+    - [ ] Crawler architecture (AWS, GCP, Azure, etc)
+    - [ ] Crawler flow (AWS, GCP, Azure, etc)
+- Hypervisors
+  - vSphere
+    - [ ] vSphere integration example
+    - [ ] Terraform to set up home lab vSphere cluster
+- Config Mangement
+  - [ ] Ansible
+    - [ ] Installing the Datadog Agent
+    - [ ] Monitoring Ansible with the Integrations
+
+**Containers**
 
 - K8s
   - [ ] AWS EKS Helm example
   - [ ] GCP GKE Helm example
   - [ ] Self Hosted Helm example
+  - Diagrams
+    - [ ] Deployment architecture
+    - [ ] APM Auto-injection install flow
 - Docker
   - [ ] Compose example
+  - [ ] Testing environment
+  - Diagrams
+    - [ ] Architecture Diagram
+    - [ ] APM Auto-injection install flow
 
-Hypervisors
+**Networking**
 
-- vSphere
-  - [ ] vSphere integration example
-  - [ ] Terraform to set up home lab vSphere cluster
+- NDM
+  - [ ] SNMP Polling
+  - [ ] Traps
+  - [ ] Netflows
+  - [ ] Diagrams for all
 
-Config Mangement
+## Testing labs
 
-- [ ] Ansible
-  - [ ] Installing the Datadog Agent
-  - [ ] Monitoring Ansible with the integration
-
-Deployment Diagrams
-
-- Architecture
-  - [ ] Host Agent
-  - [ ] Docker
-  - [ ] K8s
-  - [ ] External Agent (for Databases, SNMP, etc)
-  - [ ] NDM (polling, traps, and netflows)
-  - [ ] Crawler integrations (AWS, GCP, Azure, etc)
-- Flows
-  - [ ] APM Auto-injection
-    - [ ] Container-based
-    - [ ] Host-based
-  - [ ] Crawler integrations (AWS, GCP, Azure, etc)
+- [ ] Docker
+- [ ] vSphere
+- [ ] Kubernetes
