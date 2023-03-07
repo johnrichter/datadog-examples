@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  datadog:
+    container_name: datadog-agent
+    image: datadog/agent:latest
+    environment:
+      ## GLOBALS
+      DD_API_KEY: <your key>
+      DD_ENV: <your env> # dev
+      DD_TAGS: cloud_provider:vsphere,datacenter:lab # team:devops
+      DD_AC_EXCLUDE: name:datadog-agent # exclude this container from data collection
+      ## TAGS https://docs.datadoghq.com/getting_started/tagging/assigning_tags/?tab=containerizedenvironments
+      DD_DOCKER_LABELS_AS_TAGS: '{"*":"%%label%%"}'
+      ## LOGS https://docs.datadoghq.com/agent/docker/log/
+      DD_LOGS_ENABLED: true
+      DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: true
+      ## LIVE PROCESSES https://docs.datadoghq.com/graphing/infrastructure/process/?tab:docker
+      DD_PROCESS_AGENT_ENABLED: true
+      ## DOGSTATSD
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: true
+    ports:
+      - 8125:8125/udp   # Dogstatsd
+      - 10518:10518/tcp # vSphere/ESXi Syslogs. See data/agent/conf.d/vsphere.d/conf.yaml`
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /etc/passwd:/etc/passwd:ro # LIVE PROCESSES
+      - ./data/agent/conf.d:/conf.d:rw
