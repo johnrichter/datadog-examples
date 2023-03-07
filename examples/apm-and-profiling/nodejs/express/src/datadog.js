@@ -11,12 +11,12 @@ const logger = require("./logger");
 // });
 logger.info("before", { plugins: tracer._instrumenter._plugins.entries() });
 tracer.use("http", {
-  headers: ["x-kwri-client-id"],
+  headers: ["x-my-custom-header"],
   blocklist: ["/status"],
   service: process.env.DD_SERVICESSS,
 });
 tracer.use("http2", {
-  headers: ["x-kwri-client-id"],
+  headers: ["x-my-custom-header"],
   blocklist: ["/status"],
 });
 logger.info("after", { plugins: tracer._instrumenter._plugins.entries() });
