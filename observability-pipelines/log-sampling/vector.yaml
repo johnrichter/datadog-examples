@@ -1,0 +1,23 @@
+api:
+  enabled: true
+
+sources:
+  demo_logs_source:
+    type: demo_logs
+    format: json
+    interval: 0.01
+
+transforms:
+  demo_logs_10pct_sample:
+    type: sample
+    inputs:
+      - demo_logs_source
+    rate: 10 # Calculate % with 1 / N
+
+sinks:
+  datadog_logs_sink:
+    type: datadog_logs
+    inputs:
+      - demo_logs_10pct_sample
+    default_api_key: ${DD_API_KEY}
+    compression: gzip

@@ -1,0 +1,135 @@
+# This config uses Observability Pipelines's internal demo log generator to prove out
+# log volume estimation of just log message data. Real world usage should
+# leverage a diffent log source, e.g. Kafka.
+#
+# We do the calculation in two different ways to show the possibilities
+#
+# 1. Count the number of logs going through a particular source
+#    * The output of transforms.to_log_metrics
+# 2. Extract log count and size metrics from Observability Pipelines's internal metrics
+#    * The output of transforms.rename_vector_metrics
+#
+
+data_dir: /var/lib/vector
+api:
+  enabled: true
+
+sources:
+  # Replace with a real log source
+  # E.g. https://vector.dev/docs/reference/configuration/sources/kafka/
+  demo_logs_source:
+    type: demo_logs
+    format: json
+    interval: 0.1
+
+  # Vector exposes its internal metrics per "component". We'll filter use
+  # the metrics from the log transform component
+  # https://vector.dev/docs/reference/configuration/sources/internal_metrics/
+  vector_metrics:
+    type: internal_metrics
+    scrape_interval_secs: 1
+
+transforms:
+  # Remove all metadata by replacing the log with just the contents of the
+  # message property
+  to_raw_log_message:
+    type: remap
+    inputs:
+      - demo_logs_source
+    source: . = parse_json!(.message)
+
+  # Generate a metric that just counts the number of logs processed through
+  # Vector.
+  to_log_metrics:
+    type: log_to_metric
+    inputs:
+      # Could use to_raw_log_message as the input instead and get the same count
+      - demo_logs_source
+    metrics:
+      - type: counter
+        field: "."
+        name: ltm.logs.count
+
+  # Leverage the internal Vector metrics to grab both the count of logs
+  # processed and the total bytes processed by to_raw_log_message, pre-compression.
+  #   - https://vector.dev/docs/reference/configuration/sources/internal_metrics/#component_sent_event_bytes_total
+  #   - https://vector.dev/docs/reference/configuration/sources/internal_metrics/#component_sent_events_total
+  filter_vector_metrics:
+    type: filter
+    inputs:
+      - vector_metrics
+    condition:
+      type: vrl
+      source: includes(["to_raw_log_message", "local_http_server"], .tags.component_id) && includes(["component_sent_event_bytes_total", "component_sent_events_total"], .name)
+
+  # Rename the vector metrics to better reflect what we're capturing
+  rename_vector_metrics:
+    type: remap
+    inputs:
+      - filter_vector_metrics
+    source: |-
+      del(.namespace)
+      if .tags.component_id == "to_raw_log_message" {
+        if .name == "component_sent_events_total" {
+          .name = "logs.count"
+        } else if .name == "component_sent_event_bytes_total" {
+          .name = "logs.size"
+        }
+      } else if .tags.component_id == "local_http_server" {
+        if .name == "component_sent_events_total" {
+          .name = "logs.compressed.count"
+        } else if .name == "component_sent_event_bytes_total" {
+          .name = "logs.compressed.size"
+        }
+      }
+
+sinks:
+  # Sends metrics to Datadog. All metrics prefixed with default_namespace
+  # unless the metric event includes its own namespace property
+  datadog_metrics:
+    type: datadog_metrics
+    inputs:
+      - rename_vector_metrics
+      - to_log_metrics
+    default_api_key: "${DD_API_KEY}"
+    acknowledgements:
+      enabled: true
+    default_namespace: bmr
+    site: "datadoghq.com"
+
+  # This is useful for calculating compressed log volume. Requires a local
+  # http server that just drops all connections. See server.go
+  local_http_server:
+    type: http
+    inputs:
+      - to_raw_log_message
+    uri: http://localhost:8888/
+    compression: gzip # Defaults to level 6, same as the DD Agent
+    encoding:
+      codec: json
+
+  # Sends logs to Datadog.
+  # datadog_logs_sink:
+  #   type: datadog_logs
+  #   inputs:
+  #     - to_raw_log_message
+  #   default_api_key: ${DD_API_KEY}
+  #   compression: gzip
+
+  # Writes logs and metrics to the console.
+  # console_logs_sink:
+  #   type: console
+  #   inputs:
+  #     - to_log_metrics
+  #     - rename_vector_metrics
+  #   target: stdout
+  #   encoding:
+  #     codec: json
+
+  # This is for debugging purposes. Useful when watching `vector top` and
+  # comparing output
+  # blackhole:
+  #   type: blackhole
+  #   inputs:
+  #     - to_raw_log_message
+  #   print_interval_secs: 60

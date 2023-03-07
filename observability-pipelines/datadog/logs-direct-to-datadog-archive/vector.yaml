@@ -1,0 +1,28 @@
+data_dir: /var/lib/vector
+api:
+  enabled: true
+
+sources:
+  demo_logs:
+    type: demo_logs
+    format: syslog
+    interval: 0.1
+
+transforms:
+  parse_logs:
+    type: remap
+    inputs:
+      - demo_logs
+    source: >-
+      . = parse_syslog!(string!(.message))
+
+sinks:
+  datadog_archives:
+    type: datadog_archives
+    service: aws_s3
+    inputs:
+      - parse_logs
+    bucket: my-datadog-logs-archive
+    key_prefix: observability-pipelines
+    aws_s3:
+      region: us-east-1

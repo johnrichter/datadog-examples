@@ -15,3 +15,41 @@ This repo uses submodules. Use recursive clone to download all submodules.
 ```bash
 git clone --recursive git@github.com:johnrichter/datadog-examples.git
 ```
+
+# TODO
+
+Containers
+
+- K8s
+  - [ ] AWS EKS Helm example
+  - [ ] GCP GKE Helm example
+  - [ ] Self Hosted Helm example
+- Docker
+  - [ ] Compose example
+
+Hypervisors
+
+- vSphere
+  - [ ] vSphere integration example
+  - [ ] Terraform to set up home lab vSphere cluster
+
+Config Mangement
+
+- [ ] Ansible
+  - [ ] Installing the Datadog Agent
+  - [ ] Monitoring Ansible with the integration
+
+Deployment Diagrams
+
+- Architecture
+  - [ ] Host Agent
+  - [ ] Docker
+  - [ ] K8s
+  - [ ] External Agent (for Databases, SNMP, etc)
+  - [ ] NDM (polling, traps, and netflows)
+  - [ ] Crawler integrations (AWS, GCP, Azure, etc)
+- Flows
+  - [ ] APM Auto-injection
+    - [ ] Container-based
+    - [ ] Host-based
+  - [ ] Crawler integrations (AWS, GCP, Azure, etc)
