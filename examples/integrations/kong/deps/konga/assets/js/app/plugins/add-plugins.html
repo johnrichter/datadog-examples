@@ -1,0 +1,57 @@
+<div class="row">
+    <div class="col-md-12">
+        <div ng-show="alert"
+             class="alert-info"
+             uib-alert
+             close="closeAlert()">
+            <span data-ng-bind-html="alert.msg"></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-pills">
+            <li
+                    role="presentation"
+                    data-ng-click="setActiveGroup(group.name)"
+                    ng-class="{'active' : activeGroup == group.name}"
+                    data-ng-repeat="group in pluginGroups">
+                <a class="">{{group.name}}</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+
+<div class="row add-plugin" data-ng-repeat="group in pluginGroups | filter : filterGroup">
+    <div class="col-md-12">
+        <br>
+        <h4><i class="mdi {{group.icon}} pull-left"></i>&nbsp;{{group.name}}</h4>
+        <p class="help-block">{{group.description}}</p>
+        <hr>
+    </div>
+
+    <div class="col-md-3"  data-ng-repeat="(key,value) in group.plugins">
+        <div class="panel"
+             ng-class="{'panel-default': !value.isAdded,'panel-success': value.isAdded,'panel-disabled': value.isAdded && !value.enabled}">
+
+            <div class="panel-body text-center">
+                <div class="center-block">
+                    <h5 class="capitalize margin-bottom no-wrap elipsize" uib-tooltip="{{key.split('-').join(' ')}}">{{key.split('-').join(" ")}}</h5>
+                    <img ng-src="images/kong/plugins/{{key}}.png"
+                         onerror="this.src='images/kong/plugins/kong.svg'"
+                         class="img-responsive" style="margin: auto;height: 72px;">
+                    <div class="clearfix"></div>
+                    <br>
+                    <p class="help-block max-2-lines" data-ng-bind-html="value.description || 'no description available...'"></p>
+                </div>
+
+            </div>
+            <div class="panel-footer" style="background-color: transparent">
+                <button class="btn btn-primary btn-flat btn-block" data-ng-click="onAddPlugin(key)">Add Plugin</button>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>

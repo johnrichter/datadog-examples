@@ -1,0 +1,18 @@
+language: node_js
+
+node_js:
+  - "12.16.3"
+
+services:
+  - mysql
+
+before_script:
+
+notifications:
+  email: true
+
+# whitelisted branches
+branches:
+  only:
+    - master
+    - next

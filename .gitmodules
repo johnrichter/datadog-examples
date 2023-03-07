@@ -1,12 +1,12 @@
-[submodule "integrations/kong/deps/nodejs-docker"]
-	path = integrations/kong/deps/nodejs-docker
+[submodule "examples/integrations/kong/deps/nodejs-docker"]
+	path = examples/integrations/kong/deps/nodejs-docker
 	url = git@github.com:brunormferreira/nodejs-docker.git
-[submodule "integrations/kong/deps/konga"]
-	path = integrations/kong/deps/konga
+[submodule "examples/integrations/kong/deps/konga"]
+	path = examples/integrations/kong/deps/konga
 	url = git@github.com:pantsel/konga.git
-[submodule "integrations/aws/cloudwatch/metric-streams/opentelemetry-proto"]
-	path = integrations/aws/cloudwatch/metric-streams/opentelemetry-proto
+[submodule "examples/integrations/aws/cloudwatch/metric-streams/opentelemetry-proto"]
+	path = examples/integrations/aws/cloudwatch/metric-streams/opentelemetry-proto
 	url = https://github.com/open-telemetry/opentelemetry-proto.git
-[submodule "integrations/aws/cloudwatch/metric-streams/troubleshooting/opentelemetry-proto"]
-	path = integrations/aws/cloudwatch/metric-streams/troubleshooting/opentelemetry-proto
+[submodule "examples/integrations/aws/cloudwatch/metric-streams/troubleshooting/opentelemetry-proto"]
+	path = examples/integrations/aws/cloudwatch/metric-streams/troubleshooting/opentelemetry-proto
 	url = https://github.com/open-telemetry/opentelemetry-proto.git

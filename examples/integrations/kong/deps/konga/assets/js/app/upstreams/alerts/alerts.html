@@ -1,0 +1,92 @@
+<script type="text/ng-template" id="popoverTemplate.html">
+    <div style="max-width: 320px">
+        <h5>How does it work?</h5>
+        <p>
+            Behind the scenes, Konga will poll <code>upstreams/{id}/health</code> every minute
+            and trigger an alert if the results contain targets with <code>UNHEALTHY</code> or <code>DNS_ERROR</code> statuses.
+            <br><br>
+            Bare in mind that Upstream health checks must be enabled and configured accordingly in the <code>Details</code> tab.
+        </p>
+    </div>
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading primary">
+        <div class="panel-title pull-left">
+            Alerts
+        </div>
+        <div class="pull-right">
+            <input
+                    bs-switch
+                    ng-model="alert.active"
+                    switch-size="mini"
+                    type="checkbox"
+                    switch-on-text="ON"
+                    switch-off-text="OFF"
+                    ng-change="alertChanged()"
+            >
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body">
+
+        <div class="alert alert-warning" ng-if="!alert.active">
+            Alerting is disabled. Switch alerts ON to enable them.
+        </div>
+
+        <a href="javascript:void(0)"
+           uib-popover-template="'popoverTemplate.html'"
+           popover-placement="bottom"
+           popover-trigger="'outsideClick'"
+        >How does it work?</a>
+        <br>
+        <br>
+
+        <h4 class="margin-bottom">What should I do when an alert is triggered?</h4>
+
+        <table class="table">
+            <tr>
+                <td>
+                    <h5>Email administrators</h5>
+                    <p class="help-block">
+                        Emails have to be properly set up under <a ui-sref="settings"  class="no-wrap">Settings -> Notifications</a>.
+                    </p>
+                </td>
+                <td width="1">
+                    <div class="pull-right">
+                        <input
+                                bs-switch
+                                ng-model="alert.email"
+                                switch-size="small"
+                                type="checkbox"
+                                switch-on-text="ON"
+                                switch-off-text="OFF"
+                                ng-change="alertChanged()"
+                        >
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h5>Send notification to Slack</h5>
+                    <p class="help-block">
+                        Integration with slack has to be properly set up under <a ui-sref="settings" class="no-wrap">Settings -> Notifications</a>.
+                    </p>
+                </td>
+                <td width="1">
+                    <div class="pull-right">
+                        <input
+                                bs-switch
+                                ng-model="alert.slack"
+                                switch-size="small"
+                                type="checkbox"
+                                switch-on-text="ON"
+                                switch-off-text="OFF"
+                                ng-change="alertChanged()"
+                        >
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

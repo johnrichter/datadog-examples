@@ -1,0 +1,14 @@
+<div class="panel panel-default">
+    <div class="panel-heading primary">
+        <div class="panel-title">
+            Details
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="alert alert-danger" data-ng-show="errors.message">
+            {{errors.message}}
+        </div>
+        <div ng-include="'js/app/upstreams/partials/upstream-form.html?r=' + Date.now()"
+             class=""></div>
+    </div>
+</div>
