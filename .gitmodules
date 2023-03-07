@@ -11,6 +11,6 @@
 	path = examples/integrations/aws/cloudwatch/metric-streams/troubleshooting/opentelemetry-proto
 	url = https://github.com/open-telemetry/opentelemetry-proto.git
 [submodule "spring-music"]
-	path = spring-music
+	path = examples/apm-and-profiling/pivotal-cloud-foundry/spring-music
 	url = https://github.com/johnrichter/spring-music.git
 	branch = datadog
