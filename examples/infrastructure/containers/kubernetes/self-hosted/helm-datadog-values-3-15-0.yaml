@@ -3,8 +3,11 @@
 ## https://github.com/DataDog/helm-charts/releases/tag/datadog-3.15.0                    ##
 ###########################################################################################
 ##                                                                                       ##
-## Default values for deploying Datadog to Kubernetes clusters                           ##
+## Suggested default values for deploying Datadog to Kubernetes clusters                 ##
 ## https://docs.datadoghq.com/containers/kubernetes/installation/?tab=helm               ##
+##                                                                                       ##
+## For an effortless upgrade path, do not copy this file as your own values.yaml. Only   ##
+## set the values you want to override in your values.yaml                               ##
 ##                                                                                       ##
 ## A full example of this file with documentation and commends can be found at           ##
 ## https://github.com/DataDog/helm-charts/blob/datadog-3.15.0/charts/datadog/values.yaml ##
@@ -13,3 +16,169 @@
 ## https://github.com/DataDog/helm-charts/tree/datadog-3.15.0/charts                     ##
 ##                                                                                       ##
 ###########################################################################################
+
+
+
+
+
+
+
+
+
+
+https://github.com/DataDog/helm-charts/blob/main/charts/datadog/values.yaml#L483
+
+
+
+
+
+
+
+
+
+
+
+# targetSystem -- Target OS for this deployment (possible values: linux, windows)
+targetSystem: "linux"
+
+## Currently we offer Datadog Agent images on:
+## GCR - use gcr.io/datadoghq (default)
+## DockerHub - use docker.io/datadog
+## AWS - use public.ecr.aws/datadog
+registry: gcr.io/datadoghq
+
+datadog:
+  # datadog.apiKey -- Your Datadog API key
+  ## ref: https://app.datadoghq.com/account/settings#agent/kubernetes
+  apiKey:  # <DATADOG_API_KEY>
+
+  # datadog.appKey -- Datadog APP key required to use metricsProvider
+  ## If you are using clusterAgent.metricsProvider.enabled = true, you must set
+  ## a Datadog application key for read access to your metrics.
+  appKey:  # <DATADOG_APP_KEY>
+
+  # datadog.site -- The site of the Datadog intake to send Agent data to.
+  # (documentation: https://docs.datadoghq.com/getting_started/site/)
+  ## Set to 'datadoghq.com' to send data to the US1 site (default).
+  ## Set to 'datadoghq.eu' to send data to the EU site.
+  ## Set to 'us3.datadoghq.com' to send data to the US3 site.
+  ## Set to 'us5.datadoghq.com' to send data to the US5 site.
+  ## Set to 'ddog-gov.com' to send data to the US1-FED site.
+  site:  # datadoghq.com
+
+  # datadog.clusterName -- Set a unique cluster name to allow scoping hosts and Cluster Checks easily
+  ## The name must be unique and must be dot-separated tokens with the following restrictions:
+  ## * Lowercase letters, numbers, and hyphens only.
+  ## * Must start with a letter.
+  ## * Must end with a number or a letter.
+  ## * Overall length should not be higher than 80 characters.
+  ## Compared to the rules of GKE, dots are allowed whereas they are not allowed on GKE:
+  ## https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#Cluster.FIELDS.name
+  clusterName:  # <CLUSTER_NAME>
+
+  # datadog.tags -- List of static tags to attach to every metric, event and service check collected by this Agent.
+  ## Learn more about tagging: https://docs.datadoghq.com/tagging/
+  tags: []
+  #   - "<KEY_1>:<VALUE_1>"
+
+  # datadog.collectEvents -- Enables this to start event collection from the kubernetes API
+  ## ref: https://docs.datadoghq.com/agent/kubernetes/#event-collection
+  collectEvents: true
+
+  ##################################
+  ## Log collection Configuration ##
+  ##################################
+
+  logs:
+
+    # datadog.logs.enabled -- Enables this to activate Datadog Agent log collection
+    ## ref: https://docs.datadoghq.com/agent/basic_agent_usage/kubernetes/#log-collection-setup
+    enabled: true
+
+    # datadog.logs.containerCollectAll -- Enable this to allow log collection for all containers
+    ## ref: https://docs.datadoghq.com/agent/basic_agent_usage/kubernetes/#log-collection-setup
+    containerCollectAll: true
+
+  ####################################
+  ## Trace Collection Configuration ##
+  ####################################
+
+  apm:
+
+    # datadog.apm.socketEnabled -- Enable APM over Socket (Unix Socket or windows named pipe)
+    ## ref: https://docs.datadoghq.com/agent/kubernetes/apm/
+    socketEnabled: true
+
+    # datadog.apm.portEnabled -- Enable APM over TCP communication (port 8126 by default)
+    ## ref: https://docs.datadoghq.com/agent/kubernetes/apm/
+    portEnabled: true
+
+  ###################################
+  ## OpenTelemetry Configuration   ##
+  ###################################
+
+  otlp:
+    receiver:
+      protocols:
+
+        # datadog.otlp.receiver.protocols.grpc - OTLP/gRPC configuration
+        grpc:
+
+          # datadog.otlp.receiver.protocols.grpc.enabled -- Enable the OTLP/gRPC endpoint
+          enabled: true
+
+          # datadog.otlp.receiver.protocols.grpc.endpoint -- OTLP/gRPC endpoint
+          endpoint: "0.0.0.0:4317"
+
+          # datadog.otlp.receiver.protocols.grpc.useHostPort -- Enable the Host Port for the OTLP/gRPC endpoint
+          useHostPort: true
+
+        # datadog.otlp.receiver.protocols.http - OTLP/HTTP configuration
+        http:
+
+          # datadog.otlp.receiver.protocols.http.enabled -- Enable the OTLP/HTTP endpoint
+          enabled: true
+
+          # datadog.otlp.receiver.protocols.http.endpoint -- OTLP/HTTP endpoint
+          endpoint: "0.0.0.0:4318"
+
+          # datadog.otlp.receiver.protocols.http.useHostPort -- Enable the Host Port for the OTLP/HTTP endpoint
+          useHostPort: true
+
+  ############################################
+  ## Kubernetes State Metrics Configuration ##
+  ############################################
+
+  kubeStateMetricsCore:
+
+    # datadog.kubeStateMetricsCore.enabled -- Enable the kubernetes_state_core check in the Cluster Agent (Requires Cluster Agent 1.12.0+)
+    ## ref: https://docs.datadoghq.com/integrations/kubernetes_state_core
+    enabled: true
+
+    # datadog.kubeStateMetricsCore.collectSecretMetrics -- Enable watching secret objects and collecting their corresponding metrics kubernetes_state.secret.*
+    ## Configuring this field will change the default kubernetes_state_core check configuration and the RBACs granted to Datadog Cluster Agent to run the kubernetes_state_core check.
+    collectSecretMetrics: true
+
+    # datadog.kubeStateMetricsCore.collectVpaMetrics -- Enable watching VPA objects and collecting their corresponding metrics kubernetes_state.vpa.*
+    ## Configuring this field will change the default kubernetes_state_core check configuration and the RBACs granted to Datadog Cluster Agent to run the kubernetes_state_core check.
+    collectVpaMetrics: true
+
+    # datadog.logs.autoMultiLineDetection -- Allows the Agent to detect common multi-line patterns automatically.
+    ## ref: https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile#automatic-multi-line-aggregation
+    autoMultiLineDetection: true
+
+  ###################################
+  ## Manage Cluster checks feature ##
+  ###################################
+
+  ## ref: https://docs.datadoghq.com/agent/autodiscovery/clusterchecks/
+  ## Autodiscovery via Kube Service annotations is automatically enabled
+  clusterChecks:
+
+    # datadog.clusterChecks.enabled -- Enable the Cluster Checks feature on both the cluster-agents and the daemonset
+    enabled: true
+
+
+  # datadog.logLevel -- Set logging verbosity, valid log levels are: trace, debug, info, warn, error, critical, off
+  # Useful for debugging purposes
+  logLevel: info
