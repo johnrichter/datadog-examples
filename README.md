@@ -16,7 +16,7 @@ Also check out [Storedog](https://github.com/DataDog/storedog), a complete full-
 .
 │   # Scripts to generate deployment diagrams pertaining to
 │   # architectures and install flows
-├── diagrams
+├── references
 │   # Examples of how to get started with Datadog and
 │   # configure Datadog products for various use cases and
 │   # requirements
