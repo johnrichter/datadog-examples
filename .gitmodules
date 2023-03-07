@@ -1,12 +1,16 @@
 [submodule "examples/integrations/kong/deps/nodejs-docker"]
 	path = examples/integrations/kong/deps/nodejs-docker
-	url = git@github.com:brunormferreira/nodejs-docker.git
+	url = https://github.com/brunormferreira/nodejs-docker.git
 [submodule "examples/integrations/kong/deps/konga"]
 	path = examples/integrations/kong/deps/konga
-	url = git@github.com:pantsel/konga.git
+	url = https://github.com/pantsel/konga.git
 [submodule "examples/integrations/aws/cloudwatch/metric-streams/opentelemetry-proto"]
 	path = examples/integrations/aws/cloudwatch/metric-streams/opentelemetry-proto
 	url = https://github.com/open-telemetry/opentelemetry-proto.git
 [submodule "examples/integrations/aws/cloudwatch/metric-streams/troubleshooting/opentelemetry-proto"]
 	path = examples/integrations/aws/cloudwatch/metric-streams/troubleshooting/opentelemetry-proto
 	url = https://github.com/open-telemetry/opentelemetry-proto.git
+[submodule "spring-music"]
+	path = spring-music
+	url = https://github.com/johnrichter/spring-music.git
+	branch = datadog

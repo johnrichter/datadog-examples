@@ -1,0 +1,64 @@
+version: "3"
+
+services:
+  app:
+    build: .
+    command: npm start
+    image: johnrichter/nodejs-express-api
+    ports:
+      - "3333:3333"
+    # volumes:
+      # - .:/app
+      # - /app/node_modules
+    environment:
+      DD_AGENT_HOST: datadog-agent-test
+      DD_LOGS_INJECTION: true
+      DD_SERVICE: express-api
+      DD_SERVICE_MAPPING: http:express-api
+  datadog:
+    container_name: datadog-agent-test
+    image: gcr.io/datadoghq/agent:7
+    environment:
+      ## GLOBALS
+      DD_API_KEY: 620a57c2ab307246432a2644a67d0653 # https://app.datadoghq.com/organization-settings/api-keys
+      DD_ENV: support # dev
+      DD_TAGS: "customer:toyota-na" # team:devops
+      DD_AC_EXCLUDE: name:datadog-agent-test # exclude this container from data collection
+      ## TAGS https://docs.datadoghq.com/getting_started/tagging/assigning_tags/?tab=containerizedenvironments
+      DD_DOCKER_LABELS_AS_TAGS: '{"*":"%%label%%"}'
+      ## LOGS https://docs.datadoghq.com/agent/docker/log/
+      DD_LOGS_ENABLED: true
+      DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: true
+      ## LIVE PROCESSES https://docs.datadoghq.com/graphing/infrastructure/process/?tab:docker
+      DD_PROCESS_AGENT_ENABLED: true
+      ## DOGSTATSD
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: true
+      ## APM
+      DD_APM_ENABLED: true
+      DD_APM_NON_LOCAL_TRAFFIC: true
+      ## Network Performance Monitoring.
+      ## Running this on a Mac? Set this value to false
+      DD_SYSTEM_PROBE_ENABLED: false
+    security_opt:
+      - apparmor:unconfined
+    cap_add:
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - SYS_PTRACE
+      - NET_ADMIN
+      - NET_BROADCAST
+      - NET_RAW
+      - IPC_LOCK
+      - CHOWN
+    ports:
+      - 127.0.0.1:8125:8125/udp # Dogstatsd
+      - 127.0.0.1:8126:8126/tcp # APM
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /etc/passwd:/etc/passwd:ro # Live Processes
+      - /sys/kernel/debug:/sys/kernel/debug # NPM
+      - ./data/agent/conf.d:/conf.d:rw
+      - ./data/logs:/data/logs:rw
