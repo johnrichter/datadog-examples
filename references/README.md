@@ -17,3 +17,9 @@ Scripts to generate deployment diagrams pertaining to architectures and install 
 - [Diagrams](https://diagrams.mingrammer.com/) (just one of the options)
   - `pip install diagrams`
   - `pip install -r requirements.txt`
+
+# Alternatives
+
+May switch to use [D2](https://d2lang.com/) if the DX is better. Diagrams is prettier.
+
+[Comparisons](https://text-to-diagram.com/?b=graphviz)
