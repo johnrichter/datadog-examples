@@ -95,6 +95,13 @@ git clone --recursive git@github.com:johnrichter/datadog-examples.git
   - [ ] Netflows
   - [ ] Diagrams for all
 
+**Observability Pipelines**
+
+- [ ] Production deployment on Kubernetes using the Helm chart
+  - Diagrams
+    - [ ] Architecture Diagram
+    - [ ] APM Auto-injection install flow
+
 ## Testing labs
 
 - [ ] Docker

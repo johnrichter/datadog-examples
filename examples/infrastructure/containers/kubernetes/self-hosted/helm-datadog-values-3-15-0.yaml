@@ -1,0 +1,15 @@
+###########################################################################################
+## Datadog Helm chart version v3.15.0 released on 20230307                               ##
+## https://github.com/DataDog/helm-charts/releases/tag/datadog-3.15.0                    ##
+###########################################################################################
+##                                                                                       ##
+## Default values for deploying Datadog to Kubernetes clusters                           ##
+## https://docs.datadoghq.com/containers/kubernetes/installation/?tab=helm               ##
+##                                                                                       ##
+## A full example of this file with documentation and commends can be found at           ##
+## https://github.com/DataDog/helm-charts/blob/datadog-3.15.0/charts/datadog/values.yaml ##
+##                                                                                       ##
+## All Datadog Helm charts can be found at                                               ##
+## https://github.com/DataDog/helm-charts/tree/datadog-3.15.0/charts                     ##
+##                                                                                       ##
+###########################################################################################
