@@ -8,7 +8,16 @@ Configuations in these examples are meant to be used in Datadog trials or as sta
 >
 > ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
 
-Also check out [Storedog](https://github.com/DataDog/storedog), a complete full-stack app with Datadog monitoring that can be used for testing and playing around with Datadog.
+Other great Datadog example configurations and applications can be found in these repos
+
+- [Jenks Gibbons' Datadog Examples](https://github.com/jgibbons-cp/datadog)
+- [Alex Fernandes' Datadog Examples](https://github.com/yafernandes/datadog)
+- [Alex Fernandes' Datadog Labs](https://github.com/yafernandes/datadog-experience)
+- [Boyan Syarov's Datadog Examples](https://github.com/ncracker?tab=repositories&q=dd)
+- [Lloyd Williams' Datadog Examples](https://github.com/lloydwilliams/datadog)
+- [Datadog on Databricks](https://github.com/levihernandez/datadog-databricks)
+- [Storedog](https://github.com/DataDog/storedog)
+  - A complete full-stack app with Datadog monitoring that can be used for testing and playing around with Datadog.
 
 ## Structure
 
