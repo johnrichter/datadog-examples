@@ -17,14 +17,37 @@
 ##                                                                                       ##
 ###########################################################################################
 
+###########################################################################################
+##                                   Helm Configuration                                  ##
+###########################################################################################
+
 # targetSystem -- Target OS for this deployment (possible values: linux, windows)
 targetSystem: linux
+
+###########################################################################################
+##                                  Datadog Configuration                                ##
+###########################################################################################
 
 ## Currently we offer Datadog Agent images on:
 ## GCR - use gcr.io/datadoghq (default)
 ## DockerHub - use docker.io/datadog
 ## AWS - use public.ecr.aws/datadog
 registry: public.ecr.aws/datadog
+
+##########################################
+## Cloud Service Provider Configuration ##
+##########################################
+
+## ref: https://docs.datadoghq.com/containers/kubernetes/distributions
+providers:
+
+  gke:
+
+    # providers.gke.autopilot -- Enables Datadog Agent deployment on GKE Autopilot
+    autopilot: true
+
+    # providers.gke.cos -- Enables Datadog Agent deployment on GKE with Container-Optimized OS (COS)
+    cos: false
 
 ###################################################
 ## Datadog Features and Node Agent Configuration ##
@@ -142,7 +165,6 @@ datadog:
   # datadog.excludePauseContainer -- Exclude pause containers from the Agent Autodiscovery.
   ## ref: https://docs.datadoghq.com/agent/guide/autodiscovery-management/?tab=containerizedagent#pause-containers
   excludePauseContainer: true
-
 
   ##################################
   ## Log collection Configuration ##
@@ -292,7 +314,6 @@ datadog:
         # datadog.securityAgent.runtime.network.enabled -- Set to true to enable the collection of CWS network events
         enabled: true
 
-
   ############################################
   ## Kubernetes State Metrics Configuration ##
   ############################################
@@ -362,8 +383,51 @@ agents:
     ##  servercore to get Windows images based on servercore
     tagSuffix: ""
 
-  # agents.useConfigMap -- Configures a configmap to provide the agent configuration. Use this in combination with the `agents.customAgentConfig` parameter.
-  useConfigMap:  # false
+  containers:
+
+    agent:
+
+       # agents.containers.agent.resources -- Resource requests and limits for the agent container.
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+
+    processAgent:
+
+      # agents.containers.processAgent.resources -- Resource requests and limits for the process-agent container
+      resources:
+        requests:
+          cpu: 100m
+          memory: 200Mi
+        limits:
+          cpu: 100m
+          memory: 200Mi
+
+    traceAgent:
+
+      # agents.containers.traceAgent.resources -- Resource requests and limits for the trace-agent container
+      resources:
+        requests:
+          cpu: 100m
+          memory: 200Mi
+        limits:
+          cpu: 100m
+          memory: 200Mi
+
+    securityAgent:
+
+      # agents.containers.securityAgent.resources -- Resource requests and limits for the security-agent container
+      resources:
+        requests:
+          cpu: 100m
+          memory: 200Mi
+        limits:
+          cpu: 100m
+          memory: 200Mi
 
   # agents.customAgentConfig -- Specify custom contents for the datadog agent config (datadog.yaml)
   ## Note the `agents.useConfigMap` needs to be set to `true` for this parameter to be taken into
@@ -389,6 +453,7 @@ agents:
   # agents.nodeSelector -- Allow the DaemonSet to schedule on selected nodes
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector: {}
+
 
 #########################################
 ## Datadog Cluster Agent Configuration ##

@@ -17,7 +17,7 @@
 ##                                                                                       ##
 ###########################################################################################
 
-# targetSystem -- Target OS for this deployment (possible values: linux, windows)
+# targetSystem -- Target OS for this deployment (possible values: linux, windows).
 targetSystem: linux
 
 ## Currently we offer Datadog Agent images on:
@@ -35,7 +35,7 @@ registry: public.ecr.aws/datadog
 ## For complete customization see the `agents` configuration option.
 datadog:
 
-  # datadog.apiKey -- Your Datadog API key
+  # datadog.apiKey -- Your Datadog API key. Required.
   ## ref: https://app.datadoghq.com/account/settings#agent/kubernetes
   apiKey:  # <DATADOG_API_KEY>
 
@@ -315,6 +315,12 @@ datadog:
     ## ref: https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile#automatic-multi-line-aggregation
     autoMultiLineDetection: true
 
+    # datadog.kubeStateMetricsCore.useClusterCheckRunners -- For large clusters where the Kubernetes State Metrics Check Core needs to be distributed on dedicated workers.
+    ## Configuring this field will create a separate deployment which will run Cluster Checks, including Kubernetes State Metrics Core.
+    ## If clusterChecksRunner.enabled is true, it's recommended to set this flag to true as well to better utilize dedicated workers and reduce load on the Cluster Agent.
+    ## ref: https://docs.datadoghq.com/agent/cluster_agent/clusterchecksrunner?tab=helm
+    useClusterCheckRunners: true
+
   ####################
   ## Cluster checks ##
   ####################
@@ -497,3 +503,53 @@ clusterAgent:
   #         port: 3306
   #         username: datadog
   #         password: <YOUR_CHOSEN_PASSWORD>
+
+#################################################
+## Datadog Cluster Checks Runner Configuration ##
+#################################################
+
+## While the regular Datadog Agent executes endpoint checks for your node and application Pods, a
+## cluster check runner is specifically dedicated to running cluster checks, which monitor internal
+## Kubernetes services, as well as external services like managed databases and network devices.
+## ref: https://docs.datadoghq.com/containers/guide/clustercheckrunners/?tab=helm
+clusterChecksRunner:
+
+  # clusterChecksRunner.enabled -- If true, deploys agent dedicated for running the Cluster Checks instead of running in the Daemonset's agents.
+  ## If both clusterChecksRunner.enabled and datadog.kubeStateMetricsCore.enabled are true, consider enabling datadog.kubeStateMetricsCore.useClusterCheckRunners as well.
+  ## If datadog.kubeStateMetricsCore.useClusterCheckRunners is enabled, it's recommended to enable this flag as well so all Cluster Checks run on Cluster Checks Runners instead of node agents.
+  ## ref: https://docs.datadoghq.com/agent/autodiscovery/clusterchecks/
+  enabled: true
+
+  ## Define the Datadog image to work with.
+  image:
+
+    # clusterChecksRunner.image.tag -- Define the Agent version to use
+    tag: 7.43.0
+
+    ## Ex:
+    ##  jmx        to enable jmx fetch collection
+    ##  servercore to get Windows images based on servercore
+    tagSuffix: ""
+
+  ## If you want to deploy the clusterChecks agent in HA, keep at least clusterChecksRunner.replicas set to 2.
+  ## And increase the clusterChecksRunner.replicas according to the number of Cluster Checks.
+  replicas: 2
+
+  # clusterChecksRunner.env -- Environment variables specific to Cluster Checks Runner. Useful for
+  # setting features that do not have configuration options in the chart
+  ## ref: https://docs.datadoghq.com/agent/docker/?tab=standard#environment-variables
+  env: []
+  #   - name: <ENV_VAR_NAME>
+  #     value: <ENV_VAR_VALUE>
+
+  #####################
+  ## Node scheduling ##
+  #####################
+
+  # clusterChecksRunner.nodeSelector -- Allow the ClusterChecks Deployment to schedule on selected nodes
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  nodeSelector: {}
+
+  # clusterChecksRunner.tolerations -- Tolerations for pod assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []

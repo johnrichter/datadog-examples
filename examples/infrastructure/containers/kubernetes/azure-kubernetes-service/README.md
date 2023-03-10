@@ -1,19 +1,41 @@
+# Important configuration options
+
+These are the critical options that must be changed
+
+```yaml
+datadog:
+  kubelet:
+    ## As of Agent 7.35, tlsVerify: false is required because Kubelet certificates in AKS do not
+    ## have a Subject Alternative Name (SAN) set. In some setups, DNS resolution for spec.nodeName
+    ## inside Pods may not work in AKS. This has been reported on all AKS Windows nodes and when
+    ## cluster is setup in a Virtual Network using custom DNS on Linux nodes. In this case,
+    ## removing the agent.config.kubelet.host field (defaults to status.hostIP) and using
+    ## tlsVerify: false is required.
+    tlsVerify: false
+
+clusterAgent:
+  env:
+    ## Admission Controller functionality on AKS requires configuring the add selectors to prevent
+    ## an error on reconciling the webhook:
+    - name: "DD_ADMISSION_CONTROLLER_ADD_AKS_SELECTORS"
+      value: "true"
+```
+
+More information on the [Datadog documentation](https://docs.datadoghq.com/containers/kubernetes/distributions/?tab=helm#AKS).
+
+Note that the kubelet host option value, `spec.nodeName`, may also need to used instead of `status.hostIP` when
+[specifying `DD_AGENT_HOST` on application containers](https://docs.datadoghq.com/agent/kubernetes/apm/?tab=helm#configure-your-application-pods-in-order-to-communicate-with-the-datadog-agent)
+instrumented with [Datadog APM and Continuous Profiler](https://docs.datadoghq.com/tracing/).
+
 # Datadog & AKS
 
 `<DATADOG_API_KEY>` and `<DATADOG_APP_KEY>` will need to be replace in the configuration before
 using the configuration. If you are having issues with TLS connetions to the Kubelet, set
 `datadog.kubelet.tlsVerify` to `false`.
 
-The following versions were used for this configuration of the Datadog Helm chart
+See the [Datadog documentation on Kubernetes Distributions](https://docs.datadoghq.com/containers/kubernetes/distributions) for more information.
 
-```bash
-> helm search repo | grep datadog
-datadog/datadog                      	2.28.5       	7                      	Datadog Agent
-datadog/datadog-crds                 	0.4.6        	1                      	Datadog Kubernetes CRDs chart
-datadog/datadog-operator             	0.7.6        	0.7.2                  	Datadog Operator
-```
-
-## Overview
+# Overview
 
 The config does the following
 
@@ -28,7 +50,3 @@ The config does the following
   - Enable [Cluster Checks](https://docs.datadoghq.com/agent/cluster_agent/clusterchecks/)
   - Enable [Endpoint Checks](https://docs.datadoghq.com/agent/cluster_agent/endpointschecks/)
   - [Add Datadog as a metrics provider](https://docs.datadoghq.com/agent/cluster_agent/external_metrics/?tab=helm) for [pod autoscaling](https://www.datadoghq.com/blog/autoscale-kubernetes-datadog/)
-
-Take a look at the kubelet host option and note that `spec.nodeName` will also need to used instead of `status.hostIP` when
-[specifying `DD_AGENT_HOST` on application containers](https://docs.datadoghq.com/agent/kubernetes/apm/?tab=helm#configure-your-application-pods-in-order-to-communicate-with-the-datadog-agent)
-instrumented with [Datadog APM and Continuous Profiler](https://docs.datadoghq.com/tracing/).

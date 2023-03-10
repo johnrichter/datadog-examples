@@ -241,7 +241,7 @@ datadog:
   networkMonitoring:
 
     # datadog.networkMonitoring.enabled -- Enable network performance monitoring
-    enabled: true
+    enabled: false
 
   ##################################
   ## Universal Service Monitoring ##
@@ -253,7 +253,7 @@ datadog:
   serviceMonitoring:
 
     # datadog.serviceMonitoring.enabled -- Enable Universal Service Monitoring
-    enabled: true
+    enabled: false
 
   ###############################
   ## Cloud Security Management ##
@@ -296,6 +296,11 @@ datadog:
   ############################################
   ## Kubernetes State Metrics Configuration ##
   ############################################
+
+  ## The kubeStateMetricsEnabled option will be removed in the 4.0 version of the Datadog Agent chart.
+  ## Explicitly disable for this mixed-os cluster example
+  ## ref: https://github.com/kubernetes/kube-state-metrics/tree/kube-state-metrics-helm-chart-2.13.2/charts/kube-state-metrics
+  kubeStateMetricsEnabled: false
 
   kubeStateMetricsCore:
 

@@ -17,14 +17,37 @@
 ##                                                                                       ##
 ###########################################################################################
 
+###########################################################################################
+##                                   Helm Configuration                                  ##
+###########################################################################################
+
 # targetSystem -- Target OS for this deployment (possible values: linux, windows)
 targetSystem: linux
+
+###########################################################################################
+##                                  Datadog Configuration                                ##
+###########################################################################################
 
 ## Currently we offer Datadog Agent images on:
 ## GCR - use gcr.io/datadoghq (default)
 ## DockerHub - use docker.io/datadog
 ## AWS - use public.ecr.aws/datadog
 registry: public.ecr.aws/datadog
+
+##########################################
+## Cloud Service Provider Configuration ##
+##########################################
+
+## ref: https://docs.datadoghq.com/containers/kubernetes/distributions
+providers:
+
+  gke:
+
+    # providers.gke.autopilot -- Enables Datadog Agent deployment on GKE Autopilot
+    autopilot: false
+
+    # providers.gke.cos -- Enables Datadog Agent deployment on GKE with Container-Optimized OS (COS)
+    cos: true
 
 ###################################################
 ## Datadog Features and Node Agent Configuration ##
@@ -84,6 +107,18 @@ datadog:
   # Useful for debugging purposes
   logLevel: info
 
+  ################################
+  ## System Probe Configuration ##
+  ################################
+
+  systemProbe:
+
+    # datadog.systemProbe.enableDefaultKernelHeadersPaths -- Enable mount of default paths where kernel headers are stored
+    ## Since we're using COS, enable the eBPF-based OOM Kill and TCP Queue Length checks by setting
+    ## to false
+    ## ref: https://docs.datadoghq.com/containers/kubernetes/distributions/?tab=helm#standard
+    enableDefaultKernelHeadersPaths: false
+
   #############################################
   ## Datadog Agent Integration Configuration ##
   #############################################
@@ -142,7 +177,6 @@ datadog:
   # datadog.excludePauseContainer -- Exclude pause containers from the Agent Autodiscovery.
   ## ref: https://docs.datadoghq.com/agent/guide/autodiscovery-management/?tab=containerizedagent#pause-containers
   excludePauseContainer: true
-
 
   ##################################
   ## Log collection Configuration ##
@@ -291,7 +325,6 @@ datadog:
       network:
         # datadog.securityAgent.runtime.network.enabled -- Set to true to enable the collection of CWS network events
         enabled: true
-
 
   ############################################
   ## Kubernetes State Metrics Configuration ##

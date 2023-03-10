@@ -18,7 +18,10 @@
 ###########################################################################################
 
 # targetSystem -- Target OS for this deployment (possible values: linux, windows)
-targetSystem: linux
+## Note that there are some configuration options are not available on Windows. The full list is
+## available on the Datdog documentation
+## ref: https://docs.datadoghq.com/agent/troubleshooting/windows_containers/#limited-configuration-options-for-windows-deployments
+targetSystem: windows
 
 ## Currently we offer Datadog Agent images on:
 ## GCR - use gcr.io/datadoghq (default)
@@ -241,7 +244,7 @@ datadog:
   networkMonitoring:
 
     # datadog.networkMonitoring.enabled -- Enable network performance monitoring
-    enabled: true
+    enabled: false
 
   ##################################
   ## Universal Service Monitoring ##
@@ -253,7 +256,7 @@ datadog:
   serviceMonitoring:
 
     # datadog.serviceMonitoring.enabled -- Enable Universal Service Monitoring
-    enabled: true
+    enabled: false
 
   ###############################
   ## Cloud Security Management ##
@@ -273,7 +276,7 @@ datadog:
     compliance:
 
       # datadog.securityAgent.compliance.enabled -- Set to true to enable Cloud Security Posture Management (CSPM)
-      enabled: true
+      enabled: false
 
     ## Datadog Workload Security detects threats to your production workloads in real-time. With
     ## Workload Security, you can monitor file and process activity across your environment to
@@ -283,37 +286,33 @@ datadog:
     runtime:
 
       # datadog.securityAgent.runtime.enabled -- Set to true to enable Cloud Workload Security (CWS)
-      enabled: true
+      enabled: false
 
       # datadog.securityAgent.runtime.fimEnabled -- Set to true to enable Cloud Workload Security (CWS) File Integrity Monitoring
-      fimEnabled: true
+      fimEnabled: false
 
       network:
         # datadog.securityAgent.runtime.network.enabled -- Set to true to enable the collection of CWS network events
-        enabled: true
+        enabled: false
 
 
   ############################################
   ## Kubernetes State Metrics Configuration ##
   ############################################
 
+  ## LEGACY CHECK. Explictly disable this deployment since it should have been already deployed with
+  ## the first chart, if being used in the first. The core check is used by default, but in case
+  ## a future user chooses to use the legacy check this is why.
+  ## The kubeStateMetricsEnabled option will be removed in the 4.0 version of the Datadog Agent chart.
+  ## ref: https://github.com/kubernetes/kube-state-metrics/tree/kube-state-metrics-helm-chart-2.13.2/charts/kube-state-metrics
+  kubeStateMetricsEnabled: false
+
   kubeStateMetricsCore:
 
     # datadog.kubeStateMetricsCore.enabled -- Enable the kubernetes_state_core check in the Cluster Agent (Requires Cluster Agent 1.12.0+)
+    # # Disable datadogMetrics deployment since it should have been already deployed with the first chart.
     ## ref: https://docs.datadoghq.com/integrations/kubernetes_state_core
-    enabled: true
-
-    # datadog.kubeStateMetricsCore.collectSecretMetrics -- Enable watching secret objects and collecting their corresponding metrics kubernetes_state.secret.*
-    ## Configuring this field will change the default kubernetes_state_core check configuration and the RBACs granted to Datadog Cluster Agent to run the kubernetes_state_core check.
-    collectSecretMetrics: true
-
-    # datadog.kubeStateMetricsCore.collectVpaMetrics -- Enable watching VPA objects and collecting their corresponding metrics kubernetes_state.vpa.*
-    ## Configuring this field will change the default kubernetes_state_core check configuration and the RBACs granted to Datadog Cluster Agent to run the kubernetes_state_core check.
-    collectVpaMetrics: true
-
-    # datadog.logs.autoMultiLineDetection -- Allows the Agent to detect common multi-line patterns automatically.
-    ## ref: https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile#automatic-multi-line-aggregation
-    autoMultiLineDetection: true
+    enabled: false
 
   ####################
   ## Cluster checks ##
@@ -391,8 +390,34 @@ agents:
   nodeSelector: {}
 
 #########################################
+## Datadog CRDs                        ##
+#########################################
+
+# Disable datadogMetrics deployment since it should have been already deployed with the first chart.
+datadog-crds:
+
+  crds:
+
+    # datadog-crds.crds.datadogMetrics -- Set to true to deploy the DatadogMetrics CRD
+    datadogMetrics: false
+
+#########################################
 ## Datadog Cluster Agent Configuration ##
 #########################################
+
+## This section lets you configure the agents deployed by this chart to connect to a Cluster Agent
+## deployed independently
+existingClusterAgent:
+
+  # existingClusterAgent.join -- set this to true if you want the agents deployed by this chart to
+  # connect to a Cluster Agent deployed independently
+  join: true
+
+  # existingClusterAgent.tokenSecretName -- Existing secret name to use for external Cluster Agent token
+  tokenSecretName:  # <EXISTING_DCA_SECRET_NAME>
+
+  # existingClusterAgent.serviceName -- Existing service name to use for reaching the external Cluster Agent
+  serviceName:  # <EXISTING_DCA_SERVICE_NAME>
 
 ## This is the Datadog Cluster Agent implementation that handles cluster-wide
 ## metrics more cleanly, separates concerns for better rbac, and implements

@@ -17,14 +17,39 @@
 ##                                                                                       ##
 ###########################################################################################
 
+###########################################################################################
+##                                   Helm Configuration                                  ##
+###########################################################################################
+
 # targetSystem -- Target OS for this deployment (possible values: linux, windows)
 targetSystem: linux
+
+###########################################################################################
+##                                  Datadog Configuration                                ##
+###########################################################################################
 
 ## Currently we offer Datadog Agent images on:
 ## GCR - use gcr.io/datadoghq (default)
 ## DockerHub - use docker.io/datadog
 ## AWS - use public.ecr.aws/datadog
 registry: public.ecr.aws/datadog
+
+##########################################
+## Cloud Service Provider Configuration ##
+##########################################
+
+## ref: https://docs.datadoghq.com/containers/kubernetes/distributions
+providers:
+
+  eks:
+
+    ec2:
+
+      # providers.eks.ec2.useHostnameFromFile -- Use hostname from EC2 filesystem instead of fetching from metadata endpoint.
+      ## When deploying to EC2-backed EKS infrastructure, there are situations where the
+      ## IMDS metadata endpoint is not accesible to containers. This flag mounts the host's
+      ## `/var/lib/cloud/data/instance-id` and uses that for Agent's hostname instead.
+      useHostnameFromFile: false
 
 ###################################################
 ## Datadog Features and Node Agent Configuration ##
@@ -76,9 +101,10 @@ datadog:
   ## The Datadog Agent supports many environment variables. Useful for setting features that do not
   ## have configuration options in the chart
   ## ref: https://docs.datadoghq.com/agent/docker/?tab=standard#environment-variables
-  env: []
-    # - name: <ENV_VAR_NAME>
-    #   value: <ENV_VAR_VALUE>
+  env:
+    # For EKS
+    - name: DD_AUTOCONFIG_INCLUDE_FEATURES
+      value: "containerd"
 
   # datadog.logLevel -- Set logging verbosity, valid log levels are: trace, debug, info, warn, error, critical, off
   # Useful for debugging purposes
@@ -143,6 +169,12 @@ datadog:
   ## ref: https://docs.datadoghq.com/agent/guide/autodiscovery-management/?tab=containerizedagent#pause-containers
   excludePauseContainer: true
 
+  #####################################
+  ## Container Runtime Configuration ##
+  #####################################
+
+  # datadog.criSocketPath -- Path to the container runtime socket (if different from Docker)
+  criSocketPath: /run/dockershim.sock
 
   ##################################
   ## Log collection Configuration ##
