@@ -15,13 +15,19 @@ Note: When using COS (Container Optimized OS), the eBPF-based OOM Kill and TCP Q
 
 `datadog.systemProbe.enableDefaultKernelHeadersPaths` to `false`.
 
-This is enabled in the COS example
+This is enabled in the COS example.
+
+Before using this configuration, please update any values between angle brackets (`<` and `>`).
+
+- `<DATADOG_API_KEY>`
+- `<DATADOG_APP_KEY>`
+- `<CLUSTER_NAME>`
 
 # Autopilot
 
 Datadog recommends that you specify resource limits for the Agent container. Autopilot sets a relatively low default limit (50m CPU, 100Mi memory) that may quickly lead the Agent container to OOMKill depending on your environment. If applicable, also specify resource limits for the Trace Agent and Process Agent containers.
 
-## Important configuration options
+## Important distribution-specific configuration options
 
 These are the critical options that must be changed
 

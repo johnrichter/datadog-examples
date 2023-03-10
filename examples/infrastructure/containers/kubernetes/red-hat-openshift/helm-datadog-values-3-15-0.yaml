@@ -17,37 +17,14 @@
 ##                                                                                       ##
 ###########################################################################################
 
-###########################################################################################
-##                                   Helm Configuration                                  ##
-###########################################################################################
-
 # targetSystem -- Target OS for this deployment (possible values: linux, windows)
 targetSystem: linux
-
-###########################################################################################
-##                                  Datadog Configuration                                ##
-###########################################################################################
 
 ## Currently we offer Datadog Agent images on:
 ## GCR - use gcr.io/datadoghq (default)
 ## DockerHub - use docker.io/datadog
 ## AWS - use public.ecr.aws/datadog
 registry: gcr.io/datadoghq
-
-##########################################
-## Cloud Service Provider Configuration ##
-##########################################
-
-## ref: https://docs.datadoghq.com/containers/kubernetes/distributions
-providers:
-
-  gke:
-
-    # providers.gke.autopilot -- Enables Datadog Agent deployment on GKE Autopilot
-    autopilot: true
-
-    # providers.gke.cos -- Enables Datadog Agent deployment on GKE with Container-Optimized OS (COS)
-    cos: false
 
 ###################################################
 ## Datadog Features and Node Agent Configuration ##
@@ -165,6 +142,33 @@ datadog:
   # datadog.excludePauseContainer -- Exclude pause containers from the Agent Autodiscovery.
   ## ref: https://docs.datadoghq.com/agent/guide/autodiscovery-management/?tab=containerizedagent#pause-containers
   excludePauseContainer: true
+
+  #####################################
+  ## Container Runtime Configuration ##
+  #####################################
+
+  # datadog.criSocketPath -- Path to the container runtime socket (if different from Docker)
+  criSocketPath: /run/dockershim.sock
+
+  ##########################
+  ## Kublet Configuration ##
+  ##########################
+
+  kubelet:
+
+    # datadog.kubelet.tlsVerify -- Toggle kubelet TLS verification
+    ## Depending on your DNS/SSL setup, it might not be possible to verify the Kubelet cert properly
+    ## If you have proper CA, you can switch it to true
+    ## @default -- true
+    tlsVerify:  false # Required as of Agent 7.35
+
+    # datadog.kubelet.hostCAPath -- Path (on host) where the Kubelet CA certificate is stored
+    # @default -- None (no mount from host)
+    hostCAPath:
+
+    # datadog.kubelet.agentCAPath -- Path (inside Agent containers) where the Kubelet CA certificate is stored
+    # @default -- /var/run/host-kubelet-ca.crt if hostCAPath else /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    agentCAPath:
 
   ##################################
   ## Log collection Configuration ##
@@ -314,6 +318,7 @@ datadog:
         # datadog.securityAgent.runtime.network.enabled -- Set to true to enable the collection of CWS network events
         enabled: true
 
+
   ############################################
   ## Kubernetes State Metrics Configuration ##
   ############################################
@@ -383,54 +388,8 @@ agents:
     ##  servercore to get Windows images based on servercore
     tagSuffix: ""
 
-  ## Autopilot sets a relatively low default limit (50m CPU, 100Mi memory) that may quickly lead
-  ## the Agent container to OOMKill depending on your environment. If applicable, also specify
-  ## resource limits for the Trace Agent, Process Agent, and Security Agent containers.
-  containers:
-
-    agent:
-
-       # agents.containers.agent.resources -- Resource requests and limits for the agent container.
-      resources:
-        requests:
-          cpu: 200m
-          memory: 256Mi
-        limits:
-          cpu: 200m
-          memory: 256Mi
-
-    processAgent:
-
-      # agents.containers.processAgent.resources -- Resource requests and limits for the process-agent container
-      resources:
-        requests:
-          cpu: 100m
-          memory: 200Mi
-        limits:
-          cpu: 100m
-          memory: 200Mi
-
-    traceAgent:
-
-      # agents.containers.traceAgent.resources -- Resource requests and limits for the trace-agent container
-      resources:
-        requests:
-          cpu: 100m
-          memory: 200Mi
-        limits:
-          cpu: 100m
-          memory: 200Mi
-
-    securityAgent:
-
-      # agents.containers.securityAgent.resources -- Resource requests and limits for the security-agent container
-      resources:
-        requests:
-          cpu: 100m
-          memory: 200Mi
-        limits:
-          cpu: 100m
-          memory: 200Mi
+  # agents.useConfigMap -- Configures a configmap to provide the agent configuration. Use this in combination with the `agents.customAgentConfig` parameter.
+  useConfigMap:  # false
 
   # agents.customAgentConfig -- Specify custom contents for the datadog agent config (datadog.yaml)
   ## Note the `agents.useConfigMap` needs to be set to `true` for this parameter to be taken into
@@ -451,12 +410,29 @@ agents:
   #####################
 
   # agents.tolerations -- Allow the DaemonSet to schedule on tainted nodes (requires Kubernetes >= 1.6)
-  tolerations: []
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      operator: Exists
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/infra
+      operator: Exists
 
   # agents.nodeSelector -- Allow the DaemonSet to schedule on selected nodes
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
   nodeSelector: {}
 
+  ##################
+  ## Pod Security ##
+  ##################
+
+   ## Provide Daemonset PodSecurityPolicy configuration
+  podSecurity:
+
+    securityContextConstraints:
+
+      # agents.podSecurity.securityContextConstraints.create -- If true, create a SecurityContextConstraints resource for Agent pods
+      create: true
 
 #########################################
 ## Datadog Cluster Agent Configuration ##
@@ -502,6 +478,18 @@ clusterAgent:
   # clusterAgent.tolerations -- Allow the Cluster Agent Deployment to schedule on tainted nodes ((requires Kubernetes >= 1.6))
   ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
+
+  ##################
+  ## Pod Security ##
+  ##################
+
+   ## Provide Cluster Agent pod security configuration
+  podSecurity:
+
+    securityContextConstraints:
+
+      # clusterAgent.podSecurity.podSecurityPolicy.create -- If true, create a PodSecurityPolicy resource for Cluster Agent pods
+      create: true
 
   ################################
   ## Horizontal Pod Autoscaling ##
@@ -565,3 +553,8 @@ clusterAgent:
   #         port: 3306
   #         username: datadog
   #         password: <YOUR_CHOSEN_PASSWORD>
+
+# This is legacy and is disabled by default. We need to explicitly disable in openshift just in case
+kube-state-metrics:
+  securityContext:
+    enabled: false

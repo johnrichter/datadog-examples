@@ -10,6 +10,12 @@ Please read this [Datadog documentation](https://docs.datadoghq.com/agent/troubl
 >
 > ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
 
+Before using this configuration, please update any values between angle brackets (`<` and `>`).
+
+- `<DATADOG_API_KEY>`
+- `<DATADOG_APP_KEY>`
+- `<CLUSTER_NAME>`
+
 # Cluster Agents
 
 You must only have a single Cluster Agent deployment per Kubernetes Cluster.
@@ -22,7 +28,7 @@ Before deploying the second (or more) chart, you may need to update the values f
 - `existingClusterAgent.tokenSecretName`
 - `existingClusterAgent.serviceName`
 
-# Important configuration options
+# Important distribution-specific configuration options
 
 For all, but the first chart, these are the critical options that must be changed
 

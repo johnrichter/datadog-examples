@@ -1,4 +1,14 @@
-# Important configuration options
+# Overview
+
+AKS requires specific configuration for the `Kubelet` integration due to AKS certificates setup.
+
+Before using this configuration, please update any values between angle brackets (`<` and `>`).
+
+- `<DATADOG_API_KEY>`
+- `<DATADOG_APP_KEY>`
+- `<CLUSTER_NAME>`
+
+# Important distribution-specific configuration options
 
 These are the critical options that must be changed
 

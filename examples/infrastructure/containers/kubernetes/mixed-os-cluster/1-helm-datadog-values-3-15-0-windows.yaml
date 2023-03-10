@@ -27,7 +27,7 @@ targetSystem: windows
 ## GCR - use gcr.io/datadoghq (default)
 ## DockerHub - use docker.io/datadog
 ## AWS - use public.ecr.aws/datadog
-registry: public.ecr.aws/datadog
+registry: gcr.io/datadoghq
 
 ###################################################
 ## Datadog Features and Node Agent Configuration ##
@@ -40,12 +40,12 @@ datadog:
 
   # datadog.apiKey -- Your Datadog API key
   ## ref: https://app.datadoghq.com/account/settings#agent/kubernetes
-  apiKey:  # <DATADOG_API_KEY>
+  apiKey:  <DATADOG_API_KEY>
 
   # datadog.appKey -- Datadog APP key required to use metricsProvider
   ## If you are using clusterAgent.metricsProvider.enabled = true, you must set
   ## a Datadog application key for read access to your metrics.
-  appKey:  # <DATADOG_APP_KEY>
+  appKey:  <DATADOG_APP_KEY>
 
   # datadog.site -- The site of the Datadog intake to send Agent data to.
   # (documentation: https://docs.datadoghq.com/getting_started/site/)
@@ -64,7 +64,7 @@ datadog:
   ## * Overall length should not be higher than 80 characters.
   ## Compared to the rules of GKE, dots are allowed whereas they are not allowed on GKE:
   ## https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#Cluster.FIELDS.name
-  clusterName:  # <CLUSTER_NAME>
+  clusterName:  <CLUSTER_NAME>
 
   # datadog.tags -- List of static tags to attach to every metric, event and service check collected by this Agent.
   ## Learn more about tagging: https://docs.datadoghq.com/tagging/
