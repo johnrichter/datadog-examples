@@ -15,6 +15,8 @@ Before using this configuration, please update any values between angle brackets
 - `<DATADOG_API_KEY>`
 - `<DATADOG_APP_KEY>`
 - `<CLUSTER_NAME>`
+- `<EXISTING_DCA_SERVICE_NAME>`
+- `<EXISTING_DCA_SECRET_NAME>`
 
 # Cluster Agents
 
@@ -28,7 +30,7 @@ Before deploying the second (or more) chart, you may need to update the values f
 - `existingClusterAgent.tokenSecretName`
 - `existingClusterAgent.serviceName`
 
-# Important distribution-specific configuration options
+# Important deployment-specific configuration options
 
 For all, but the first chart, these are the critical options that must be changed
 

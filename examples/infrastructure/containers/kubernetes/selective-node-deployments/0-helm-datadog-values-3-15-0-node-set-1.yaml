@@ -1,0 +1,517 @@
+###########################################################################################
+## Datadog Helm chart version v3.15.0 released on 20230307                               ##
+## https://github.com/DataDog/helm-charts/releases/tag/datadog-3.15.0                    ##
+###########################################################################################
+##                                                                                       ##
+## Suggested default values for deploying Datadog to Kubernetes clusters                 ##
+## https://docs.datadoghq.com/containers/kubernetes/installation/?tab=helm               ##
+##                                                                                       ##
+## For an effortless upgrade path, do not copy this file as your own values.yaml. Only   ##
+## set the values you want to override in your values.yaml                               ##
+##                                                                                       ##
+## A full example of this file with documentation and commends can be found at           ##
+## https://github.com/DataDog/helm-charts/blob/datadog-3.15.0/charts/datadog/values.yaml ##
+##                                                                                       ##
+## All Datadog Helm charts can be found at                                               ##
+## https://github.com/DataDog/helm-charts/tree/datadog-3.15.0/charts                     ##
+##                                                                                       ##
+###########################################################################################
+
+# targetSystem -- Target OS for this deployment (possible values: linux, windows)
+targetSystem: linux
+
+## Currently we offer Datadog Agent images on:
+## GCR - use gcr.io/datadoghq (default)
+## DockerHub - use docker.io/datadog
+## AWS - use public.ecr.aws/datadog
+registry: gcr.io/datadoghq
+
+###################################################
+## Datadog Features and Node Agent Configuration ##
+###################################################
+
+## In Kubernetes, a single Datadog Agent is deployed per node. This configuration option is acts as
+## a configuration template for those node agents to enable, disable, or modify their configuration.
+## For complete customization see the `agents` configuration option.
+datadog:
+
+  # datadog.apiKey -- Your Datadog API key
+  ## ref: https://app.datadoghq.com/account/settings#agent/kubernetes
+  apiKey:  <DATADOG_API_KEY>
+
+  # datadog.appKey -- Datadog APP key required to use metricsProvider
+  ## If you are using clusterAgent.metricsProvider.enabled = true, you must set
+  ## a Datadog application key for read access to your metrics.
+  appKey:  <DATADOG_APP_KEY>
+
+  # datadog.site -- The site of the Datadog intake to send Agent data to.
+  # (documentation: https://docs.datadoghq.com/getting_started/site/)
+  ## Set to 'datadoghq.com' to send data to the US1 site (default).
+  ## Set to 'datadoghq.eu' to send data to the EU site.
+  ## Set to 'us3.datadoghq.com' to send data to the US3 site.
+  ## Set to 'us5.datadoghq.com' to send data to the US5 site.
+  ## Set to 'ddog-gov.com' to send data to the US1-FED site.
+  site:  # datadoghq.com
+
+  # datadog.clusterName -- Set a unique cluster name to allow scoping hosts and Cluster Checks easily
+  ## The name must be unique and must be dot-separated tokens with the following restrictions:
+  ## * Lowercase letters, numbers, and hyphens only.
+  ## * Must start with a letter.
+  ## * Must end with a number or a letter.
+  ## * Overall length should not be higher than 80 characters.
+  ## Compared to the rules of GKE, dots are allowed whereas they are not allowed on GKE:
+  ## https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#Cluster.FIELDS.name
+  clusterName:  <CLUSTER_NAME>
+
+  # datadog.tags -- List of static tags to attach to every metric, event and service check collected by this Agent.
+  ## Learn more about tagging: https://docs.datadoghq.com/tagging/
+  tags: []
+  #   - "<KEY_1>:<VALUE_1>"
+
+  # datadog.collectEvents -- Enables this to start event collection from the kubernetes API
+  ## ref: https://docs.datadoghq.com/agent/kubernetes/#event-collection
+  collectEvents: true
+
+  # datadog.env -- Set environment variables for all Agents
+  ## The Datadog Agent supports many environment variables. Useful for setting features that do not
+  ## have configuration options in the chart
+  ## ref: https://docs.datadoghq.com/agent/docker/?tab=standard#environment-variables
+  env: []
+    # - name: <ENV_VAR_NAME>
+    #   value: <ENV_VAR_VALUE>
+
+  # datadog.logLevel -- Set logging verbosity, valid log levels are: trace, debug, info, warn, error, critical, off
+  # Useful for debugging purposes
+  logLevel: info
+
+  #############################################
+  ## Datadog Agent Integration Configuration ##
+  #############################################
+
+  # datadog.confd -- Provide additional check configurations (static and Autodiscovery)
+  ## Each key becomes a file in /conf.d
+  ## ref: https://github.com/DataDog/datadog-agent/tree/main/Dockerfiles/agent#optional-volumes
+  ## ref: https://docs.datadoghq.com/agent/autodiscovery/
+  ## ref: https://docs.datadoghq.com/integrations/
+  confd: {}
+  #   redisdb.yaml: |-
+  #     ad_identifiers:
+  #       - redis
+  #     init_config:
+  #     instances:
+  #       - host: "%%host%%"
+  #         port: "6379"
+  #   kubernetes_state.yaml: |-
+  #     ad_identifiers:
+  #       - kube-state-metrics
+  #     init_config:
+  #     instances:
+  #       - kube_state_url: http://%%host%%:8080/metrics
+
+  #################################
+  ## Autodiscovery Configuration ##
+  #################################
+
+  # datadog.containerExclude -- Exclude containers from the Agent
+  # Autodiscovery, as a space-sepatered list
+  ## ref: https://docs.datadoghq.com/agent/guide/autodiscovery-management/?tab=containerizedagent#exclude-containers
+  containerExclude:  # "image:datadog/agent"
+
+  # datadog.containerInclude -- Include containers in the Agent Autodiscovery,
+  # as a space-separated list.  If a container matches an include rule, it’s
+  # always included in the Autodiscovery
+  ## ref: https://docs.datadoghq.com/agent/guide/autodiscovery-management/?tab=containerizedagent#include-containers
+  containerInclude:
+
+  # datadog.containerExcludeLogs -- Exclude logs from the Agent Autodiscovery,
+  # as a space-separated list
+  containerExcludeLogs:
+
+  # datadog.containerIncludeLogs -- Include logs in the Agent Autodiscovery, as
+  # a space-separated list
+  containerIncludeLogs:
+
+  # datadog.containerExcludeMetrics -- Exclude metrics from the Agent
+  # Autodiscovery, as a space-separated list
+  containerExcludeMetrics:
+
+  # datadog.containerIncludeMetrics -- Include metrics in the Agent
+  # Autodiscovery, as a space-separated list
+  containerIncludeMetrics:
+
+  # datadog.excludePauseContainer -- Exclude pause containers from the Agent Autodiscovery.
+  ## ref: https://docs.datadoghq.com/agent/guide/autodiscovery-management/?tab=containerizedagent#pause-containers
+  excludePauseContainer: true
+
+
+  ##################################
+  ## Log collection Configuration ##
+  ##################################
+
+  logs:
+
+    # datadog.logs.enabled -- Enables this to activate Datadog Agent log collection
+    ## ref: https://docs.datadoghq.com/agent/basic_agent_usage/kubernetes/#log-collection-setup
+    enabled: true
+
+    # datadog.logs.containerCollectAll -- Enable this to allow log collection for all containers
+    ## ref: https://docs.datadoghq.com/agent/basic_agent_usage/kubernetes/#log-collection-setup
+    containerCollectAll: true
+
+  ####################################
+  ## Trace Collection Configuration ##
+  ####################################
+
+  apm:
+
+    # datadog.apm.socketEnabled -- Enable APM over Socket (Unix Socket or windows named pipe)
+    ## ref: https://docs.datadoghq.com/agent/kubernetes/apm/
+    socketEnabled: true
+
+    # datadog.apm.portEnabled -- Enable APM over TCP communication (port 8126 by default)
+    ## ref: https://docs.datadoghq.com/agent/kubernetes/apm/
+    portEnabled: true
+
+  ###################################
+  ## OpenTelemetry Configuration   ##
+  ###################################
+
+  otlp:
+    receiver:
+      protocols:
+
+        # datadog.otlp.receiver.protocols.grpc - OTLP/gRPC configuration
+        grpc:
+
+          # datadog.otlp.receiver.protocols.grpc.enabled -- Enable the OTLP/gRPC endpoint
+          enabled: true
+
+          # datadog.otlp.receiver.protocols.grpc.endpoint -- OTLP/gRPC endpoint
+          endpoint: "0.0.0.0:4317"
+
+          # datadog.otlp.receiver.protocols.grpc.useHostPort -- Enable the Host Port for the OTLP/gRPC endpoint
+          useHostPort: true
+
+        # datadog.otlp.receiver.protocols.http - OTLP/HTTP configuration
+        http:
+
+          # datadog.otlp.receiver.protocols.http.enabled -- Enable the OTLP/HTTP endpoint
+          enabled: true
+
+          # datadog.otlp.receiver.protocols.http.endpoint -- OTLP/HTTP endpoint
+          endpoint: "0.0.0.0:4318"
+
+          # datadog.otlp.receiver.protocols.http.useHostPort -- Enable the Host Port for the OTLP/HTTP endpoint
+          useHostPort: true
+
+  ######################################################
+  ## Live Processes and Live Containers Configuration ##
+  ######################################################
+
+  ## Enable process agent and provide custom configs
+  ## ref: https://docs.datadoghq.com/infrastructure/process
+  ## ref: https://docs.datadoghq.com/infrastructure/livecontainers/
+  processAgent:
+
+    # datadog.processAgent.enabled -- Set this to true to enable live process monitoring agent
+    ## Note: /etc/passwd is automatically mounted to allow username resolution.
+    ## ref: https://docs.datadoghq.com/graphing/infrastructure/process/#kubernetes-daemonset
+    enabled: true
+
+    # datadog.processAgent.processCollection -- Set this to true to enable process collection in process monitoring agent
+    ## Requires processAgent.enabled to be set to true to have any effect
+    processCollection: true
+
+    # datadog.processAgent.stripProcessArguments -- Set this to scrub all arguments from collected processes
+    ## Requires processAgent.enabled and processAgent.processCollection to be set to true to have any effect
+    ## ref: https://docs.datadoghq.com/infrastructure/process/?tab=linuxwindows#process-arguments-scrubbing
+    stripProcessArguments: false
+
+    # datadog.processAgent.processDiscovery -- Enables or disables autodiscovery of integrations
+    ## ref: https://docs.datadoghq.com/infrastructure/process/#monitoring-third-party-software
+    processDiscovery: true
+
+  ####################################
+  ## Network Performance Monitoring ##
+  ####################################
+
+  ## Datadog Network Performance Monitoring (NPM) gives you visibility into your network traffic
+  ## between services, containers, availability zones, and any other tag in Datadog
+  ## ref: https://docs.datadoghq.com/network_monitoring/performance/
+  networkMonitoring:
+
+    # datadog.networkMonitoring.enabled -- Enable network performance monitoring
+    enabled: false
+
+  ##################################
+  ## Universal Service Monitoring ##
+  ##################################
+
+  ## See https://www.datadoghq.com/blog/universal-service-monitoring-datadog/ for more details and
+  ## private beta signup.
+  ## ref: https://docs.datadoghq.com/universal_service_monitoring/?tab=helm
+  serviceMonitoring:
+
+    # datadog.serviceMonitoring.enabled -- Enable Universal Service Monitoring
+    enabled: false
+
+  ###############################
+  ## Cloud Security Management ##
+  ###############################
+
+  ## Datadog Cloud Security Management delivers real-time threat detection and continuous
+  ## configuration audits across your entire cloud infrastructure in a unified view for seamless
+  ## collaboration and faster remediation.
+  ## ref: https://docs.datadoghq.com/security/cloud_security_management
+  securityAgent:
+
+    ## Datadog Cloud Security Posture Management (CSPM) makes it easier to assess and visualize the
+    ## current and historic security posture of your cloud resources, automate audit evidence
+    ## collection, and remediate misconfigurations that leave your organization vulnerable to
+    ## attacks.
+    ## ref: https://docs.datadoghq.com/security/cspm/
+    compliance:
+
+      # datadog.securityAgent.compliance.enabled -- Set to true to enable Cloud Security Posture Management (CSPM)
+      enabled: true
+
+    ## Datadog Workload Security detects threats to your production workloads in real-time. With
+    ## Workload Security, you can monitor file and process activity across your environment to
+    ## detect threats to your infrastructure, like AWS EC2 instances, docker containers, or
+    ## Kubernetes clusters, in real-time at the kernel level.
+    ## ref: https://docs.datadoghq.com/security/cloud_workload_security/
+    runtime:
+
+      # datadog.securityAgent.runtime.enabled -- Set to true to enable Cloud Workload Security (CWS)
+      enabled: true
+
+      # datadog.securityAgent.runtime.fimEnabled -- Set to true to enable Cloud Workload Security (CWS) File Integrity Monitoring
+      fimEnabled: true
+
+      network:
+        # datadog.securityAgent.runtime.network.enabled -- Set to true to enable the collection of CWS network events
+        enabled: true
+
+
+  ############################################
+  ## Kubernetes State Metrics Configuration ##
+  ############################################
+
+  ## The kubeStateMetricsEnabled option will be removed in the 4.0 version of the Datadog Agent chart.
+  ## Explicitly disable for this mixed-os cluster example
+  ## ref: https://github.com/kubernetes/kube-state-metrics/tree/kube-state-metrics-helm-chart-2.13.2/charts/kube-state-metrics
+  kubeStateMetricsEnabled: false
+
+  kubeStateMetricsCore:
+
+    # datadog.kubeStateMetricsCore.enabled -- Enable the kubernetes_state_core check in the Cluster Agent (Requires Cluster Agent 1.12.0+)
+    ## ref: https://docs.datadoghq.com/integrations/kubernetes_state_core
+    enabled: true
+
+    # datadog.kubeStateMetricsCore.collectSecretMetrics -- Enable watching secret objects and collecting their corresponding metrics kubernetes_state.secret.*
+    ## Configuring this field will change the default kubernetes_state_core check configuration and the RBACs granted to Datadog Cluster Agent to run the kubernetes_state_core check.
+    collectSecretMetrics: true
+
+    # datadog.kubeStateMetricsCore.collectVpaMetrics -- Enable watching VPA objects and collecting their corresponding metrics kubernetes_state.vpa.*
+    ## Configuring this field will change the default kubernetes_state_core check configuration and the RBACs granted to Datadog Cluster Agent to run the kubernetes_state_core check.
+    collectVpaMetrics: true
+
+    # datadog.logs.autoMultiLineDetection -- Allows the Agent to detect common multi-line patterns automatically.
+    ## ref: https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile#automatic-multi-line-aggregation
+    autoMultiLineDetection: true
+
+  ####################
+  ## Cluster checks ##
+  ####################
+
+  ## Autodiscovery via Kube Service annotations is automatically enabled
+  ## ref: https://docs.datadoghq.com/agent/autodiscovery/clusterchecks/
+  clusterChecks:
+
+    # datadog.clusterChecks.enabled -- Enable the Cluster Checks feature on both the cluster-agents and the daemonset
+    enabled: true
+
+  ################
+  ## Helm check ##
+  ################
+
+  ## This check monitors Helm deployments through the Datadog Agent.
+  ## ref: https://docs.datadoghq.com/integrations/helm/
+  ## ref: https://www.datadoghq.com/blog/monitor-helm-kubernetes-with-datadog
+  helmCheck:
+
+    # datadog.helmCheck.enabled -- Set this to true to enable the Helm check (Requires Agent 7.35.0+ and Cluster Agent 1.19.0+)
+    # This requires clusterAgent.enabled to be set to true
+    enabled: true
+
+    # datadog.helmCheck.collectEvents -- Set this to true to enable event collection in the Helm Check (Requires Agent 7.36.0+ and Cluster Agent 1.20.0+)
+    # This requires datadog.HelmCheck.enabled to be set to true
+    collectEvents: true
+
+###################################################
+## Datadog Features and Node Agent Configuration ##
+###################################################
+
+## This is the escape hatch configuration option that should only be used when no other
+## configuration options in from `datadog` options are available.
+agents:
+
+  ## Define the Datadog image to work with
+  image:
+
+    # agents.image.tag -- Define the Agent version to use
+    tag: 7.43.0
+
+    ## Ex:
+    ##  jmx        to enable jmx fetch collection
+    ##  servercore to get Windows images based on servercore
+    tagSuffix: ""
+
+  # agents.useConfigMap -- Configures a configmap to provide the agent configuration. Use this in combination with the `agents.customAgentConfig` parameter.
+  useConfigMap:  # false
+
+  # agents.customAgentConfig -- Specify custom contents for the datadog agent config (datadog.yaml)
+  ## Note the `agents.useConfigMap` needs to be set to `true` for this parameter to be taken into
+  ## account.
+  ## ref: https://docs.datadoghq.com/agent/guide/agent-configuration-files/?tab=agentv6
+  ## ref: https://github.com/DataDog/datadog-agent/blob/main/pkg/config/config_template.yaml
+  customAgentConfig: {}
+    ## Examples
+    ## Enable java cgroup handling. Only one of those options should be enabled,
+    ## depending on the agent version you are using along that chart.
+    ## agent version < 6.15
+    # jmx_use_cgroup_memory_limit: true
+    ## agent version >= 6.15
+    # jmx_use_container_support: true
+
+  #####################
+  ## Node scheduling ##
+  #####################
+
+  # agents.tolerations -- Allow the DaemonSet to schedule on tainted nodes (requires Kubernetes >= 1.6)
+  tolerations: []
+
+  # agents.nodeSelector -- Allow the DaemonSet to schedule on selected nodes
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  nodeSelector: {}
+
+  # agents.affinity -- Allow the DaemonSet to schedule using affinity rules
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: topology.kubernetes.io/zone
+            operator: In
+            values:
+            - antarctica-east1
+            - antarctica-west1
+
+#########################################
+## Datadog Cluster Agent Configuration ##
+#########################################
+
+## This is the Datadog Cluster Agent implementation that handles cluster-wide
+## metrics more cleanly, separates concerns for better rbac, and implements
+## the external metrics API so you can autoscale HPAs based on datadog metrics
+## ref: https://docs.datadoghq.com/agent/kubernetes/cluster/
+clusterAgent:
+
+  # clusterAgent.enabled -- Set this to false to disable Datadog Cluster Agent
+  enabled: true
+
+  ## Define the Datadog Cluster-Agent image to work with
+  image:
+
+    # clusterAgent.image.tag -- Cluster Agent image tag to use
+    tag: 7.43.0
+
+  # clusterAgent.replicas -- Specify the of cluster agent replicas, if > 1 it allow the cluster agent to work in HA mode.
+  replicas: 1
+
+  ## The Cluster-Agent supports many additional environment variables. Useful for setting features
+  ## that do not have configuration options in the chart
+  ## ref: https://docs.datadoghq.com/agent/cluster_agent/commands/#cluster-agent-options
+  env: []
+    # - name: <ENV_VAR_NAME>
+    #   value: <ENV_VAR_VALUE>
+
+  # clusterAgent.datadog_cluster_yaml -- Specify custom contents for the datadog cluster agent config (datadog-cluster.yaml)
+  datadog_cluster_yaml: {}
+
+  #####################
+  ## Node scheduling ##
+  #####################
+
+  # clusterAgent.nodeSelector -- Allow the Cluster Agent Deployment to be scheduled on selected nodes
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  nodeSelector: {}
+
+  # clusterAgent.tolerations -- Allow the Cluster Agent Deployment to schedule on tainted nodes ((requires Kubernetes >= 1.6))
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+
+  ################################
+  ## Horizontal Pod Autoscaling ##
+  ################################
+
+  ## Enable the metricsProvider to be able to scale based on metrics in Datadog
+  ## ref: https://docs.datadoghq.com/containers/guide/cluster_agent_autoscaling_metrics/
+  metricsProvider:
+
+    # clusterAgent.metricsProvider.enabled -- Set this to true to enable Metrics Provider
+    enabled: true
+
+    # clusterAgent.metricsProvider.wpaController -- Enable informer and controller of the watermark pod autoscaler
+    ## Note: You need to install the `WatermarkPodAutoscaler` CRD before
+    wpaController: false
+
+    # clusterAgent.metricsProvider.useDatadogMetrics -- Enable usage of DatadogMetric CRD to autoscale on arbitrary Datadog queries
+    ## Note: It will install DatadogMetrics CRD automatically (it may conflict with previous installations)
+    useDatadogMetrics: true
+
+    # clusterAgent.metricsProvider.aggregator -- Define the aggregator the cluster agent will use to process the metrics. The options are (avg, min, max, sum)
+    aggregator: avg
+
+  ##########################
+  ## Admission Controller ##
+  ##########################
+
+  ## The Datadog Admission Controller is a component of the Datadog Cluster Agent. The main benefit
+  ## of the Admission Controller is to simplify your application Pod configuration. For example,
+  ## you can configure the Cluster Agent (version 7.39 and higher) to inject app instrumentation
+  ## libraries.
+  ## ref: https://docs.datadoghq.com/containers/cluster_agent/admission_controller/?tab=helm
+  ## ref: https://docs.datadoghq.com/containers/cluster_agent/admission_controller/?tab=helm#instrumentation-library-injection
+  ## ref: https://docs.datadoghq.com/tracing/trace_collection/library_injection
+  admissionController:
+
+    # clusterAgent.admissionController.enabled -- Enable the admissionController to be able to inject APM/Dogstatsd config and standard tags (env, service, version) automatically into your pods
+    enabled: true
+
+    ## This feature is in beta, and enables Remote Config in the Cluster Agent. It also requires
+    ## Cluster Agent version 7.43+
+    remoteInstrumentation:
+
+      # clusterAgent.admissionController.remoteInstrumentation.enabled -- Enable polling and applying library injection using Remote Config (beta).
+      ## This feature is in beta, and enables Remote Config in the Cluster Agent. It also requires Cluster Agent version 7.43+.
+      ## Enabling this feature grants the Cluster Agent the permissions to patch Deployment objects in the cluster.
+      enabled: false
+
+  ####################
+  ## Cluster Checks ##
+  ####################
+
+  # clusterAgent.confd -- Provide additional cluster check configurations. Each key will become a file in /conf.d.
+  ## ref: https://docs.datadoghq.com/agent/autodiscovery/
+  ## ref: https://docs.datadoghq.com/containers/cluster_agent/clusterchecks/?tab=helm#setting-up-check-configurations
+  confd: {}
+  #   mysql.yaml: |-
+  #     cluster_check: true
+  #     instances:
+  #       - host: <EXTERNAL_IP>
+  #         port: 3306
+  #         username: datadog
+  #         password: <YOUR_CHOSEN_PASSWORD>

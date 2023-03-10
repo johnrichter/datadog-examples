@@ -70,10 +70,10 @@ git clone --recursive git@github.com:johnrichter/datadog-examples.git
 **Containers**
 
 - K8s
-  - [ ] AWS EKS Helm example
-  - [ ] GCP GKE Helm example
-  - [ ] Self Hosted Helm example
-  - [ ] Mixed OS clusters, multiple helm charts, using one cluster agent for the all
+  - [x] AWS EKS Helm example
+  - [x] GCP GKE Helm example
+  - [x] Self Hosted Helm example
+  - [x] Mixed OS clusters, multiple helm charts, using one cluster agent for the all
   - [ ] Selective node deployments. Taints and Tolerances. Multiple charts. Builds on OS example
   - Diagrams
     - [ ] Deployment architecture
