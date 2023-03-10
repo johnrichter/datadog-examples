@@ -56,6 +56,14 @@ datadog:
   ## Set to 'ddog-gov.com' to send data to the US1-FED site.
   site:  # datadoghq.com
 
+  ## datadog.dd_url -- The host of the Datadog intake server to send metrics to
+  ## Only set this option if you need the Agent to send metrics to a custom URL, it overrides the
+  ## site setting defined in "site". It does not affect APM, Logs or Live Process intake which have
+  ## their own "*_dd_url" settings. Useful for Proxy setups.
+  ## ref: https://docs.datadoghq.com/agent/proxy/
+  ## ref: https://docs.datadoghq.com/agent/guide/network/?tab=agentv6v7
+  dd_url: # https://<USERNAME>:<PASSWORD>@<PROXY_SERVER_FOR_HTTPS>:<PORT>
+
   # datadog.clusterName -- Set a unique cluster name to allow scoping hosts and Cluster Checks easily
   ## The name must be unique and must be dot-separated tokens with the following restrictions:
   ## * Lowercase letters, numbers, and hyphens only.
@@ -80,8 +88,12 @@ datadog:
   ## have configuration options in the chart
   ## ref: https://docs.datadoghq.com/agent/docker/?tab=standard#environment-variables
   env: []
-    # - name: <ENV_VAR_NAME>
-    #   value: <ENV_VAR_VALUE>
+    ## Overrides the site setting defined in "site". Useful for proxy setups
+    ## ref: https://docs.datadoghq.com/agent/proxy/?tab=linux
+    # - name: DD_PROXY_HTTP
+    #   value: http://<USERNAME>:<PASSWORD>@<PROXY_SERVER_FOR_HTTP>:<PORT>
+    # - name: DD_PROXY_HTTPS
+    #   value: http://<USERNAME>:<PASSWORD>@<PROXY_SERVER_FOR_HTTPS>:<PORT>
 
   # datadog.logLevel -- Set logging verbosity, valid log levels are: trace, debug, info, warn, error, critical, off
   # Useful for debugging purposes
@@ -439,7 +451,7 @@ existingClusterAgent:
 clusterAgent:
 
   # clusterAgent.enabled -- Set this to false to disable Datadog Cluster Agent
-  enabled: true
+  enabled: false
 
   ## Define the Datadog Cluster-Agent image to work with
   image:
@@ -454,8 +466,16 @@ clusterAgent:
   ## that do not have configuration options in the chart
   ## ref: https://docs.datadoghq.com/agent/cluster_agent/commands/#cluster-agent-options
   env: []
-    # - name: <ENV_VAR_NAME>
-    #   value: <ENV_VAR_VALUE>
+    ## Overrides the site setting defined in "site". Useful for proxy setups
+    ## ref: https://docs.datadoghq.com/agent/proxy/?tab=linux
+    # - name: DD_DD_URL
+    #   value: https://<USERNAME>:<PASSWORD>@<PROXY_SERVER_FOR_HTTPS>:<PORT>
+    ## For Proxy
+    ## ref: https://docs.datadoghq.com/agent/proxy/?tab=linux
+    # - name: DD_PROXY_HTTP
+    #   value: http://<USERNAME>:<PASSWORD>@<PROXY_SERVER_FOR_HTTP>:<PORT>
+    # - name: DD_PROXY_HTTPS
+    #   value: https://<USERNAME>:<PASSWORD>@<PROXY_SERVER_FOR_HTTPS>:<PORT>
 
   # clusterAgent.datadog_cluster_yaml -- Specify custom contents for the datadog cluster agent config (datadog-cluster.yaml)
   datadog_cluster_yaml: {}

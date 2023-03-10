@@ -71,6 +71,7 @@ git clone --recursive git@github.com:johnrichter/datadog-examples.git
 
 - K8s
   - [x] AWS EKS Helm example
+  - [x] AWS Outposts
   - [x] GCP GKE Helm example
   - [x] Self Hosted Helm example
   - [x] Mixed OS clusters, multiple helm charts, using one cluster agent for the all
