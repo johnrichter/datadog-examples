@@ -1,20 +1,14 @@
-#####################
-##                 ##
-##  This is a WIP  ##
-##                 ##
-#####################
-
 version: '3'
 services:
   datadog:
     container_name: datadog-agent
     image: gcr.io/datadoghq/agent:7
-    # TODO: Add all recommended configs here
+    # Requires 7.43.0 or newer
     environment:
       ## GLOBALS
       DD_HOSTNAME: <HOSTNAME>
       DD_API_KEY: <DD_API_KEY> # https://app.datadoghq.com/organization-settings/api-keys
-      DD_ENV: <ENV> # dev
+      DD_ENV: sandbox # dev
       # DD_TAGS: "<tags>" # team:devops
       # DD_AC_EXCLUDE: name:datadog-agent # exclude this container from data collection
       ## TAGS https://docs.datadoghq.com/getting_started/tagging/assigning_tags/?tab=containerizedenvironments
@@ -85,11 +79,10 @@ services:
       # DD_RUNTIME_SECURITY_CONFIG_ENDPOINTS_DD_URL: http://haproxy:3846
       # DD_RUNTIME_SECURITY_CONFIG_ENDPOINTS_LOGS_NO_SSL: true
 
-    depends_on: []
-    # TODO: Where do these come frome?
+    depends_on:
+      - haproxy
     security_opt:
       - apparmor:unconfined
-    # TODO: Where do these come frome?
     cap_add:
       - SYS_ADMIN
       - SYS_RESOURCE
@@ -102,7 +95,6 @@ services:
     ports:
       - 127.0.0.1:8125:8125/udp # Dogstatsd
       - 127.0.0.1:8126:8126/tcp # APM
-    # TODO: Where do these come frome?
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc/:/host/proc/:ro
@@ -113,6 +105,15 @@ services:
       - ./data/agent/conf.d:/conf.d:rw
       - ./data/logs:/data/logs:rw
 
+    networks:
+      - datadog-examples
+
+  haproxy:
+    build: "."
+    # image: dd-haproxy
+    container_name: dd-haproxy
+    volumes:
+      - ./data/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:rw
     networks:
       - datadog-examples
 

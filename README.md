@@ -51,6 +51,10 @@ git clone --recursive git@github.com:johnrichter/datadog-examples.git
   - [ ] Bare metal deployment architecture
   - [ ] Bare metal APM Auto-injection install flow
   - [ ] External Agent (for Databases, SNMP, etc)
+- [ ] IOT
+- [ ] Proxies
+  - [x] HAProxy
+  - [ ] nginx
 
 **Integrations**
 
@@ -76,6 +80,8 @@ git clone --recursive git@github.com:johnrichter/datadog-examples.git
   - [x] Self Hosted Helm example
   - [x] Mixed OS clusters, multiple helm charts, using one cluster agent for the all
   - [x] Selective node deployments. Taints and Tolerances. Multiple charts. Builds on OS example
+  - Service Mesh
+    - [ ] Istio and Envoy
   - Diagrams
     - [ ] Deployment architecture
     - [ ] APM Auto-injection install flow

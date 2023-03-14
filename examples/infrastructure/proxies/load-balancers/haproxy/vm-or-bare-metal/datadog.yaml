@@ -1,0 +1,62 @@
+dd_url: http://haproxy:3834
+
+apm_config:
+  apm_dd_url: http://haproxy:3835
+  profiling_dd_url: http://haproxy:3836/api/v2/profile
+  telemetry:
+    dd_url: http://haproxy:3843
+
+process_config:
+  process_dd_url: http://haproxy:3837
+  events_dd_url: http://haproxy:3848
+
+logs_config:
+  force_use_http: true
+  logs_no_ssl: true
+  logs_dd_url: haproxy:3838 # Must not have scheme
+  # Comment the line below to use encryption between the Agent and HAProxy
+
+database_monitoring:
+  metrics:
+    # Comment the line below to use encryption between the Agent and HAProxy
+    logs_no_ssl: true
+    logs_dd_url: http://haproxy:3839
+  activity:
+    # Comment the line below to use encryption between the Agent and HAProxy
+    logs_no_ssl: true
+    logs_dd_url: http://haproxy:3839
+  samples:
+    # Comment the line below to use encryption between the Agent and HAProxy
+    logs_no_ssl: true
+    logs_dd_url: http://haproxy:3840
+
+network_devices:
+  metadata:
+    # Comment the line below to use encryption between the Agent and HAProxy
+    logs_no_ssl: true
+    logs_dd_url: http://haproxy:3841
+  snmp_traps:
+    forwarder:
+      # Comment the line below to use encryption between the Agent and HAProxy
+      logs_no_ssl: true
+      logs_dd_url: http://haproxy:3842
+  netflow:
+    forwarder:
+      # Comment the line below to use encryption between the Agent and HAProxy
+      logs_no_ssl: true
+      logs_dd_url: http://haproxy:3847
+
+orchestrator_explorer:
+  orchestrator_dd_url: http://haproxy:3845
+
+# compliance_config:
+#   endpoints:
+#     # Comment the line below to use encryption between the Agent and HAProxy
+#     logs_no_ssl: true
+#     logs_dd_url: http://haproxy:<PORT>
+
+# runtime_security_config:
+#   endpoints:
+#     # Comment the line below to use encryption between the Agent and HAProxy
+#     logs_no_ssl: true
+#     logs_dd_url: http://haproxy:<PORT>
