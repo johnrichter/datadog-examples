@@ -1,0 +1,11 @@
+---
+- name: Baseline
+  hosts: all
+  tasks:
+    - name: "Install Datadog Packages"
+      ansible.builtin.include_role:
+        name: datadog-agent
+      vars:
+        datadog_agent_env_vars: "{{ vagrant.datadog.env }}"
+        datadog_agent_install_via_script: "{{ vagrant.datadog.agent_via_script }}"
+        datadog_agent_install_via_official_role: "{{ vagrant.datadog.agent_via_role }}"

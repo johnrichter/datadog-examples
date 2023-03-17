@@ -9,7 +9,8 @@ services:
   datadog:
     container_name: datadog-agent
     image: gcr.io/datadoghq/agent:7
-    # TODO: Add all recommended configs here
+    # TODO: Add all recommended configs into a .env file and reference it here. Also add one for
+    # ./data for ones that shouldn't be committed
     environment:
       ## GLOBALS
       DD_HOSTNAME: <HOSTNAME>

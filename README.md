@@ -53,6 +53,8 @@ git clone --recursive git@github.com:johnrichter/datadog-examples.git
   - [ ] External Agent (for Databases, SNMP, etc)
 - [ ] IOT
 - [ ] Proxies
+  - Docs
+    - [ ] Add details on why you want to just use a web-proxy and not an LB or rev-proxy
   - [x] HAProxy
   - [ ] nginx
 

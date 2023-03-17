@@ -1,0 +1,5 @@
+---
+collections:
+  # Requires Homebrew to be installed
+  - name: community.general
+    version: ">=6.0.0"

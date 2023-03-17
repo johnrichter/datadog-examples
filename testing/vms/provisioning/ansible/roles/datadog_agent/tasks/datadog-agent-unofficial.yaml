@@ -12,9 +12,9 @@
       ansible.builtin.shell:
         cmd: /tmp/install_script_agent7.sh
       environment: "{{ datadog_agent_env_vars }}"
-      register: datadog_agent_install_result
-      changed_when: datadog_agent_install_result.stdout | length > 0
-      failed_when: datadog_agent_install_result.rc > 0
+      register: datadog_agent_install_script_result
+      changed_when: datadog_agent_install_script_result.stdout | length > 0
+      failed_when: datadog_agent_install_script_result.rc > 0
 
 - name: "Datadog Agent | Restart"
   ansible.builtin.service:

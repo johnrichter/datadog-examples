@@ -1,10 +1,10 @@
 # Overview
 
-Simple barebones VMs that can be created ad-hoc for testing these examples or for testing various Datadog features and functionality
+This is a simple example that provisions a VM with a fully configured Datadog Agent with Ansible.
 
 # Vagrant
 
-Currently includes the following VMs which use VirtualBox as the provider. All VMs will by default be installed with a Datadog Agent with the configuration from the [vm all Datadog products enabled](examples/infrastructure/vm-or-bare-metal/with-all-datadog-products-enabled) config as well as a default install of [Vector](https://vector.dev).
+Currently includes the following VMs which use VirtualBox as the provider. All VMs will by default be installed with a Datadog Agent with the configuration from the [vm all Datadog products enabled](examples/infrastructure/vm-or-bare-metal/with-all-datadog-products-enabled) config.
 
 - Ubuntu 20.04
 - Ubuntu 18.04

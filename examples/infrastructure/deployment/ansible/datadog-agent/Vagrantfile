@@ -9,20 +9,17 @@ DEFAULT_DD_ENV = {
 }
 RUNTIME_DD_ENV = DEFAULT_DD_ENV.merge(ENV).select { |k, v| k.start_with?('DD_') }
 
-DEFAULT_VECTOR_ENV = {}
-RUNTIME_VECTOR_ENV = DEFAULT_VECTOR_ENV.merge(ENV).select { |k, v| k.start_with?('VECTOR_') }
-
 BOXES = [
     {
         name: "ubuntu2004",
         hostname: "ubuntu2004",
         box: "ubuntu/focal64"
     },
-    {
-        name: "ubuntu1804",
-        hostname: "ubuntu1804",
-        box: "ubuntu/bionic64"
-    },
+    # {
+    #     name: "ubuntu1804",
+    #     hostname: "ubuntu1804",
+    #     box: "ubuntu/bionic64"
+    # },
     # {
     #     name: "centos8",
     #     hostname: "centos8",
@@ -58,15 +55,10 @@ Vagrant.configure("2") do |vagrant|
                     vagrant: {
                         datadog: {
                             env: RUNTIME_DD_ENV,
-                            install_agent: true,
-                            install_agent_via_role: true,
-                            install_agent_via_script: false,
-                        },
-                        vector: {
-                            env: RUNTIME_VECTOR_ENV,
-                            install_agent: true,
-                        },
-                    },
+                            agent_via_role: true,
+                            agent_via_script: false,
+                        }
+                    }
                 }
             end
         end

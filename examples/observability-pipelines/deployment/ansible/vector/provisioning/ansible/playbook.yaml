@@ -1,0 +1,9 @@
+---
+- name: Baseline
+  hosts: all
+  tasks:
+    - name: "Install Datadog Packages"
+      ansible.builtin.import_role:
+        name: vector
+      vars:
+        vector_env_vars: "{{ vagrant.vector.env }}"

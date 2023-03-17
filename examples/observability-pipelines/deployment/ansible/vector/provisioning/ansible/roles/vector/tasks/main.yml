@@ -1,0 +1,17 @@
+---
+- name: "Vector | Install"
+  block:
+    - name: "Vector | Install | Download install script"
+      ansible.builtin.get_url:
+        url: https://sh.vector.dev
+        dest: /tmp/install_script_vector.sh
+        mode: "ugo=rwx"
+        force: true
+
+    - name: "Vector | Install | Run installer" # noqa: command-instead-of-shell
+      ansible.builtin.shell:
+        cmd: /tmp/install_script_vector.sh -y
+      environment: "{{ vector_env_vars }}"
+      register: vector_install_result
+      changed_when: vector_install_result.stdout | length > 0
+      failed_when: vector_install_result.rc > 0
