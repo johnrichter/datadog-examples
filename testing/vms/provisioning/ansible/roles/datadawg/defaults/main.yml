@@ -1,9 +1,0 @@
----
-# "{{ undef(hint='You must specify your Galaxy API key') }}"
-datadawg_env_vars:
-  DD_SITE: "datadoghq.com"
-  DD_HOST_TAGS: "env:test"
-datadawg_install_datadog_agent: true
-datadawg_install_datadog_agent_via_script: false
-datadawg_install_datadog_agent_via_official_role: true
-datadawg_install_vector_agent: false
