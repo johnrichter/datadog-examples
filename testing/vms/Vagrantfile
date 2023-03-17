@@ -1,58 +1,57 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-$provisoner_apt = <<-SHELL
-DD_SITE="datadoghq.com" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh)"
-sudo curl -1sLf \
-  'https://repositories.timber.io/public/vector/cfg/setup/bash.deb.sh' \
-| sudo -E bash
-sudo apt-get install -y vector
+DEFAULT_DD_ENV = {
+    DD_SITE: "datadoghq.com",
+    DD_ENV: "test",
+    DD_TAGS: "[datacenter:local]", # must be a valid yaml list [a:b, c:d]. Used in the official role
+    DD_HOST_TAGS: "env:test,datacenter:local" # Comma separated. Used in the script installer
+}
+RUNTIME_DD_ENV = DEFAULT_DD_ENV.merge(ENV).select { |k, v| k.start_with?('DD_') }
 
-# TODO: Install OPW instead
-# https://docs.datadoghq.com/observability_pipelines/installation/?tab=linux
-#
-# apt-get install datadog-observability-pipelines-worker datadog-signing-keys
-# sudo systemctl restart datadog-observability-pipelines-worker.service
-SHELL
+BOXES = [
+    {
+        name: "ubuntu2004",
+        hostname: "ubuntu2004",
+        box: "ubuntu/focal64"
+    },
+    {
+        name: "ubuntu1804",
+        hostname: "ubuntu1804",
+        box: "ubuntu/bionic64"
+    }
+    # {
+    #     name: "centos8",
+    #     hostname: "centos8",
+    #     box: "centos/8"
+    # },
+    # {
+    #     name: "centoss8",
+    #     hostname: "centoss8",
+    #     box: "centos/stream8"
+    # }
+]
 
-$provisoner_yum = <<-SHELL
-DD_SITE="datadoghq.com" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh)"
-curl -1sLf 'https://repositories.timber.io/public/vector/cfg/setup/bash.rpm.sh' \
-  | sudo -E bash
-sudo yum install -y vector
-
-# TODO: Install OPW instead
-# https://docs.datadoghq.com/observability_pipelines/installation/?tab=linux
-#
-# apt-get install datadog-observability-pipelines-worker datadog-signing-keys
-# sudo systemctl restart datadog-observability-pipelines-worker.service
-SHELL
-
-Vagrant.configure("2") do |config|
-    config.vm.define "ubuntu2004" do |ubuntu2004|
-        ubuntu2004.vm.box = "ubuntu/focal64"
-        ubuntu2004.vm.hostname = "ubuntu2004"
-        ubuntu2004.vm.provision "shell",
-            inline: $provisoner_apt,
-            env: {DD_API_KEY: ENV['DD_API_KEY'], DD_HOSTNAME: ubuntu2004.vm.hostname}
-        ubuntu2004.vm.provider "virtualbox" do |vb|
-          vb.name = ubuntu2004.vm.hostname
-          vb.cpus = 1
-          vb.memory = "1024"
-          vb.customize ["modifyvm", :id, "--cpuexecutioncap", "90"]
-        end
-    end
-    config.vm.define "centos7" do |centos7|
-        centos7.vm.box = "centos/7"
-        centos7.vm.hostname = "centos7"
-        centos7.vm.provision "shell",
-            inline: $provisoner_yum,
-            env: {DD_API_KEY: ENV['DD_API_KEY'], DD_HOSTNAME: centos7.vm.hostname}
-        centos7.vm.provider "virtualbox" do |vb|
-          vb.name = centos7.vm.hostname
-          vb.cpus = 1
-          vb.memory = "1024"
-          vb.customize ["modifyvm", :id, "--cpuexecutioncap", "90"]
+Vagrant.configure("2") do |vagrant|
+    BOXES.each do |config|
+        vagrant.vm.define config[:name] do |machine|
+            machine.vm.box = config[:box]
+            machine.vm.hostname = config[:hostname]
+            machine.vm.provider "virtualbox" do |vb|
+                vb.name = config[:hostname]
+                vb.cpus = 2
+                vb.memory = "1024"
+                vb.customize ["modifyvm", :id, "--cpuexecutioncap", "90"]
+              end
+            machine.vm.provision :ansible do |ansible|
+                ansible.playbook = "provisioning/ansible/playbook.yaml"
+                # ansible.verbose = "vv"
+                ansible.extra_vars = {
+                    vagrant: {
+                        datadog: RUNTIME_DD_ENV
+                    }
+                }
+            end
         end
     end
 end

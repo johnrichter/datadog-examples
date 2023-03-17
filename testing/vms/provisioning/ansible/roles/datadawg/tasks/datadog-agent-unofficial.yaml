@@ -1,0 +1,23 @@
+---
+- name: "Datadog Agent | Install"
+  block:
+    - name: "Datadog Agent | Install | Download install script"
+      ansible.builtin.get_url:
+        url: https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh
+        dest: /tmp/install_script_agent7.sh
+        mode: "ugo=rwx"
+        force: true
+
+    - name: "Datadog Agent | Install | Run installer" # noqa: command-instead-of-shell
+      ansible.builtin.shell:
+        cmd: /tmp/install_script_agent7.sh
+      environment: "{{ datadawg_env_vars }}"
+      register: datadawg_agent_install
+      changed_when: datadawg_agent_install.stdout | length > 0
+      failed_when: datadawg_agent_install.rc > 0
+
+- name: "Datadog Agent | Restart"
+  ansible.builtin.service:
+    name: datadog-agent
+    enabled: true
+    state: reloaded

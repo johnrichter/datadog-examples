@@ -1,0 +1,56 @@
+# users_all:
+#   - user: "root"
+#     # Encrypted hash (Linux) or plain text password (macOS).
+#     # https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module
+#     # To create an account with a locked/disabled password on Linux systems, set this to '!' or '*'.
+#     # To create an account with a locked/disabled password on OpenBSD, set this to '*************'.
+#     # OS X/macOS: Enter the cleartext password as the value. Be sure to take relevant security precautions.
+#     password: ""
+#     shell: /bin/zsh
+#     groups: [] # Optional
+#     is_hidden_user: false # macOS only
+#     is_system_user: false
+#     home_directory:
+#       path: "/some/path"
+#       create: false
+#       move: false
+#     # See SSH Keygen
+#     ssh_key:
+#       generate: false
+#       type: ed25519
+#       bits: 4096
+#       passphrase: ""
+#       filepath: "~/.ssh/id_ed25519"
+#       comment: ""
+
+---
+- name: "Users"
+  become: true
+  become_user: root
+  block:
+    - name: "Users | CRUD"
+      ansible.builtin.user:
+        name: "{{ item.user }}"
+        password: "{{ item.password | default(omit) }}"
+        groups: "{{ item.groups | default(omit) }}"
+        shell: "{{ item.shell }}"
+        home: "{{ item.home_directory.path | default(omit) }}"
+        create_home: "{{ item.home_directory.create | default(omit) }}"
+        move_home: "{{ item.home_directory.move | default(omit) }}"
+        hidden: "{{ item.is_hidden_user | default(omit) }}"
+        system: "{{ item.is_system_user | default(omit) }}"
+        generate_ssh_key: "{{ item.ssh_key.generate | default(false) }}"
+        ssh_key_type: "{{ item.ssh_key.type | default('ed25519') }}"
+        ssh_key_bits: "{{ item.ssh_key.bits | default(4096) }}"
+        ssh_key_passphrase: "{{ item.ssh_key.passphrase | default(omit) }}"
+        ssh_key_file: "{{ item.ssh_key.filepath | default(omit) }}"
+        ssh_key_comment: "{{ item.ssh_key.comment | default(omit) }}"
+        state: present
+      loop: "{{ users_all }}"
+
+    - name: "Users | Update SSH Key permissions"
+      ansible.builtin.file:
+        name: "{{ item.ssh_key.filepath }}"
+        mode: "u=rw,g=,o="
+      loop: "{{ users_all }}"
+      when: item.ssh_key.generate or item.ssh_key.filepath

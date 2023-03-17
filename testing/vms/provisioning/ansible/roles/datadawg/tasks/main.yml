@@ -1,0 +1,20 @@
+---
+- name: "Install Datadog Agent with the offical role"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/datadog-agent-official.yaml"
+  when:
+    - datadawg_install_datadog_agent
+    - datadawg_install_datadog_agent_via_official_role
+
+- name: "Install Datadog Agent with the install script"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/datadog-agent-unofficial.yaml"
+  when:
+    - datadawg_install_datadog_agent
+    - datadawg_install_datadog_agent_via_script
+
+- name: "Install Vector Agent with the install script"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/vector.yaml"
+  when:
+    - datadawg_install_vector_agent

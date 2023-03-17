@@ -73,6 +73,13 @@ extra_tags: []
 # https://docs.datadoghq.com/infrastructure/list/
 inventories_configuration_enabled: true
 
+# The Agent can send the integration configurations to Datadog to be displayed in
+# the `Agent Configuration` section of the host detail panel. The Agent
+# configuration is scrubbed of any sensitive information.
+#
+# https://docs.datadoghq.com/infrastructure/list/
+inventories_checks_configuration_enabled: true
+
 ##############################################################
 ## Live Process and Live Container Collection Configuration ##
 ##############################################################

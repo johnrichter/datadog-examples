@@ -1,0 +1,17 @@
+---
+- name: "Vector | Install"
+  block:
+    - name: "Vector | Install | Download install script"
+      ansible.builtin.get_url:
+        url: https://sh.vector.dev
+        dest: /tmp/install_script_vector.sh
+        mode: "ugo=rwx"
+        force: true
+
+    - name: "Vector | Install | Run installer" # noqa: command-instead-of-shell
+      ansible.builtin.shell:
+        cmd: /tmp/install_script_vector.sh -y
+      environment: "{{ datadawg_env_vars }}"
+      register: datadawg_vector_install
+      changed_when: datadawg_vector_install.stdout | length > 0
+      failed_when: datadawg_vector_install.rc > 0
