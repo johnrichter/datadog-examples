@@ -49,7 +49,6 @@ galaxy_info:
     #
     # NOTE: A tag is limited to a single word comprised of alphanumeric characters.
     #       Maximum 20 tags per role.
-
-dependencies:
-  - name: datadog.datadog
-    version: ">=4.0.0"
+# dependencies:
+#   - name: "datadog.datadog"
+#     version: ">=4.0.0"
