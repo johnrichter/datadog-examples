@@ -1,23 +1,28 @@
 ---
-- name: "Install Software Packages"
-  block:
-    - name: "Install Datadog Agent"
-      ansible.builtin.import_role:
-        name: datadog_agent
-      vars:
-        datadog_agent_env_vars: "{{ vagrant.datadog.env }}"
-        datadog_agent_install_via_script: "{{ vagrant.datadog.install_agent_via_script }}"
-        datadog_agent_install_via_official_role: "{{ vagrant.datadog.install_agent_via_role }}"
-      when:
-        - vagrant.datadog.install_agent
+- name: "Provision VMs {{ ansible_play_batch }}"
+  hosts: all
+  serial:
+    - 100%
+  tasks:
+    - name: "Install Software Packages"
+      block:
+        - name: "Install Datadog Agent"
+          ansible.builtin.import_role:
+            name: datadog_agent
+          vars:
+            datadog_agent_env_vars: "{{ vagrant.datadog.env }}"
+            datadog_agent_install_via_script: "{{ vagrant.datadog.install_agent_via_script }}"
+            datadog_agent_install_via_official_role: "{{ vagrant.datadog.install_agent_via_role }}"
+          when:
+            - vagrant.datadog.install_agent
 
-    - name: "Install Vector Agent"
-      ansible.builtin.import_role:
-        name: vector
-      vars:
-        vector_env_vars: "{{ vagrant.vector.env }}"
-      when:
-        - vagrant.vector.install_agent
+        - name: "Install Vector Agent"
+          ansible.builtin.import_role:
+            name: vector
+          vars:
+            vector_env_vars: "{{ vagrant.vector.env }}"
+          when:
+            - vagrant.vector.install_agent
 # - name: Baseline
 #   hosts: all
 #   tasks:
