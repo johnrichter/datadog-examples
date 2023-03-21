@@ -12,32 +12,48 @@ RUNTIME_DD_ENV = DEFAULT_DD_ENV.merge(ENV).select { |k, v| k.start_with?('DD_') 
 DEFAULT_VECTOR_ENV = {}
 RUNTIME_VECTOR_ENV = DEFAULT_VECTOR_ENV.merge(ENV).select { |k, v| k.start_with?('VECTOR_') }
 
+DEFAULT_VM_CONFIG = {
+    cpu: {
+        count: 2,
+        execution_cap: 75,
+    },
+    memory: "1024",
+}
 BOXES = [
     {
         name: "ubuntu2004",
         hostname: "ubuntu2004",
-        box: "ubuntu/focal64"
+        box: "ubuntu/focal64",
+        vm: DEFAULT_VM_CONFIG,
     },
     {
         name: "ubuntu1804",
         hostname: "ubuntu1804",
-        box: "ubuntu/bionic64"
+        box: "ubuntu/bionic64",
+        vm: DEFAULT_VM_CONFIG,
     },
-    # {
-    #     name: "centos8",
-    #     hostname: "centos8",
-    #     box: "centos/8"
-    # },
-    # {
-    #     name: "centoss8",
-    #     hostname: "centoss8",
-    #     box: "centos/stream8"
-    # },
-    # {
-    #     name: "centos7",
-    #     hostname: "centos7",
-    #     box: "centos/7"
-    # },
+    # Currently the vector install fails due to a CA certifcate issue. Pretty sure Centos8 ships
+    # old CAs
+    {
+        name: "centos8",
+        hostname: "centos8",
+        box: "centos/8",
+        vm: DEFAULT_VM_CONFIG,
+    },
+    {
+        name: "centoss8",
+        hostname: "centoss8",
+        box: "centos/stream8",
+        vm: DEFAULT_VM_CONFIG,
+    },
+    # Currently the vector install fails due to a CA certifcate issue. Pretty sure Centos8 ships
+    # old CAs
+    {
+        name: "centos7",
+        hostname: "centos7",
+        box: "centos/7",
+        vm: DEFAULT_VM_CONFIG,
+    },
 ]
 
 Vagrant.configure("2") do |vagrant|
@@ -48,9 +64,9 @@ Vagrant.configure("2") do |vagrant|
             machine.vm.hostname = config[:hostname]
             machine.vm.provider "virtualbox" do |vb|
                 vb.name = config[:hostname]
-                vb.cpus = 2
-                vb.memory = "1024"
-                vb.customize ["modifyvm", :id, "--cpuexecutioncap", "90"]
+                vb.cpus = config[:vm][:cpu][:count]
+                vb.memory = config[:vm][:memory]
+                vb.customize ["modifyvm", :id, "--cpuexecutioncap", "#{config[:vm][:cpu][:execution_cap]}"]
               end
 
             # Only provision the machines after the last VM is up and ready. This
@@ -60,7 +76,7 @@ Vagrant.configure("2") do |vagrant|
                     ansible.playbook = "provisioning/ansible/playbook.yaml"
                     ansible.config_file = "provisioning/ansible/ansible.cfg"
                     ansible.limit = "all"
-                    ansible.verbose = "v"
+                    # ansible.verbose = "v"
                     ansible.extra_vars = {
                         vagrant: {
                             datadog: {
