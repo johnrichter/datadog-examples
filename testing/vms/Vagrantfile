@@ -24,13 +24,13 @@ BOXES = [
             hostname: "ubuntu2004.local",
         }),
     },
-    # {
-    #     name: "ubuntu1804",
-    #     box: "ubuntu/bionic64",
-    #     vm: DEFAULT_VM_CONFIG.merge({
-    #         hostname: "ubuntu1804.local",
-    #     }),
-    # },
+    {
+        name: "ubuntu1804",
+        box: "ubuntu/bionic64",
+        vm: DEFAULT_VM_CONFIG.merge({
+            hostname: "ubuntu1804.local",
+        }),
+    },
     # Currently the vector install fails due to a CA certifcate issue. Pretty sure Centos8 ships
     # old CAs
     # {

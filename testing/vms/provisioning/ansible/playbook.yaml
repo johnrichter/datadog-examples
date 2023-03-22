@@ -4,11 +4,6 @@
   serial:
     - 100%
   tasks:
-    - name: Extract Vagrant IP address
-      ansible.builtin.set_fact:
-        cacheable: false
-        machine_ipv4: "{{ hostvars[inventory_hostname]['ansible_all_ipv4_addresses'][-1] }}"
-
     - name: "Prepare machine for Ansible"
       ansible.builtin.import_role:
         name: ansible_managed_node
