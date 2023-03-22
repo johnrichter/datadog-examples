@@ -101,7 +101,7 @@
             - name: "Store private key on Ansible control node"
               ansible.builtin.fetch:
                 src: "/home/{{ ansible_managed_node_ansible_user_name }}/.ssh/id_ed25519"
-                dest: "{{ ansible_managed_node_local_ssh_key_dir }}/{{ inventory_hostname }}-{{ machine_ipv4 | replace('.', '-') }}.id_ed25519"
+                dest: "{{ ansible_managed_node_local_ssh_key_dir }}/{{ (ansible_fqdn or inventory_hostname) | replace('.', '-') }}-{{ machine_ipv4 | replace('.', '-') }}.id_ed25519"
                 fail_on_missing: true
                 flat: true
 
