@@ -6,12 +6,12 @@
     # Hack to force become on imported tasks since import/include don't support become
     ansible_become: true
     datadog_enabled: true
-    datadog_api_key: "{{ datadog_agent_env_vars.DD_API_KEY | mandatory }}"
-    datadog_site: "{{ datadog_agent_env_vars.DD_SITE | default('datadoghq.com') }}"
+    datadog_api_key: "{{ datadog_agent_api_key | mandatory }}"
+    datadog_site: "{{ datadog_agent_site }}"
     datadog_agent_major_version: "7"
     datadog_config:
-      env: "{{ datadog_agent_env_vars.DD_ENV | default('youshouldsetthis') }}"
-      tags: "{{ datadog_agent_env_vars.DD_TAGS | default([]) }}"
+      env: "{{ datadog_agent_env }}"
+      tags: "{{ datadog_agent_tags }}"
       log_level: "info"
       inventories_configuration_enabled: true
       inventories_checks_configuration_enabled: true
@@ -89,9 +89,3 @@
       #       sftp_check: true
       #       private_key_file:
       #       add_missing_keys: true
-
-- name: "Datadog Agent | Restart"
-  ansible.builtin.service:
-    name: datadog-agent
-    enabled: true
-    state: restarted

@@ -4,7 +4,16 @@
   serial:
     - 100%
   tasks:
-    - name: "Install Software Packages"
+    - name: Extract Vagrant IP address
+      ansible.builtin.set_fact:
+        cacheable: false
+        machine_ipv4: "{{ hostvars[inventory_hostname]['ansible_all_ipv4_addresses'][-1] }}"
+
+    - name: "Prepare machine for Ansible"
+      ansible.builtin.import_role:
+        name: ansible_managed_node
+
+    - name: "Install Monitoring Packages"
       block:
         - name: "Install Datadog Agent"
           ansible.builtin.import_role:
@@ -23,41 +32,3 @@
             vector_env_vars: "{{ vagrant.vector.env }}"
           when:
             - vagrant.vector.install_agent
-# - name: Baseline
-#   hosts: all
-#   tasks:
-# - name: "Configure SSH"
-# TODO
-
-# TODO
-# - name: Configure Ansible User
-#   hosts: all
-#   tasks:
-#     # - name: "Create group"
-#     #
-#     - name: "Create user"
-#       ansible.builtin.include_role:
-#         name: users
-#       vars:
-#         users_all:
-#           - user: "ansible" # TODO: Update with variable
-#             # Encrypted hash (Linux) or plain text password (macOS).
-#             # https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module
-#             # To create an account with a locked/disabled password on Linux systems, set this to '!' or '*'.
-#             # To create an account with a locked/disabled password on OpenBSD, set this to '*************'.
-#             # OS X/macOS: Enter the cleartext password as the value. Be sure to take relevant security precautions.
-#             password: "ansible" # TODO: Update with variable
-#             # groups: [] # TODO: Update with variable from group creation task
-#             is_system_user: false
-#             home_directory:
-#               path: "/home/ansible" # TODO: Update with variable
-#               create: true
-#               move: false
-#             # See SSH Keygen
-#             ssh_key:
-#               generate: false
-#               type: ed25519
-#               bits: 4096
-#               passphrase: "" # TODO: Update with variable
-#               filepath: "~/.ssh/id_ed25519"
-#               comment: "" # TODO: Update with variable

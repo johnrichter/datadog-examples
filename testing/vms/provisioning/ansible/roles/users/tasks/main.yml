@@ -33,7 +33,7 @@
         name: "{{ item.user }}"
         password: "{{ item.password | default(omit) }}"
         groups: "{{ item.groups | default(omit) }}"
-        shell: "{{ item.shell }}"
+        shell: "{{ item.shell | default('/bin/bash') }}"
         home: "{{ item.home_directory.path | default(omit) }}"
         create_home: "{{ item.home_directory.create | default(omit) }}"
         move_home: "{{ item.home_directory.move | default(omit) }}"

@@ -1,0 +1,6 @@
+---
+- name: SSHD | Enable or restart
+  ansible.builtin.service:
+    name: sshd
+    enabled: true
+    state: restarted

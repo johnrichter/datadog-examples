@@ -11,7 +11,11 @@
     - name: "Datadog Agent | Install | Run installer" # noqa: command-instead-of-shell
       ansible.builtin.shell:
         cmd: /tmp/install_script_agent7.sh
-      environment: "{{ datadog_agent_env_vars }}"
+      environment:
+        DD_API_KEY: "{{ datadog_agent_api_key }}"
+        DD_SITE: "{{ datadog_agent_site }}"
+        DD_ENV: "{{ datadog_agent_env }}"
+        DD_HOST_TAGS: "{{ datadog_agent_host_tags }}"
       register: datadog_agent_install_script_result
       changed_when: datadog_agent_install_script_result.stdout | length > 0
       failed_when: datadog_agent_install_script_result.rc > 0
