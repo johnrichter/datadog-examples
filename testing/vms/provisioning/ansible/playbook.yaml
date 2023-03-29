@@ -6,7 +6,7 @@
   tasks:
     - name: "Prepare machine for Ansible"
       ansible.builtin.import_role:
-        name: ansible_managed_node
+        name: ansiblify
 
     - name: "Install Monitoring Packages"
       block:

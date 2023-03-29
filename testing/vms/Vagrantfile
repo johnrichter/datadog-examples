@@ -2,7 +2,9 @@
 # vi: set ft=ruby :
 
 # You can pass env variables when calling Vagrant. Current options from the Ansible playbook
-# * ANSIBLE_USER_PASSWORD: "ansible"
+# * ANSIBLIFY_PASSWORD_SALT
+# * ANSIBLIFY_USER_PASSWORD
+# * ANSIBLIFY_USER_SSH_KEY_PASSPHRASE
 # * DD_SITE: "datadoghq.com"
 # * DD_ENV: "test"
 # * DD_TAGS: "[datacenter:local]" - Must be a valid yaml list [a:b, c:d]. Used in the official role

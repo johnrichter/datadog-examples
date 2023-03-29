@@ -1,8 +1,0 @@
----
-# defaults file for ansible_managed_node
-ansible_managed_node_ansible_group_name: ansible
-ansible_managed_node_ansible_user_name: ansible
-ansible_managed_node_ansible_user_password: "{{ lookup('env', 'ANSIBLE_USER_PASSWORD') | default('ansible') }}"
-ansible_managed_node_ansible_user_ssh_key_passphrase: "{{ lookup('env', 'ANSIBLE_USER_PASSWORD') | default('ansible') }}"
-# Local directory to copy all host ssh keys to
-ansible_managed_node_local_ssh_key_dir: "{{ playbook_dir }}/inventory/ssh"
