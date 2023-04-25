@@ -7,17 +7,17 @@
 version: '3'
 services:
   datadog:
-    container_name: datadog-agent
+    container_name: docker-dd-agent
     image: gcr.io/datadoghq/agent:7
     # TODO: Add all recommended configs into a .env file and reference it here. Also add one for
     # ./data for ones that shouldn't be committed
     environment:
       ## GLOBALS
-      DD_HOSTNAME: <HOSTNAME>
-      DD_API_KEY: <DD_API_KEY> # https://app.datadoghq.com/organization-settings/api-keys
-      DD_ENV: <ENV> # dev
+      DD_HOSTNAME: docker-dd-agent
+      DD_API_KEY: <api key> # https://app.datadoghq.com/organization-settings/api-keys
+      DD_ENV: sandbox # dev
       # DD_TAGS: "<tags>" # team:devops
-      # DD_AC_EXCLUDE: name:datadog-agent # exclude this container from data collection
+      # DD_AC_EXCLUDE: name:docker-dd-agent # exclude this container from data collection
       ## TAGS https://docs.datadoghq.com/getting_started/tagging/assigning_tags/?tab=containerizedenvironments
       # DD_DOCKER_LABELS_AS_TAGS: '{"*":"%%label%%"}'
       ## LOGS https://docs.datadoghq.com/agent/docker/log/
@@ -38,53 +38,6 @@ services:
       # Inventories
       DD_INVENTORIES_CONFIGURATION_ENABLED: true
       DD_INVENTORIES_CHECKS_CONFIGURATION_ENABLED: true
-      ###########
-      ## PROXY ##
-      ###########
-      DD_DD_URL: http://haproxy:3834
-      # DD_PROXY_HTTP: http://haproxy:3834
-      # DD_PROXY_HTTPS: http://haproxy:3834
-      # apm
-      DD_APM_DD_URL: http://haproxy:3835
-      # profiling
-      DD_APM_PROFILING_DD_URL: http://haproxy:3836/api/v2/profile
-      # debugger WIP
-      # DD_APM_DEBUGGER_DD_URL: http://haproxy:<PORT>
-      # telemetry
-      DD_APM_TELEMETRY_DD_URL: http://haproxy:3843
-      # process
-      DD_PROCESS_CONFIG_PROCESS_DD_URL: http://haproxy:3837
-      DD_PROCESS_CONFIG_EVENTS_DD_URL: http://haproxy:3848
-      # logs
-      DD_LOGS_CONFIG_LOGS_DD_URL: haproxy:3838 # Must not have scheme
-      DD_LOGS_CONFIG_LOGS_NO_SSL: true
-      DD_LOGS_CONFIG_FORCE_USE_HTTP: true
-      # dbm metrics
-      DD_DATABASE_MONITORING_METRICS_DD_URL: http://haproxy:3839
-      DD_DATABASE_MONITORING_METRICS_LOGS_NO_SSL: true
-      # dbm activity
-      DD_DATABASE_MONITORING_ACTIVITY_DD_URL: http://haproxy:3839
-      DD_DATABASE_MONITORING_ACTIVITY_LOGS_NO_SSL: true
-      # dbm samples
-      DD_DATABASE_MONITORING_SAMPLES_DD_URL: http://haproxy:3840
-      DD_DATABASE_MONITORING_SAMPLES_LOGS_NO_SSL: true
-      # ndm metadata
-      DD_NETWORK_DEVICES_METADATA_DD_URL: http://haproxy:3841
-      DD_NETWORK_DEVICES_METADATA_LOGS_NO_SSL: true
-      # ndm traps
-      DD_NETWORK_DEVICES_SNMP_TRAPS_FORWARDER_DD_URL: http://haproxy:3842
-      DD_NETWORK_DEVICES_SNMP_TRAPS_FORWARDER_LOGS_NO_SSL: true
-      # ndm netflow
-      DD_NETWORK_DEVICES_NETFLOW_FORWARDER_DD_URL: http://haproxy:3847
-      DD_NETWORK_DEVICES_NETFLOW_FORWARDER_LOGS_NO_SSL: true
-      # orchestrator (cluster agent only)
-      DD_ORCHESTRATOR_EXPLORER_ORCHESTRATOR_DD_URL: http://haproxy:3845
-      # security (compliance) WIP
-      # DD_COMPLIANCE_CONFIG_ENDPOINTS_DD_URL: http://haproxy:3834
-      # DD_COMPLIANCE_CONFIG_ENDPOINTS_LOGS_NO_SSL: true
-      # security (runtime) WIP
-      # DD_RUNTIME_SECURITY_CONFIG_ENDPOINTS_DD_URL: http://haproxy:3846
-      # DD_RUNTIME_SECURITY_CONFIG_ENDPOINTS_LOGS_NO_SSL: true
 
     depends_on: []
     # TODO: Where do these come frome?
