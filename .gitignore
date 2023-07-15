@@ -19,3 +19,9 @@ build/
 *.log*
 /classes/
 *.id_*
+*.ova
+*.ovf
+*.box
+*.pkrvars.hcl
+.auto.pkrvars.hcl
+build

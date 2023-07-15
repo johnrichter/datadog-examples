@@ -1,0 +1,61 @@
+init_config:
+    is_jmx: false
+    collect_default_metrics: true
+    service: sonarqube
+instances:
+  # Web API Metrics
+  - is_jmx: false
+    web_endpoint: http://localhost:9000
+    auth_type: basic
+    password: <YOUR PASSWORD>
+    username: admin
+    components:
+      account-service-feb:
+      autopay-email-consent-reminder-process:
+      Customer-verification:
+      payment-search:
+  # Web JMX Metrics
+  - host: "<host or ip>"
+    is_jmx: true
+    port: 10443
+    user: "<user>"
+    password: <YOUR PASSWORD>
+  # Compute Engine JMX Metrics
+  - host: "<host or ip>"
+    is_jmx: true
+    port: 10444
+    user: "<user>"
+    password: <YOUR PASSWORD>
+logs:
+   - type: file
+     path: /opt/sonarqube/logs/access.log
+     source: sonarqube
+   - type: file
+     path: /opt/sonarqube/logs/ce.log
+     source: sonarqube
+     log_processing_rules:
+     - type: multi_line
+       name: log_start_with_date
+       pattern: \d{4}\.\d{2}\.\d{2}
+   - type: file
+     path: /opt/sonarqube/logs/es.log
+     source: sonarqube
+     log_processing_rules:
+     - type: multi_line
+       name: log_start_with_date
+       pattern: \d{4}\.\d{2}\.\d{2}
+   - type: file
+     path: /opt/sonarqube/logs/sonar-*.log
+     source: sonarqube
+     log_processing_rules:
+     - type: multi_line
+       name: log_start_with_date
+       pattern: \d{4}\.\d{2}\.\d{2}
+   - type: file
+     path: /opt/sonarqube/logs/web.log
+     source: sonarqube
+     log_processing_rules:
+     - type: multi_line
+       name: log_start_with_date
+       pattern: \d{4}\.\d{2}\.\d{2}
+

@@ -1,0 +1,10 @@
+Vagrant.require_version '>= ${var.min_vagrant_version}'
+
+Vagrant.configure("2") do |config|
+  config.vm.provider "virtualbox" do |vb|
+  end
+  config.vm.provider "vmware" do |vb|
+  end
+  config.vm.provider "qemu" do |vb|
+  end
+end
