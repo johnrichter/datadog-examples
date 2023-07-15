@@ -17,7 +17,7 @@ Apple moved away from traditional TUN/TAP infra for virtualization starting with
 
 Current state of virtualization software
 
-- Virtualbox is in beta, but currently crashes when bootin a barebones Ubuntu 20.04 arm64 VM.
+- Virtualbox is in beta, but currently crashes when booting a barebones Ubuntu 20.04 arm64 VM.
 - QEMU supports `hvf` and `vmnet`, but it is not signed and doesn't seem to have plans to be signed.
   - Currently it does not ship with `vmnet` support built in nor does it seem you can build from source to bake it in easily. `--enable-vnmet` did not produce a build that included `vmnet-*` devices.
   - Libvirt has the same signing and entitlement issues when trying to create network interfaces

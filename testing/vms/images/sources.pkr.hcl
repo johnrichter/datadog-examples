@@ -1,44 +1,4 @@
-packer {
-  required_version = ">= 1.9.0"
-  required_plugins {
-    qemu = {
-      version = ">= 1.0.0"
-      source  = "github.com/hashicorp/qemu"
-    }
-    virtualbox = {
-      version = ">= 1.0.0"
-      source  = "github.com/hashicorp/virtualbox"
-    }
-    vmware = {
-      version = ">= 1.0.0"
-      source  = "github.com/hashicorp/vmware"
-    }
-  }
-}
-
-
-// wait 5s,
-// enter,
-// wait 20,
-// enter (for english),
-// up (select option), enter (select upate to new installer)
-// wait 2.5 minutes
-// enter (keyboard defaults are fine)
-// enter (install ubuntu server w/o searching for additional 3rd party drivers)
-// enter (accept networking defaults)
-// enter (accept no proxy setup)
-// wait 10s (per mirror, x1), enter (loading default mirror caches)
-// down x5, enter (default disk configuration)
-// enter, enter (accept default file system setup), down, enter (accept destructive action)
-// type "vagrant" (your name), enter, type <vm name>, enter, type "vagrant" (username), enter, type "vagrant" (password), enter, type "vagrant" (pw confirm)
-// enter (accept user config)
-// enter (skip ubuntu pro)
-// space (select install ssh server), down, down, enter
-// tab, enter (accept packer installers)
-// wait 10min, tab, down, enter (reboot after install is finished)
-//
-
-source "virtualbox-iso" "x86_64" {
+source "virtualbox-iso" "vm" {
   //
   // Final Image Configuration
   //
@@ -161,24 +121,10 @@ source "virtualbox-iso" "x86_64" {
     "--version", "${var.vm_version}"
   ]
 }
-// source "virtualbox-iso" "arm64" {
-//   iso_url = "https://cdimage.ubuntu.com/releases/20.04/release/ubuntu-20.04.5-live-server-arm64.iso"
-//   iso_checksum = "file:https://cdimage.ubuntu.com/releases/20.04/release/SHA256SUMS"
-//   shutdown_command = "echo 'packer' | sudo -S shutdown -P now"
-//   guest_additions_url = "https://www.virtualbox.org/download/testcase/VBoxGuestAdditions_7.0.9-158050.iso"
-// }
-// source "vmware-iso" "x86_64" {
-//   iso_url = "https://releases.ubuntu.com/20.04/ubuntu-20.04.6-live-server-amd64.iso"
-//   iso_checksum = "file:https://releases.ubuntu.com/20.04/SHA256SUMS"
-//   shutdown_command = "shutdown -P now"
-// }
-// source "vmware-iso" "arm64" {
-//   iso_url = "https://cdimage.ubuntu.com/releases/20.04/release/ubuntu-20.04.5-live-server-arm64.iso"
-//   iso_checksum = "file:https://cdimage.ubuntu.com/releases/20.04/release/SHA256SUMS"
-//   shutdown_command = "shutdown -P now"
-// }
 
-source "qemu" "arm64" {
+source "vmware-iso" "vm" {}
+
+source "qemu" "vm" {
   // Values for some options can be listed by `qemu-system-aarch64 -<option> help`
 
   //
@@ -318,31 +264,4 @@ source "qemu" "arm64" {
   format           = "qcow2"
   output_directory = "${path.root}/../../build/ubuntu/2004"
   vm_name          = "${var.vm_name.file}"
-}
-
-source "qemu" "x86_64" {}
-
-build {
-  sources = [
-    "sources.qemu.arm64",
-    // "sources.qemu.x86_64",
-    // "sources.virtualbox-iso.arm64",
-    // "sources.virtualbox-iso.x86_64",
-    // "sources.vmware-iso.arm64"
-    // "sources.vmware-iso.x86_64"
-  ]
-  post-processors {
-    post-processor "vagrant" {
-      keep_input_artifact  = true
-      compression_level    = 9
-      output               = abspath("${path.root}/../../../boxes/ubuntu-2004-{{.Provider}}-${source.name}.box")
-      vagrantfile_template = "${path.root}/../../config/vagrant/Vagrantfile"
-      // provider_override = "" // Required if using Artifice
-    }
-    // post-processor "vagrant-cloud" {
-    //   access_token = "${var.vagrant_cloud_access_token}"
-    //   box_tag      = "hashicorp/precise64"
-    //   version      = "${local.version}"
-    // }
-  }
 }

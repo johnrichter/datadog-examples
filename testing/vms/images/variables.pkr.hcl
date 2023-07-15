@@ -1,11 +1,38 @@
+variable "vm_host_is_mac" {
+  type        = bool
+  description = "Is the metal host running macOS?"
+}
+variable "vm_name" {
+  type = object({
+    human = string
+    file  = string
+  })
+  description = "The name of the VM and names of its assets"
+}
 variable "vm_version" {
   type        = string
-  description = "The version of the VM"
+  description = "The version of the VM (not the OS)"
 }
 variable "vm_description" {
   type        = string
   description = "The description of the VM"
-  default     = "A base Ubuntu 20.04.x image"
+  default     = "A base Ubuntu image"
+}
+variable "vm_os" {
+  type = object({
+    name    = string
+    versions = list(string) # Semver
+    arch    = string
+  })
+  description = "VM Operating System metadata"
+}
+variable "vm_firmware" {
+  type = object({
+    is_uefi   = bool
+    qemu_code = string
+    qemu_vars = string
+  })
+  description = "Firmware configuration"
 }
 variable "virtualbox_guest_additions_version" {
   type        = string
@@ -69,7 +96,11 @@ variable "user_name" {
 }
 variable "user_password" {
   type        = string
-  description = "The plain text password of the user"
+  description = "The user's password"
+}
+variable "user_password_crypted" {
+  type        = string
+  description = "The openssl-passwd crypted text password of the user"
 }
 variable "user_ssh_authorized_key_blobs" {
   type        = list(string)
