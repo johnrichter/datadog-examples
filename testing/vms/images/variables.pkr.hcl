@@ -1,13 +1,20 @@
-variable "vm_host_is_mac" {
-  type        = bool
-  description = "Is the metal host running macOS?"
+variable "enabled_hypervisors" {
+  type        = list(string)
+  description = "What builders should we use? vbox, vmware, qemu, parallels"
 }
-variable "vm_name" {
+variable "host_machine" {
   type = object({
-    human = string
-    file  = string
+    is_mac = bool
+    mac = object({
+      use_vmnet = bool
+    })
   })
-  description = "The name of the VM and names of its assets"
+  description = "Host information used for configuring hypervisors"
+}
+
+variable "vm_filename" {
+  type        = string
+  description = "The name of the exported VM file without extension"
 }
 variable "vm_version" {
   type        = string
@@ -21,22 +28,40 @@ variable "vm_description" {
 variable "vm_os" {
   type = object({
     name    = string
-    versions = list(string) # Semver
+    version = string # Semver
     arch    = string
   })
   description = "VM Operating System metadata"
 }
-variable "vm_firmware" {
+variable "vm_use_uefi" {
+  type        = bool
+  description = "Use a UEFI bios"
+}
+variable "qemu" {
   type = object({
-    is_uefi   = bool
-    qemu_code = string
-    qemu_vars = string
+    firmware = object({
+      bios = string
+      uefi = object({
+        code = string
+        vars = string
+      })
+    })
   })
-  description = "Firmware configuration"
+  description = "QEMU firmware configuration"
+  default = {
+    firmware = {
+      bios = ""
+      uefi = {
+        code = ""
+        vars = ""
+      }
+    }
+  }
 }
 variable "virtualbox_guest_additions_version" {
   type        = string
   description = "Version of the Virtualbox Guest Additions to install"
+  default     = ""
 }
 variable "min_vagrant_version" {
   type        = string

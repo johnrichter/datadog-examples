@@ -1,267 +1,152 @@
 source "virtualbox-iso" "vm" {
   //
-  // Final Image Configuration
-  //
-  // vboxmanage_post runs after the vm is shutdown and before the vm is exported
+  // Virtualbox specific
   //
 
-  guest_os_type            = "Ubuntu20_LTS_64"
-  gfx_accelerate_3d        = true
-  gfx_controller           = "vmsvga"
-  gfx_vram_size            = "128"
-  chipset                  = "piix3"
-  firmware                 = "bios"
-  nested_virt              = true
-  rtc_time_base            = "local"
-  audio_controller         = "ac97"
-  disk_size                = "21475" // ~20GiB in MB
-  nic_type                 = "82545EM"
-  hard_drive_discard       = true
-  hard_drive_interface     = "sata"
-  hard_drive_nonrotational = true
-  disk_additional_size     = [] // Additional disks to create
-  nvme_port_count          = 1
-  sata_port_count          = 1
-  vm_name                  = "ubuntu2004"
-  vboxmanage_post = [
-    ["modifyvm", "{{.Name}}", "--cpus", "1"],
-    ["modifyvm", "{{.Name}}", "--memory", "512"],
-  ]
-
-
-  //
-  // Installing the Guest OS
-  //
-
-  iso_interface = "sata"
-  iso_url       = "https://releases.ubuntu.com/20.04/ubuntu-20.04.6-live-server-amd64.iso"
-  iso_checksum  = "file:https://releases.ubuntu.com/20.04/SHA256SUMS"
+  acpi_shutdown             = local.builders.virtualbox.acpi_shutdown
+  audio_controller          = local.builders.virtualbox.audio_controller
+  bundle_iso                = local.builders.virtualbox.bundle_iso
+  chipset                   = local.builders.virtualbox.chipset
+  disk_additional_size      = local.builders.virtualbox.disk_additional_size
+  disk_size                 = local.builders.virtualbox.disk_size
+  export_opts               = local.builders.virtualbox.export_opts
+  firmware                  = local.builders.virtualbox.firmware
+  format                    = local.builders.virtualbox.format
+  gfx_accelerate_3d         = local.builders.virtualbox.gfx_accelerate_3d
+  gfx_controller            = local.builders.virtualbox.gfx_controller
+  gfx_vram_size             = local.builders.virtualbox.gfx_vram_size
+  guest_additions_interface = local.builders.virtualbox.guest_additions_interface
+  guest_additions_mode      = local.builders.virtualbox.guest_additions_mode
+  guest_additions_path      = local.builders.virtualbox.guest_additions_path
+  guest_additions_sha256    = local.builders.virtualbox.guest_additions_sha256
+  guest_additions_url       = local.builders.virtualbox.guest_additions_url
+  guest_os_type             = local.builders.virtualbox.guest_os_type
+  hard_drive_discard        = local.builders.virtualbox.hard_drive_discard
+  hard_drive_interface      = local.builders.virtualbox.hard_drive_interface
+  hard_drive_nonrotational  = local.builders.virtualbox.hard_drive_nonrotational
+  iso_interface             = local.builders.virtualbox.iso_interface
+  nested_virt               = local.builders.virtualbox.nested_virt
+  nic_type                  = local.builders.virtualbox.nic_type
+  nvme_port_count           = local.builders.virtualbox.nvme_port_count
+  rtc_time_base             = local.builders.virtualbox.rtc_time_base
+  sata_port_count           = local.builders.virtualbox.sata_port_count
+  vboxmanage_post           = local.builders.virtualbox.vboxmanage_post
 
   //
-  // Accessing configuration files within the VM during the build
-  //
-  // Note that if a CD is used and bundle_iso is enabled, the CD will be copied into the image
+  // Packer
   //
 
-  http_bind_address = "0.0.0.0"
+  boot_command      = local.builders.packer.boot_command
+  boot_wait         = local.builders.packer.boot_wait
+  communicator      = local.builders.packer.communicator
+  cpus              = local.builders.packer.cpus
+  headless          = local.builders.packer.headless
+  http_bind_address = local.builders.packer.http_bind_address
   http_content = {
-    "/user-data"   = templatefile("${path.root}/../../config/cloudinit/autoinstall.pkrtpl.hcl", { var = var })
-    "/meta-data"   = templatefile("${path.root}/../../config/cloudinit/metadata.pkrtpl.hcl", { var = var })
-    "/vendor-data" = templatefile("${path.root}/../../config/cloudinit/vendordata.pkrtpl.hcl", { var = var })
+    "/meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var })
+    "/network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var })
+    "/user-data"      = templatefile("${local.cloudinit_config_dir}/autoinstall.pkrtpl.hcl", { var = var })
+    "/vendor-data"    = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var })
   }
-
-  //
-  // Building the image
-  //
-  // We're using Virtualbox Beta to support Apple Arm chips. No SHA is available. Do not set
-  // ssh_password or ssh_private_key_file in order to leverage Packer's automatic ephemeral key
-  // generation. Access public key with {{ .SSHPublicKey | urlquery }}
-  //
-
-  // Only used if guest_additions_mode = attach. Defaults to value in iso_interface
-  headless                  = false
-  cpus                      = 2
-  memory                    = 1024
-  sound                     = "none"
-  usb                       = false
-  guest_additions_interface = "sata"
-  guest_additions_mode      = "upload"
-  guest_additions_path      = "/opt/virtualbox/VBoxGuestAdditions-${var.virtualbox_guest_additions_version}.iso"
-  guest_additions_sha256    = "none"
-  guest_additions_url       = "https://download.virtualbox.org/virtualbox/${var.virtualbox_guest_additions_version}/VBoxGuestAdditions_${var.virtualbox_guest_additions_version}.iso"
-  acpi_shutdown             = false
-  shutdown_command          = "echo 'packer' | sudo -S shutdown -P now"
-  shutdown_timeout          = "5m"
-  post_shutdown_delay       = "0s"
-  vrdp_bind_address         = "127.0.0.1"
-  virtualbox_version_file   = "/opt/virtualbox/.vbox_version"
-  communicator              = "ssh"
-  ssh_port                  = 22
-  ssh_username              = "packer"
-  ssh_password              = "packer"
-  // Path to user certificate used to authenticate with SSH
-  // ssh_certificate_file = ""
-  // Path to a PEM encoded private key file to use to authenticate with SSH
-  // ssh_private_key_file = ""
-  // Use the local SSH agent to authenticate to the instance. Don't create a temporary keypair.
-  // Don't use ssh_password and ssh_private_key_file. Env var SSH_AUTH_SOCK must be set
-  ssh_agent_auth               = false
-  ssh_pty                      = false
-  ssh_timeout                  = "5m" // Noop if ssh_handshake_attempts is set
-  ssh_handshake_attempts       = 10
-  ssh_keep_alive_interval      = "5s"
-  ssh_disable_agent_forwarding = false
-  ssh_file_transfer_method     = "sftp"
-  pause_before_connecting      = "0s"
-  skip_nat_mapping             = false
-  boot_command = [
-    "<wait><wait><wait><esc><esc><esc><enter><wait><wait><wait>",
-    "/casper/vmlinuz root=/dev/sr0 initrd=/casper/initrd autoinstall ",
-    "ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/user-data/",
-    "<enter>"
-  ]
-  boot_wait = "10s"
-
-  //
-  // Exporting the image
-  //
-  // Note that bundle_iso copies all attached CDs (ISOs) into the image.
-  //
-
-  format           = "ova"
-  keep_registered  = false
-  skip_export      = false
-  bundle_iso       = false
-  output_directory = "${path.root}/build/ubuntu/2004"
-  output_filename  = "ubuntu2004-arm64"
-  // https://www.virtualbox.org/manual/ch09.html#vboxmanage-export
-  export_opts = [
-    "--manifest",
-    "--description", "${var.vm_description}",
-    "--version", "${var.vm_version}"
-  ]
+  iso_checksum                 = local.builders.packer.iso_checksum
+  iso_urls                     = local.builders.packer.iso_urls
+  keep_registered              = local.builders.packer.keep_registered
+  memory                       = local.builders.packer.memory
+  output_directory             = local.builders.packer.output_directory
+  pause_before_connecting      = local.builders.packer.pause_before_connecting
+  post_shutdown_delay          = local.builders.packer.post_shutdown_delay
+  shutdown_command             = local.builders.packer.shutdown_command
+  shutdown_timeout             = local.builders.packer.shutdown_timeout
+  skip_export                  = local.builders.packer.skip_export
+  skip_nat_mapping             = local.builders.packer.skip_nat_mapping
+  sound                        = local.builders.packer.sound ? (var.host_machine.is_mac ? "coreaudio" : "alsa") : "none"
+  ssh_agent_auth               = local.builders.packer.ssh_agent_auth
+  ssh_disable_agent_forwarding = local.builders.packer.ssh_disable_agent_forwarding
+  ssh_file_transfer_method     = local.builders.packer.ssh_file_transfer_method
+  ssh_keep_alive_interval      = local.builders.packer.ssh_keep_alive_interval
+  ssh_password                 = local.builders.packer.ssh_password
+  ssh_port                     = local.builders.packer.ssh_port
+  ssh_pty                      = local.builders.packer.ssh_pty
+  ssh_timeout                  = local.builders.packer.ssh_timeout
+  ssh_username                 = local.builders.packer.ssh_username
+  usb                          = local.builders.packer.usb
+  virtualbox_version_file      = local.builders.packer.virtualbox_version_file
+  vm_name                      = local.builders.packer.vm_name
+  vrdp_bind_address            = local.builders.packer.vrdp_bind_address
 }
 
 source "vmware-iso" "vm" {}
 
 source "qemu" "vm" {
-  // Values for some options can be listed by `qemu-system-aarch64 -<option> help`
-
   //
-  // Final Image Configuration
-  //
-  // vboxmanage_post runs after the vm is shutdown and before the vm is exported
-  //
-  efi_boot          = var.vm_firmware.is_uefi
-  efi_firmware_code = var.vm_firmware.qemu_code
-  efi_firmware_vars = var.vm_firmware.qemu_vars
-  cpu_model         = "host"
-  accelerator       = "hvf" # kvm is the backup on macOS
-  // cdrom_interface      = "virtio-scsi" // virtio-scsi if having problems
-  disk_additional_size = [] // Additional disks to create
-  disk_interface       = "virtio"
-  disk_size            = "21475M"
-  disk_compression     = false
-  disk_discard         = "unmap"
-  disk_detect_zeroes   = "unmap"
-  machine_type         = "virt"
-  net_device           = var.vm_host_is_mac ? "vmnet-bridged" : "virtio-net-pci"
-
-  // This bridge must already exist before running Packer and using libvirt. The virbr0 bridge the
-  // default network created by libvirt. Only works on Linux
-  net_bridge  = var.vm_host_is_mac ? null : "virbr0"
-  qemu_binary = "qemu-system-aarch64"
-  qemuargs = [
-    // Override Packer's QMP settings for mux and customization
-    ["-chardev", "socket,id=char0,path=${path.root}/../../build/ubuntu/2004/build.monitor,mux=on,server=on,wait=off"],
-    ["-mon", "chardev=char0,mode=control,pretty=on"],
-    // ["-serial", "vc:1280x720"],
-    ["-serial", "vc:1200x1200"],
-    // Enable USB and the usb-table for better mouse position control and prevent mouse capture
-    ["-usb"],
-    ["-device", "nec-usb-xhci,id=usb-bus"],
-    ["-device", "usb-tablet,bus=usb-bus.0"],
-    ["-device", "usb-mouse,bus=usb-bus.0"],
-    ["-device", "usb-kbd,bus=usb-bus.0"],
-    // Enable graphics driver
-    // ["-device", "virtio-gpu-pci"],
-    // Add Random Number Generator
-    ["-device", "virtio-rng-pci"],
-    // HVF: May need to add if guest OS is having issues
-    // ["-global", "virtio-pci.disable-modern=on"]
-    // Create network bus for vmnet on Mac
-    (var.vm_host_is_mac ? ["-device", "virtio-net-device,mac=4E:D6:E5:53:AA:F9,netdev=user.0"] : []),
-  ]
-  use_default_display = false // Set to true for sdl errors on mac
-  display             = "${var.vm_host_is_mac ? "cocoa" : "gtk"}"
-
-  //
-  // Installing the Guest OS
+  // QEMU specific
   //
 
-  iso_urls = [
-    "${var.vm_iso_url.arm64.local}",
-    "${var.vm_iso_url.arm64.remote}"
-  ]
-  iso_checksum   = "sha256:${var.vm_iso_checksum_sha256.arm64}" // "file:" for urls
-  iso_skip_cache = false
+  accelerator          = local.builders.qemu.accelerator
+  cdrom_interface      = local.builders.qemu.cdrom_interface
+  cpu_model            = local.builders.qemu.cpu_model
+  disk_additional_size = local.builders.qemu.disk_additional_size
+  disk_compression     = local.builders.qemu.disk_compression
+  disk_detect_zeroes   = local.builders.qemu.disk_detect_zeroes
+  disk_discard         = local.builders.qemu.disk_discard
+  disk_interface       = local.builders.qemu.disk_interface
+  disk_size            = local.builders.qemu.disk_size
+  display              = local.builders.qemu.display
+  efi_boot             = local.builders.qemu.efi_boot
+  efi_firmware_code    = local.builders.qemu.efi_firmware_code
+  efi_firmware_vars    = local.builders.qemu.efi_firmware_vars
+  firmware             = local.builders.qemu.firmware
+  format               = local.builders.qemu.format
+  machine_type         = local.builders.qemu.machine_type
+  net_bridge           = local.builders.qemu.net_bridge
+  net_device           = local.builders.qemu.net_device
+  qemu_binary          = local.builders.qemu.binary
+  qemuargs             = local.builders.qemu.args
+  use_default_display  = local.builders.qemu.use_default_display
 
   //
-  // Accessing configuration files within the VM during the build
-  //
-  // Note that if a CD is used and bundle_iso is enabled, the CD will be copied into the image
+  // Packer
   //
 
-  http_bind_address = "0.0.0.0"
+  boot_command      = local.builders.packer.boot_command
+  boot_key_interval = local.builders.packer.boot_key_interval
+  boot_wait         = local.builders.packer.boot_wait
+  communicator      = local.builders.packer.communicator
+  cores             = local.builders.packer.cores
+  cpus              = local.builders.packer.cpus
+  headless          = local.builders.packer.headless
+  http_bind_address = local.builders.packer.http_bind_address
   http_content = {
-    "/user-data"      = templatefile("${path.root}/../../config/cloudinit/autoinstall.pkrtpl.hcl", { var = var })
-    "/meta-data"      = templatefile("${path.root}/../../config/cloudinit/metadata.pkrtpl.hcl", { var = var })
-    "/vendor-data"    = templatefile("${path.root}/../../config/cloudinit/vendordata.pkrtpl.hcl", { var = var })
-    "/network-config" = templatefile("${path.root}/../../config/cloudinit/network-config.pkrtpl.hcl", { var = var })
+    "/meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var })
+    "/network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var })
+    "/user-data"      = templatefile("${local.cloudinit_config_dir}/autoinstall.pkrtpl.hcl", { var = var })
+    "/vendor-data"    = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var })
   }
-
-  //
-  // Building the image
-  //
-  // We're using Virtualbox Beta to support Apple Arm chips. No SHA is available. Do not set
-  // ssh_password or ssh_private_key_file in order to leverage Packer's automatic ephemeral key
-  // generation. Access public key with {{ .SSHPublicKey | urlquery }}
-  //
-
-  headless             = false
-  cpus                 = 4 // cpus = sockets * cores (per socket) * threads (per core)
-  sockets              = 1
-  cores                = 4
-  threads              = 1
-  memory               = 4096
-  communicator         = "ssh"
-  ssh_port             = 22
-  ssh_username         = var.user_name
-  ssh_password         = var.user_password
-  ssh_certificate_file = null // Noop if ssh_agent_auth is set
-  ssh_private_key_file = null // Noop if ssh_agent_auth is set
-  ssh_agent_auth       = false
-  ssh_pty              = false
-  ssh_timeout          = "45m" // Noop if ssh_handshake_attempts is set
-  // ssh_handshake_attempts       = 10
-  ssh_keep_alive_interval      = "5s"
-  ssh_disable_agent_forwarding = false
-  ssh_file_transfer_method     = "sftp"
-  pause_before_connecting      = "0s"
-  skip_nat_mapping             = false
-  shutdown_command             = "echo 'packer' | sudo -S shutdown -P now"
-  shutdown_timeout             = "5m"
-  vnc_bind_address             = "127.0.0.1"
-  vnc_use_password             = false
-  qmp_enable                   = false
-  qmp_socket_path              = "${path.root}/../../build/ubuntu/2004/build.monitor"
-  boot_wait                    = "10s"
-  boot_key_interval            = "25ms"
-  boot_command = [
-    "c<wait>",
-    "search --file /casper/vmlinuz<enter>",
-    "search --set=root --file /casper/vmlinuz<enter>",
-    // "set gfxpayload=text<enter>", // keep, auto, or text
-    // "insmod all_video<enter>",
-    "linux /casper/vmlinuz",
-    " root=/dev/cd0",
-    // " console=ttyS0",
-    " initrd=/casper/initrd",
-    " autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter>",
-    "initrd /casper/initrd<enter>",
-    "boot",
-    "<wait5>",
-    "<enter>",
-    // "<wait15><down><enter>"
-  ]
-
-  //
-  // Exporting the image
-  //
-  // Note that bundle_iso copies all attached CDs (ISOs) into the image.
-  //
-
-  format           = "qcow2"
-  output_directory = "${path.root}/../../build/ubuntu/2004"
-  vm_name          = "${var.vm_name.file}"
+  iso_checksum                 = local.builders.packer.iso_checksum
+  iso_skip_cache               = local.builders.packer.iso_skip_cache
+  iso_urls                     = local.builders.packer.iso_urls
+  memory                       = local.builders.packer.memory
+  output_directory             = local.builders.packer.output_directory
+  pause_before_connecting      = local.builders.packer.pause_before_connecting
+  qmp_enable                   = local.builders.packer.qmp_enable
+  qmp_socket_path              = local.builders.packer.qmp_socket_path
+  shutdown_command             = local.builders.packer.shutdown_command
+  shutdown_timeout             = local.builders.packer.shutdown_timeout
+  skip_nat_mapping             = local.builders.packer.skip_nat_mapping
+  sockets                      = local.builders.packer.sockets
+  ssh_agent_auth               = local.builders.packer.ssh_agent_auth
+  ssh_certificate_file         = local.builders.packer.ssh_certificate_file
+  ssh_disable_agent_forwarding = local.builders.packer.ssh_disable_agent_forwarding
+  ssh_file_transfer_method     = local.builders.packer.ssh_file_transfer_method
+  ssh_keep_alive_interval      = local.builders.packer.ssh_keep_alive_interval
+  ssh_password                 = local.builders.packer.ssh_password
+  ssh_port                     = local.builders.packer.ssh_port
+  ssh_private_key_file         = local.builders.packer.ssh_private_key_file
+  ssh_pty                      = local.builders.packer.ssh_pty
+  ssh_timeout                  = local.builders.packer.ssh_timeout
+  ssh_username                 = local.builders.packer.ssh_username
+  threads                      = local.builders.packer.threads
+  vm_name                      = local.builders.packer.vm_name
+  vnc_bind_address             = local.builders.packer.vnc_bind_address
+  vnc_use_password             = local.builders.packer.vnc_use_password
 }

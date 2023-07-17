@@ -1,13 +1,12 @@
 build {
-  sources = locals.enabled_sources
+  sources = local.enabled_sources
 
   post-processors {
     post-processor "vagrant" {
       keep_input_artifact  = true
       compression_level    = 9
-      output               = abspath("${path.root}/../../../boxes/ubuntu-2004-{{.Provider}}-${source.name}.box")
-      vagrantfile_template = "${path.root}/../../config/vagrant/Vagrantfile"
-      // provider_override = "" // Required if using Artifice
+      output               = abspath("${local.vagrant_boxes_dir}/${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}-{{.Provider}}-${source.name}.box")
+      vagrantfile_template = abspath("${local.vagrant_config_dir}/Vagrantfile")
     }
     // post-processor "vagrant-cloud" {
     //   access_token = "${var.vagrant_cloud_access_token}"
