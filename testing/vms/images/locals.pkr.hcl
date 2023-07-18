@@ -7,7 +7,8 @@ locals {
     vbox      = "virtualbox-iso"
     vmware    = "vmware-iso"
     qemu      = "qemu"
-    parallels = "parallels"
+    // TODO
+    // parallels = "parallels"
   }
   architectures = {
     arm64   = "arm64"
@@ -99,6 +100,21 @@ locals {
     }
     version_file = "/opt/virtualbox/.vbox_version"
   }
+  vmware = {
+    guest_os_type = {
+      generic              = "TODO" // TODO
+      ubuntu_20045_aarch64 = "arm-ubuntu-64"
+      ubuntu_20046_x86_64  = "ubuntu-64"
+      ubuntu_22042_aarch64 = "arm-ubuntu-64"
+      ubuntu_22042_x84_64  = "ubuntu-64"
+    }
+    remote_cache_datastore = "/opt/vmware/cache"
+    remote_cache_directory = "/opt/vmware/cache/assets"
+    tools = {
+      flavor        = var.host_machine.is_mac ? "darwin" : "linux"
+      uploaded_file = "/opt/vmware/vmware_tools_{{ .Flavor }}.iso"
+    }
+  }
 
   //
   // Runtime config
@@ -131,6 +147,7 @@ locals {
   cloudinit_config_dir = abspath("${local.config_dir}/cloudinit")
   vagrant_boxes_dir    = abspath("${path.root}/../boxes")
   vagrant_config_dir   = abspath("${local.config_dir}/vagrant")
+  vm_human_name        = "${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}"
 
   //
   // Sources config
@@ -183,6 +200,82 @@ locals {
       vnc_use_password             = false
       vrdp_bind_address            = "127.0.0.1"
     }
+    virtualbox_iso = {
+      acpi_shutdown        = false
+      audio_controller     = "ac97"
+      bundle_iso           = false
+      chipset              = "piix3"
+      disk_additional_size = []    // Additional disks to create
+      disk_size            = 21475 // ~20GiB in MB
+      // https://www.virtualbox.org/manual/ch09.html#vboxmanage-export
+      export_opts = [
+        "--manifest",
+        "--description", "${var.vm_description}",
+        "--version", "${var.vm_version}"
+      ]
+      // EFI requires extension pack from https://www.virtualbox.org/wiki/Downloads
+      firmware                  = "efi"
+      format                    = "ova"
+      gfx_accelerate_3d         = false
+      gfx_controller            = "vmsvga"
+      gfx_efi_resolution        = "1200x1200"
+      gfx_vram_size             = "128"
+      guest_additions_interface = "sata"
+      guest_additions_mode      = "upload"
+      guest_additions_path      = local.virtualbox.guest_additions.uploaded_file
+      guest_additions_sha256    = "none"
+      guest_additions_url       = local.virtualbox.guest_additions.url
+      guest_os_type = lookup(
+        local.virtualbox.guest_os_type,
+        "${var.vm_os.name}_${replace(var.vm_os.version, ".", "")}_${lookup(local.architectures, var.vm_os.arch, "unknown")}",
+        local.virtualbox.guest_os_type.generic
+      )
+      hard_drive_discard       = true
+      hard_drive_interface     = "pcie"
+      hard_drive_nonrotational = true
+      iso_interface            = "sata"
+      nested_virt              = true
+      nic_type                 = "82545EM"
+      nvme_port_count          = 1
+      rtc_time_base            = "local"
+      sata_port_count          = 3
+      sound                    = "none"
+      usb                      = false
+      vboxmanage_post = [
+        ["modifyvm", "{{.Name}}", "--cpus", "1"],
+        ["modifyvm", "{{.Name}}", "--memory", "512"],
+      ]
+      virtualbox_version_file = local.virtualbox.version_file
+    }
+    vmware_iso = {
+      cdrom_adapter_type   = "sata"
+      cleanup_remote_cache = true
+      disk_adapter_type    = "nvme"
+      disk_additional_size = []    // Additional disks to create
+      disk_size            = 21475 // ~20GiB in MB
+      disk_type_id         = 1     // Growable virtual disk split into 2GB files (split sparse).
+      display_name         = local.vm_human_name
+      format               = "ova"
+      guest_os_type = lookup(
+        local.vmware.guest_os_type,
+        "${var.vm_os.name}_${replace(var.vm_os.version, ".", "")}_${lookup(local.architectures, var.vm_os.arch, "unknown")}",
+        local.vmware.guest_os_type.generic
+      )
+      network                = "nat"   // Defaults to VMnet0..N
+      network_adapter_type   = "e1000" // https://kb.vmware.com/s/article/1001805
+      ovftool_options        = []      // vSphere. Requires https://developer.vmware.com/web/tool/4.6.0/ovf-tool
+      remote_cache_datastore = local.vmware.remote_cache_datastore
+      remote_cache_directory = local.vmware.remote_cache_directory
+      skip_compaction        = false
+      tools_source_path      = null // Set if not found with default values
+      tools_upload_flavor    = local.vmware.tools.flavor
+      tools_upload_path      = local.vmware.tools.uploaded_file
+      version                = 20 // Hardware Version - https://kb.vmware.com/s/article/1003746
+      // Arbitrary key/values to enter into the virtual machine VMX file
+      vmx_data                       = {}
+      vmx_data_post                  = {}
+      vmx_remove_ethernet_interfaces = var.vm_is_vagrant_box
+    }
     // Values for some options can be listed by `qemu-system-aarch64 -<option> help`
     qemu = {
       accelerator = var.host_machine.is_mac ? "hvf" : "hvm"
@@ -221,61 +314,11 @@ locals {
       firmware             = var.vm_use_uefi ? null : var.qemu.firmware.bios
       format               = "qcow2"
       machine_type         = "virt"
-      // net_device           = var.host_machine.is_mac && var.host_machine.mac.use_vmnet ? "vmnet-bridged" : "virtio-net-pci"
-      net_device = (var.host_machine.is_mac && var.host_machine.mac.use_vmnet) ? "vmnet-bridged" : "virtio-net-pci"
+      net_device = (var.host_machine.is_mac && var.host_machine.mac.use_vmnet) ? "vmnet-shared" : "virtio-net-pci"
       // This bridge must already exist before running Packer and using libvirt. The virbr0 bridge the
       // default network created by libvirt. Only works on Linux
       net_bridge          = var.host_machine.is_mac ? null : "virbr0"
       use_default_display = false // Set to true for sdl errors on mac
-    }
-    virtualbox_iso = {
-      acpi_shutdown        = false
-      audio_controller     = "ac97"
-      bundle_iso           = false
-      chipset              = "piix3"
-      disk_additional_size = []    // Additional disks to create
-      disk_size            = 21475 // ~20GiB in MB
-      // https://www.virtualbox.org/manual/ch09.html#vboxmanage-export
-      export_opts = [
-        "--manifest",
-        "--description", "${var.vm_description}",
-        "--version", "${var.vm_version}"
-      ]
-      firmware                  = "bios"
-      format                    = "ova"
-      gfx_accelerate_3d         = false
-      gfx_controller            = "vmsvga"
-      gfx_vram_size             = "128"
-      guest_additions_interface = "sata"
-      guest_additions_mode      = "upload"
-      guest_additions_path      = local.virtualbox.guest_additions.uploaded_file
-      guest_additions_sha256    = "none"
-      guest_additions_url       = local.virtualbox.guest_additions.url
-      guest_os_type = lookup(
-        local.virtualbox.guest_os_type,
-        "${var.vm_os.name}_${replace(var.vm_os.version, ".", "")}_${lookup(local.architectures, var.vm_os.arch, "unknown")}",
-        local.virtualbox.guest_os_type.generic
-      )
-      hard_drive_discard       = true
-      hard_drive_interface     = "sata"
-      hard_drive_nonrotational = true
-      iso_interface            = "sata"
-      nested_virt              = true
-      nic_type                 = "82545EM"
-      nvme_port_count          = 1
-      rtc_time_base            = "local"
-      sata_port_count          = 3
-      sound                    = "none"
-      usb                      = false
-      vboxmanage_post = [
-        ["modifyvm", "{{.Name}}", "--cpus", "1"],
-        ["modifyvm", "{{.Name}}", "--memory", "512"],
-      ]
-      virtualbox_version_file = local.virtualbox.version_file
-      vm_name                 = var.vm_filename
-    }
-    vmware_iso = {
-
     }
   }
 

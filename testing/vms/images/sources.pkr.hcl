@@ -14,6 +14,7 @@ source "virtualbox-iso" "vm" {
   format                    = local.builders.virtualbox.format
   gfx_accelerate_3d         = local.builders.virtualbox.gfx_accelerate_3d
   gfx_controller            = local.builders.virtualbox.gfx_controller
+  gfx_efi_resolution        = local.builders.virtualbox.gfx_efi_resolution
   gfx_vram_size             = local.builders.virtualbox.gfx_vram_size
   guest_additions_interface = local.builders.virtualbox.guest_additions_interface
   guest_additions_mode      = local.builders.virtualbox.guest_additions_mode
@@ -38,6 +39,7 @@ source "virtualbox-iso" "vm" {
 
   boot_command      = local.builders.packer.boot_command
   boot_wait         = local.builders.packer.boot_wait
+  boot_key_interval = local.builders.packer.boot_key_interval
   communicator      = local.builders.packer.communicator
   cpus              = local.builders.packer.cpus
   headless          = local.builders.packer.headless
@@ -61,6 +63,7 @@ source "virtualbox-iso" "vm" {
   skip_nat_mapping             = local.builders.packer.skip_nat_mapping
   sound                        = local.builders.packer.sound ? (var.host_machine.is_mac ? "coreaudio" : "alsa") : "none"
   ssh_agent_auth               = local.builders.packer.ssh_agent_auth
+  ssh_certificate_file         = local.builders.packer.ssh_certificate_file
   ssh_disable_agent_forwarding = local.builders.packer.ssh_disable_agent_forwarding
   ssh_file_transfer_method     = local.builders.packer.ssh_file_transfer_method
   ssh_keep_alive_interval      = local.builders.packer.ssh_keep_alive_interval
@@ -75,7 +78,76 @@ source "virtualbox-iso" "vm" {
   vrdp_bind_address            = local.builders.packer.vrdp_bind_address
 }
 
-source "vmware-iso" "vm" {}
+source "vmware-iso" "vm" {
+  //
+  // VMware specific
+  //
+
+  cdrom_adapter_type             = local.builders.vmware.cdrom_adapter_type
+  cleanup_remote_cache           = local.builders.vmware.cleanup_remote_cache
+  disk_adapter_type              = local.builders.vmware.disk_adapter_type
+  disk_additional_size           = local.builders.vmware.disk_additional_size
+  disk_size                      = local.builders.vmware.disk_size
+  disk_type_id                   = local.builders.vmware.disk_type_id
+  display_name                   = local.builders.vmware.display_name
+  format                         = local.builders.vmware.format
+  guest_os_type                  = local.builders.vmware.guest_os_type
+  network                        = local.builders.vmware.network
+  ovftool_options                = local.builders.vmware.ovftool_options
+  remote_cache_datastore         = local.builders.vmware.remote_cache_datastore
+  remote_cache_directory         = local.builders.vmware.remote_cache_directory
+  skip_compaction                = local.builders.vmware.skip_compaction
+  tools_source_path              = local.builders.vmware.tools_source_path
+  tools_upload_flavor            = local.builders.vmware.tools_upload_flavor
+  tools_upload_path              = local.builders.vmware.tools_upload_path
+  version                        = local.builders.vmware.version
+  vmx_data                       = local.builders.vmware.vmx_data
+  vmx_data_post                  = local.builders.vmware.vmx_data_post
+  vmx_remove_ethernet_interfaces = local.builders.vmware.vmx_remove_ethernet_interfaces
+
+  //
+  // Packer
+  //
+
+  boot_command      = local.builders.packer.boot_command
+  boot_key_interval = local.builders.packer.boot_key_interval
+  boot_wait         = local.builders.packer.boot_wait
+  communicator      = local.builders.packer.communicator
+  cores             = local.builders.packer.cores
+  cpus              = local.builders.packer.cpus
+  headless          = local.builders.packer.headless
+  http_bind_address = local.builders.packer.http_bind_address
+  http_content = {
+    "/meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var })
+    "/network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var })
+    "/user-data"      = templatefile("${local.cloudinit_config_dir}/autoinstall.pkrtpl.hcl", { var = var })
+    "/vendor-data"    = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var })
+  }
+  iso_checksum                 = local.builders.packer.iso_checksum
+  iso_urls                     = local.builders.packer.iso_urls
+  keep_registered              = local.builders.packer.keep_registered
+  memory                       = local.builders.packer.memory
+  output_directory             = local.builders.packer.output_directory
+  pause_before_connecting      = local.builders.packer.pause_before_connecting
+  shutdown_command             = local.builders.packer.shutdown_command
+  shutdown_timeout             = local.builders.packer.shutdown_timeout
+  skip_export                  = local.builders.packer.skip_export
+  sound                        = local.builders.packer.sound
+  ssh_certificate_file         = local.builders.packer.ssh_certificate_file
+  ssh_disable_agent_forwarding = local.builders.packer.ssh_disable_agent_forwarding
+  ssh_file_transfer_method     = local.builders.packer.ssh_file_transfer_method
+  ssh_keep_alive_interval      = local.builders.packer.ssh_keep_alive_interval
+  ssh_password                 = local.builders.packer.ssh_password
+  ssh_port                     = local.builders.packer.ssh_port
+  ssh_pty                      = local.builders.packer.ssh_pty
+  ssh_timeout                  = local.builders.packer.ssh_timeout
+  ssh_username                 = local.builders.packer.ssh_username
+  usb                          = local.builders.packer.usb
+  vm_name                      = local.builders.packer.vm_name
+  vmdk_name                    = local.builders.packer.vm_name
+  vnc_bind_address             = local.builders.packer.vnc_bind_address
+  vnc_disable_password         = !local.builders.packer.vnc_use_password
+}
 
 source "qemu" "vm" {
   //
@@ -150,3 +222,6 @@ source "qemu" "vm" {
   vnc_bind_address             = local.builders.packer.vnc_bind_address
   vnc_use_password             = local.builders.packer.vnc_use_password
 }
+
+// TODO
+// source "parallels" "vm" {}

@@ -11,7 +11,6 @@ variable "host_machine" {
   })
   description = "Host information used for configuring hypervisors"
 }
-
 variable "vm_filename" {
   type        = string
   description = "The name of the exported VM file without extension"
@@ -62,6 +61,10 @@ variable "virtualbox_guest_additions_version" {
   type        = string
   description = "Version of the Virtualbox Guest Additions to install"
   default     = ""
+}
+variable "vm_is_vagrant_box" {
+  type        = bool
+  description = "The VM will be built into a Vagrant box"
 }
 variable "min_vagrant_version" {
   type        = string
