@@ -1,16 +1,6 @@
 build {
   sources = local.enabled_sources
 
-  provisioner "shell" {
-    execute_command = "echo '${var.user_password}' | {{ .Vars }} sudo -S -E /bin/bash -eux '{{ .Path }}'"
-    expect_disconnect = true
-    inline_shebang = "/bin/env -S bash -ex"
-    inline = [
-      "mkdir /tmp/netplan",
-      "chmod ugo=rwx /tmp/netplan"
-    ]
-  }
-
   provisioner "file" {
     sources = [
       abspath("${local.provisioning_config_dir}/netplan")
@@ -24,6 +14,7 @@ build {
     expect_disconnect = true
     env = {
       USER_PASSWORD = var.user_password
+      DEBIAN_FRONTEND = "noninteractive"
     }
     scripts = [
       for f in fileset("${local.provisioning_config_dir}", "${var.vm_os.name}/**/*.sh") : "${local.provisioning_config_dir}/${f}"

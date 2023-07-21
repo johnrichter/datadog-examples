@@ -41,6 +41,7 @@ locals {
         // " root=/dev/cd0",
         // " console=ttyS0",
         " initrd=/casper/initrd",
+        " debconf/frontend=noninteractive",
         // " cloud-config-url='http://{{ .HTTPIP }}:{{ .HTTPPort }}/'",
         " autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter><wait>",
         "initrd /casper/initrd<enter><wait>",
