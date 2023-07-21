@@ -105,22 +105,22 @@ autoinstall:
 
   # Configure the initial user for the system. This is the only config key that must be present
   # (unless the user-data section is present, in which case it is optional).
-  identity:
-    # The hostname for the system
-    hostname: "${var.hostname}"
+  # identity:
+  # The hostname for the system
+  # hostname: "${var.hostname}"
 
-    # The real name for the user. This field is optional
-    realname: "${var.user_realname}"
+  # The real name for the user. This field is optional
+  # realname: "${var.user_realname}"
 
-    # The user name to create
-    username: "${var.user_name}"
+  # The user name to create
+  # username: "${var.user_name}"
 
-    # The password for the new user, encrypted. This is required for use with sudo, even if SSH
-    # access is configured. The crypted password string must conform to what passwd expects.
-    # Depending on the special characters in the password hash, quoting may be required, so it’s
-    # safest to just always include the quotes around the hash. Several tools can generate the
-    # crypted password, such as `mkpasswd` from the whois package, or `openssl passwd`
-    password: ${var.user_password_crypted}
+  # The password for the new user, encrypted. This is required for use with sudo, even if SSH
+  # access is configured. The crypted password string must conform to what passwd expects.
+  # Depending on the special characters in the password hash, quoting may be required, so it’s
+  # safest to just always include the quotes around the hash. Several tools can generate the
+  # crypted password, such as `mkpasswd` from the whois package, or `openssl passwd`
+  # password: ${var.user_password_crypted}
 
   # Configure SSH for the installed system
   ssh:
@@ -200,8 +200,8 @@ autoinstall:
   # Shell commands to run after the install has failed. They are run in the installer environment,
   # and the target system (or as much of it as the installer managed to configure) will be mounted
   # at /target. Logs will be available at /var/log/installer in the live session
-  error-commands:
-    - "curtin in-target --target=/target -- sudo cloud-init schema --system"
+  # error-commands:
+  # - "curtin in-target --target=/target -- cloud-init schema --system"
 
   user-data:
     # Alpine Linux: Configuration of the /etc/apk/repositories file
@@ -358,7 +358,7 @@ autoinstall:
 
     # Groups to add to the system. Groups are added before users, so any users in a group list
     # must already exist on the system
-    groups: ${jsonencode(var.system_groups)}
+    # groups: ${jsonencode(var.system_groups)}
 
     # Users to add to the system. the reserved string default which represents the primary admin
     # user used to access the system. The default user varies per distribution and is generally

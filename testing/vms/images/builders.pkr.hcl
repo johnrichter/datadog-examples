@@ -2,9 +2,12 @@ build {
   sources = local.enabled_sources
 
   provisioner "shell" {
+    execute_command = "echo '${var.user_password}' | {{ .Vars }} sudo -S -E /bin/bash -eux '{{ .Path }}'"
+    expect_disconnect = true
     inline_shebang = "/bin/env -S bash -ex"
     inline = [
-      "mkdir /tmp/netplan"
+      "mkdir /tmp/netplan",
+      "chmod ugo=rwx /tmp/netplan"
     ]
   }
 
@@ -16,7 +19,9 @@ build {
   }
 
   provisioner "shell" {
-    pause_before = "5m"
+    pause_before = "30s"
+    execute_command = "echo '${var.user_password}' | {{ .Vars }} sudo -S -E /bin/bash -eux '{{ .Path }}'"
+    expect_disconnect = true
     env = {
       USER_PASSWORD = var.user_password
     }

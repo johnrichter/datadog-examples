@@ -203,5 +203,5 @@ autoinstall:
   # Shell commands to run after the install has failed. They are run in the installer environment,
   # and the target system (or as much of it as the installer managed to configure) will be mounted
   # at /target. Logs will be available at /var/log/installer in the live session
-  error-commands:
-    - "curtin in-target --target=/target -- sudo cloud-init schema --system"
+  # error-commands:
+  #   - "curtin in-target --target=/target -- cloud-init schema --system"
