@@ -7,7 +7,7 @@ Current state of the builders
 | Builder/App | Status        | Reason                                                                                          |
 | :---------- | :------------ | ----------------------------------------------------------------------------------------------- |
 | Virtalbox   | `Blocked`     | Virtualbox does not fully support arm64 on Apple Silicon yet                                    |
-| VMWare      | `In progress` |
+| VMWare      | `Done-ish`    | Still has a manual "reboot using VMware Fusion before it'll fully provision                     |
 | QEMU        | `Blocked`     | Currently blocked by lack of support for Apple's `vmnet` on Apple's hypervisor framework, `hvf` |
 | Parallels   | `Not started` |
 
@@ -80,6 +80,12 @@ Can't create a properly named bridge interface on macOS
   - https://gist.github.com/max-i-mil/f44e8e6f2416d88055fc2d0f36c6173b
   - https://gist.github.com/max-i-mil/f44e8e6f2416d88055fc2d0f36c6173b
   - https://www.sobyte.net/post/2022-10/mac-qemu-bridge/
+
+### VMware
+
+There is a really strange issue where I need to manually restart the VM using VMware itsself before the NoCloud Cloud-Init configuration will run. It hangs right after (or during?) the network interfaces are loaded and up. Seems to be the metadata crawler gets stuck with infinite timeouts?
+
+When not using auto-conf and using plain cloud-init via mounted cdrom the same issues happen. Pretty sure its VMware being really wonky. Even when trying Floppy, the floppy won't mount even when explicitly told to via `vmx_data`.
 
 ## Operating systems
 
