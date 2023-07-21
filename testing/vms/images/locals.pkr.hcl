@@ -4,9 +4,9 @@ locals {
   //
 
   hypervisors = {
-    vbox      = "virtualbox-iso"
-    vmware    = "vmware-iso"
-    qemu      = "qemu"
+    vbox   = "virtualbox-iso"
+    vmware = "vmware-iso"
+    qemu   = "qemu"
     // TODO
     // parallels = "parallels"
   }
@@ -33,19 +33,18 @@ locals {
       }
       build_command = [
         "c<wait>",
-        "search --file /casper/vmlinuz<enter>",
-        "search --set=root --file /casper/vmlinuz<enter>",
+        // "search --file /casper/vmlinuz<enter>",
+        "search --set=root --file /casper/vmlinuz<enter><wait>",
         // "set gfxpayload=text<enter>", // keep, auto, or text
         // "insmod all_video<enter>",
         "linux /casper/vmlinuz",
-        " root=/dev/cd0",
+        // " root=/dev/cd0",
         // " console=ttyS0",
         " initrd=/casper/initrd",
-        " autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter>",
-        "initrd /casper/initrd<enter>",
-        "boot",
-        "<wait5>",
-        "<enter>",
+        // " cloud-config-url='http://{{ .HTTPIP }}:{{ .HTTPPort }}/'",
+        " autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter><wait>",
+        "initrd /casper/initrd<enter><wait>",
+        "boot<wait5><enter>"
       ]
       shutdown_command = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
@@ -102,7 +101,7 @@ locals {
   }
   vmware = {
     guest_os_type = {
-      generic              = "TODO" // TODO
+      generic              = "arm-other5xlinux-64" // TODO: make arch aware
       ubuntu_20045_aarch64 = "arm-ubuntu-64"
       ubuntu_20046_x86_64  = "ubuntu-64"
       ubuntu_22042_aarch64 = "arm-ubuntu-64"
@@ -110,8 +109,9 @@ locals {
     }
     remote_cache_datastore = "/opt/vmware/cache"
     remote_cache_directory = "/opt/vmware/cache/assets"
+    // Currently opting to install open-vm-tools via apt as recommended by VMware
     tools = {
-      flavor        = var.host_machine.is_mac ? "darwin" : "linux"
+      flavor        = null // When not set or set to "" don't install VMware tools
       uploaded_file = "/opt/vmware/vmware_tools_{{ .Flavor }}.iso"
     }
   }
@@ -141,13 +141,15 @@ locals {
   // Constants
   //
 
-  build_dir_abs        = abspath("${path.root}/build/${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}")
-  build_dir_rel        = "${path.root}/build/${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}"
-  config_dir           = abspath("${path.root}/config")
-  cloudinit_config_dir = abspath("${local.config_dir}/cloudinit")
-  vagrant_boxes_dir    = abspath("${path.root}/../boxes")
-  vagrant_config_dir   = abspath("${local.config_dir}/vagrant")
-  vm_human_name        = "${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}"
+  build_dir_rel           = "${path.root}/build/${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}-test-subiquity" // TODO
+  build_dir_abs           = abspath(local.build_dir_rel)
+  config_dir              = abspath("${path.root}/config")
+  cloudinit_config_dir    = abspath("${local.config_dir}/cloudinit")
+  provisioning_config_dir = abspath("${local.config_dir}/provisioning")
+  vagrant_boxes_dir       = abspath("${path.root}/../boxes")
+  vagrant_config_dir      = abspath("${local.config_dir}/vagrant")
+  vm_human_name           = "${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}"
+  vm_instance_id          = substr(strrev(sha512(uuidv4())), 0, 16)
 
   //
   // Sources config
@@ -191,16 +193,16 @@ locals {
       ssh_port                     = 22
       ssh_private_key_file         = null // Noop if ssh_agent_auth is set
       ssh_pty                      = false
-      ssh_timeout                  = "45m" // Noop if ssh_handshake_attempts is set
+      ssh_timeout                  = "150m" // Noop if ssh_handshake_attempts is set
       ssh_username                 = var.user_name
       threads                      = 1
-      usb                          = false
+      usb                          = true
       vm_name                      = var.vm_filename
       vnc_bind_address             = "127.0.0.1"
       vnc_use_password             = false
       vrdp_bind_address            = "127.0.0.1"
     }
-    virtualbox_iso = {
+    virtualbox = {
       acpi_shutdown        = false
       audio_controller     = "ac97"
       bundle_iso           = false
@@ -240,14 +242,14 @@ locals {
       rtc_time_base            = "local"
       sata_port_count          = 3
       sound                    = "none"
-      usb                      = false
+      usb                      = true
       vboxmanage_post = [
         ["modifyvm", "{{.Name}}", "--cpus", "1"],
         ["modifyvm", "{{.Name}}", "--memory", "512"],
       ]
       virtualbox_version_file = local.virtualbox.version_file
     }
-    vmware_iso = {
+    vmware = {
       cdrom_adapter_type   = "sata"
       cleanup_remote_cache = true
       disk_adapter_type    = "nvme"
@@ -255,15 +257,16 @@ locals {
       disk_size            = 21475 // ~20GiB in MB
       disk_type_id         = 1     // Growable virtual disk split into 2GB files (split sparse).
       display_name         = local.vm_human_name
-      format               = "ova"
+      // Packer will create a vmx and then export that vm to an ovf or ova
+      format = "vmx"
       guest_os_type = lookup(
         local.vmware.guest_os_type,
         "${var.vm_os.name}_${replace(var.vm_os.version, ".", "")}_${lookup(local.architectures, var.vm_os.arch, "unknown")}",
         local.vmware.guest_os_type.generic
       )
-      network                = "nat"   // Defaults to VMnet0..N
-      network_adapter_type   = "e1000" // https://kb.vmware.com/s/article/1001805
-      ovftool_options        = []      // vSphere. Requires https://developer.vmware.com/web/tool/4.6.0/ovf-tool
+      network                = "nat"    // Defaults to VMnet0..N
+      network_adapter_type   = "e1000e" // https://kb.vmware.com/s/article/1001805
+      ovftool_options        = []       // vSphere. Requires https://developer.vmware.com/web/tool/4.6.0/ovf-tool
       remote_cache_datastore = local.vmware.remote_cache_datastore
       remote_cache_directory = local.vmware.remote_cache_directory
       skip_compaction        = false
@@ -272,7 +275,12 @@ locals {
       tools_upload_path      = local.vmware.tools.uploaded_file
       version                = 20 // Hardware Version - https://kb.vmware.com/s/article/1003746
       // Arbitrary key/values to enter into the virtual machine VMX file
-      vmx_data                       = {}
+      vmx_data = {
+        "usb_xhci.present"                      = "TRUE"
+        "ethernet0.linkStatePropagation.enable" = "TRUE"
+        "sata1.present"                         = "TRUE"
+        "floppy0.present"                       = "TRUE"
+      }
       vmx_data_post                  = {}
       vmx_remove_ethernet_interfaces = var.vm_is_vagrant_box
     }
@@ -314,7 +322,7 @@ locals {
       firmware             = var.vm_use_uefi ? null : var.qemu.firmware.bios
       format               = "qcow2"
       machine_type         = "virt"
-      net_device = (var.host_machine.is_mac && var.host_machine.mac.use_vmnet) ? "vmnet-shared" : "virtio-net-pci"
+      net_device           = (var.host_machine.is_mac && var.host_machine.mac.use_vmnet) ? "vmnet-shared" : "virtio-net-pci"
       // This bridge must already exist before running Packer and using libvirt. The virbr0 bridge the
       // default network created by libvirt. Only works on Linux
       net_bridge          = var.host_machine.is_mac ? null : "virbr0"

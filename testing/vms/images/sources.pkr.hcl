@@ -45,10 +45,10 @@ source "virtualbox-iso" "vm" {
   headless          = local.builders.packer.headless
   http_bind_address = local.builders.packer.http_bind_address
   http_content = {
-    "/meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var })
-    "/network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var })
-    "/user-data"      = templatefile("${local.cloudinit_config_dir}/autoinstall.pkrtpl.hcl", { var = var })
-    "/vendor-data"    = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var })
+    "/meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var, local = local })
+    "/network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var, local = local })
+    "/user-data"      = templatefile("${local.cloudinit_config_dir}/autoinstall/autoinstall-with-cloudinit.pkrtpl.hcl", { var = var, local = local })
+    "/vendor-data"    = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var, local = local })
   }
   iso_checksum                 = local.builders.packer.iso_checksum
   iso_urls                     = local.builders.packer.iso_urls
@@ -93,6 +93,7 @@ source "vmware-iso" "vm" {
   format                         = local.builders.vmware.format
   guest_os_type                  = local.builders.vmware.guest_os_type
   network                        = local.builders.vmware.network
+  network_adapter_type           = local.builders.vmware.network_adapter_type
   ovftool_options                = local.builders.vmware.ovftool_options
   remote_cache_datastore         = local.builders.vmware.remote_cache_datastore
   remote_cache_directory         = local.builders.vmware.remote_cache_directory
@@ -109,20 +110,14 @@ source "vmware-iso" "vm" {
   // Packer
   //
 
-  boot_command      = local.builders.packer.boot_command
-  boot_key_interval = local.builders.packer.boot_key_interval
-  boot_wait         = local.builders.packer.boot_wait
-  communicator      = local.builders.packer.communicator
-  cores             = local.builders.packer.cores
-  cpus              = local.builders.packer.cpus
-  headless          = local.builders.packer.headless
-  http_bind_address = local.builders.packer.http_bind_address
-  http_content = {
-    "/meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var })
-    "/network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var })
-    "/user-data"      = templatefile("${local.cloudinit_config_dir}/autoinstall.pkrtpl.hcl", { var = var })
-    "/vendor-data"    = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var })
-  }
+  boot_command                 = local.builders.packer.boot_command
+  boot_key_interval            = local.builders.packer.boot_key_interval
+  boot_wait                    = local.builders.packer.boot_wait
+  communicator                 = local.builders.packer.communicator
+  cores                        = local.builders.packer.cores / local.builders.packer.cores
+  cpus                         = local.builders.packer.cpus
+  headless                     = local.builders.packer.headless
+  http_bind_address            = local.builders.packer.http_bind_address
   iso_checksum                 = local.builders.packer.iso_checksum
   iso_urls                     = local.builders.packer.iso_urls
   keep_registered              = local.builders.packer.keep_registered
@@ -147,6 +142,39 @@ source "vmware-iso" "vm" {
   vmdk_name                    = local.builders.packer.vm_name
   vnc_bind_address             = local.builders.packer.vnc_bind_address
   vnc_disable_password         = !local.builders.packer.vnc_use_password
+
+  //
+  // Operating System configuration
+  //
+
+  // Used for Subiquity/Autoinstall. Build commands specify kernel parameters to boot the
+  // autoinstaller with Packer's HTTP server as a datasource only on the first boot.
+  // https://cloudinit.readthedocs.io/en/latest/reference/datasources/nocloud.html#method-3-custom-webserver-kernel-commandline-or-smbios
+  http_content = {
+    "/meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var, local = local })
+    "/network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var, local = local })
+    // currently with cloudinit
+    "/user-data"   = templatefile("${local.cloudinit_config_dir}/autoinstall/autoinstall-with-cloudinit.pkrtpl.hcl", { var = var, local = local })
+    "/vendor-data" = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var, local = local })
+  }
+
+  // floppy_label = "CIDATA"
+  // floppy_content = {
+  //   "meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var, local = local })
+  //   "network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var, local = local })
+  //   "user-data"      = templatefile("${local.cloudinit_config_dir}/user-data.pkrtpl.hcl", { var = var, local = local })
+  //   "vendor-data"    = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var, local = local })
+  // }
+
+  // For Cloud-Init's NoCloud datasource. It'll automatically look for a volume labeled 'CIDATA'
+  // https://cloudinit.readthedocs.io/en/latest/reference/datasources/nocloud.html#method-1-local-filesystem-labeled-filesystem
+  // cd_label = "CIDATA"
+  // cd_content = {
+  //   "meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var, local = local })
+  //   "network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var, local = local })
+  //   "user-data"      = templatefile("${local.cloudinit_config_dir}/user-data.pkrtpl.hcl", { var = var, local = local })
+  //   "vendor-data"    = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var, local = local })
+  // }
 }
 
 source "qemu" "vm" {
@@ -189,10 +217,10 @@ source "qemu" "vm" {
   headless          = local.builders.packer.headless
   http_bind_address = local.builders.packer.http_bind_address
   http_content = {
-    "/meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var })
-    "/network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var })
-    "/user-data"      = templatefile("${local.cloudinit_config_dir}/autoinstall.pkrtpl.hcl", { var = var })
-    "/vendor-data"    = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var })
+    "/meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var, local = local })
+    "/network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var, local = local })
+    "/user-data"      = templatefile("${local.cloudinit_config_dir}/autoinstall/autoinstall-with-cloudinit.pkrtpl.hcl", { var = var, local = local })
+    "/vendor-data"    = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var, local = local })
   }
   iso_checksum                 = local.builders.packer.iso_checksum
   iso_skip_cache               = local.builders.packer.iso_skip_cache

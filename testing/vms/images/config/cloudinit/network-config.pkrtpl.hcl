@@ -1,12 +1,12 @@
 version: 2
 renderer: "networkd"
 ethernets:
-  all-en:
+  en:
     match:
       name: "en*"
     dhcp4: true
     #optional: true
-  all-veth:
+  veth:
     match:
       name: "veth*"
     dhcp4: true

@@ -83,8 +83,8 @@ variable "hostname_fqdn" {
   description = "The host's fully qualified domain name"
 }
 variable "system_groups" {
-  type        = list(string)
-  description = "A list of system user groups to create"
+  type        = map(list(string))
+  description = "A map of system user groups to create and what users below to what groups"
 }
 variable "ntp_enabled" {
   type        = bool
