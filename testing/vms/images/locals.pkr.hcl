@@ -47,10 +47,12 @@ locals {
         "initrd /casper/initrd<enter><wait>",
         "boot<wait5><enter>"
       ]
-      shutdown_command = "echo '${var.user_password}' | sudo -S shutdown -P now"
+      boot_wait         = "10s"
+      boot_key_interval = "25ms"
+      shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
     ubuntu_20046_x86_64 = {
-      url = {
+      iso = {
         local  = ""
         remote = "https://releases.ubuntu.com/20.04/ubuntu-20.04.6-live-server-amd64.iso"
       }
@@ -58,8 +60,25 @@ locals {
         sha256 = "b8f31413336b9393ad5d8ef0282717b2ab19f007df2e9ed5196c13d8f9153c8b"
         file   = "https://releases.ubuntu.com/20.04/SHA256SUMS"
       }
-      build_command    = []
-      shutdown_command = "echo '${var.user_password}' | sudo -S shutdown -P now"
+      build_command = [
+        "c<wait>",
+        // "search --file /casper/vmlinuz<enter>",
+        "search --set=root --file /casper/vmlinuz<enter><wait5>",
+        // "set gfxpayload=text<enter>", // keep, auto, or text
+        // "insmod all_video<enter>",
+        "linux /casper/vmlinuz",
+        // " root=/dev/cd0",
+        // " console=ttyS0",
+        " initrd=/casper/initrd",
+        " debconf/frontend=noninteractive",
+        // " cloud-config-url='http://{{ .HTTPIP }}:{{ .HTTPPort }}/'",
+        " autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter><wait5>",
+        "initrd /casper/initrd<enter><wait5>",
+        "boot<wait5><enter>"
+      ]
+      boot_key_interval = "100ms"
+      boot_wait         = "5s"
+      shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
     ubuntu_22042_aarch64 = {
       iso = {
@@ -70,8 +89,10 @@ locals {
         sha256 = ""
         file   = "https://cdimage.ubuntu.com/releases/22.04/release/SHA256SUMS"
       }
-      build_command    = []
-      shutdown_command = "echo '${var.user_password}' | sudo -S shutdown -P now"
+      build_command     = []
+      boot_key_interval = "25ms"
+      boot_wait         = "10s"
+      shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
     ubuntu_22042_x84_64 = {
       iso = {
@@ -82,8 +103,10 @@ locals {
         sha256 = ""
         file   = "https://releases.ubuntu.com/22.04/SHA256SUMS"
       }
-      build_command    = []
-      shutdown_command = "echo '${var.user_password}' | sudo -S shutdown -P now"
+      build_command     = []
+      boot_key_interval = "100ms"
+      boot_wait         = "5s"
+      shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
   }
   virtualbox = {
@@ -102,7 +125,7 @@ locals {
   }
   vmware = {
     guest_os_type = {
-      generic              = "arm-other5xlinux-64" // TODO: make arch aware
+      generic              = "other-64"
       ubuntu_20045_aarch64 = "arm-ubuntu-64"
       ubuntu_20046_x86_64  = "ubuntu-64"
       ubuntu_22042_aarch64 = "arm-ubuntu-64"
@@ -118,15 +141,26 @@ locals {
   }
 
   //
+  // Constants
+  //
+
+  build_dir_rel           = "${path.root}/build/${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}-test-subiquity" // TODO
+  build_dir_abs           = abspath(local.build_dir_rel)
+  config_dir              = abspath("${path.root}/config")
+  cloudinit_config_dir    = abspath("${local.config_dir}/cloudinit")
+  guest_os_key            = "${var.vm_os.name}_${replace(var.vm_os.version, ".", "")}_${lookup(local.architectures, var.vm_os.arch, "unknown")}"
+  provisioning_config_dir = abspath("${local.config_dir}/provisioning")
+  vagrant_boxes_dir       = abspath("${path.root}/../boxes")
+  vagrant_config_dir      = abspath("${local.config_dir}/vagrant")
+  vm_human_name           = "${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}"
+  vm_instance_id          = substr(strrev(sha512(uuidv4())), 0, 16)
+
+  //
   // Runtime config
   //
 
   // Not meant to be used anywhere, but here
-  resolved_os_installer = lookup(
-    local.os_installers,
-    "${var.vm_os.name}_${replace(var.vm_os.version, ".", "")}_${lookup(local.architectures, var.vm_os.arch, "unknown")}",
-    local.os_installers.unknown
-  )
+  resolved_os_installer = lookup(local.os_installers, local.guest_os_key, local.os_installers.unknown)
 
   // Meant to be used in sources
   os_installer = merge(
@@ -139,27 +173,13 @@ locals {
   )
 
   //
-  // Constants
-  //
-
-  build_dir_rel           = "${path.root}/build/${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}-test-subiquity" // TODO
-  build_dir_abs           = abspath(local.build_dir_rel)
-  config_dir              = abspath("${path.root}/config")
-  cloudinit_config_dir    = abspath("${local.config_dir}/cloudinit")
-  provisioning_config_dir = abspath("${local.config_dir}/provisioning")
-  vagrant_boxes_dir       = abspath("${path.root}/../boxes")
-  vagrant_config_dir      = abspath("${local.config_dir}/vagrant")
-  vm_human_name           = "${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}"
-  vm_instance_id          = substr(strrev(sha512(uuidv4())), 0, 16)
-
-  //
   // Sources config
   //
   builders = {
     packer = {
       boot_command      = local.os_installer.build_command
-      boot_key_interval = "25ms"
-      boot_wait         = "10s"
+      boot_key_interval = local.os_installer.boot_key_interval
+      boot_wait         = local.os_installer.boot_wait
       communicator      = "ssh"
       cores             = 4
       cpus              = 4 // cpus = sockets * cores (per socket) * threads (per core)
@@ -228,22 +248,18 @@ locals {
       guest_additions_path      = local.virtualbox.guest_additions.uploaded_file
       guest_additions_sha256    = "none"
       guest_additions_url       = local.virtualbox.guest_additions.url
-      guest_os_type = lookup(
-        local.virtualbox.guest_os_type,
-        "${var.vm_os.name}_${replace(var.vm_os.version, ".", "")}_${lookup(local.architectures, var.vm_os.arch, "unknown")}",
-        local.virtualbox.guest_os_type.generic
-      )
-      hard_drive_discard       = true
-      hard_drive_interface     = "pcie"
-      hard_drive_nonrotational = true
-      iso_interface            = "sata"
-      nested_virt              = true
-      nic_type                 = "82545EM"
-      nvme_port_count          = 1
-      rtc_time_base            = "local"
-      sata_port_count          = 3
-      sound                    = "none"
-      usb                      = true
+      guest_os_type             = lookup(local.virtualbox.guest_os_type, local.guest_os_key, local.virtualbox.guest_os_type.generic)
+      hard_drive_discard        = true
+      hard_drive_interface      = "pcie"
+      hard_drive_nonrotational  = true
+      iso_interface             = "sata"
+      nested_virt               = true
+      nic_type                  = "82545EM"
+      nvme_port_count           = 1
+      rtc_time_base             = "local"
+      sata_port_count           = 3
+      sound                     = "none"
+      usb                       = true
       vboxmanage_post = [
         ["modifyvm", "{{.Name}}", "--cpus", "1"],
         ["modifyvm", "{{.Name}}", "--memory", "512"],
@@ -259,12 +275,8 @@ locals {
       disk_type_id         = 1     // Growable virtual disk split into 2GB files (split sparse).
       display_name         = local.vm_human_name
       // Packer will create a vmx and then export that vm to an ovf or ova
-      format = "vmx"
-      guest_os_type = lookup(
-        local.vmware.guest_os_type,
-        "${var.vm_os.name}_${replace(var.vm_os.version, ".", "")}_${lookup(local.architectures, var.vm_os.arch, "unknown")}",
-        local.vmware.guest_os_type.generic
-      )
+      format                 = "vmx"
+      guest_os_type          = lookup(local.vmware.guest_os_type, local.guest_os_key, local.vmware.guest_os_type.generic)
       network                = "nat"    // Defaults to VMnet0..N
       network_adapter_type   = "e1000e" // https://kb.vmware.com/s/article/1001805
       ovftool_options        = []       // vSphere. Requires https://developer.vmware.com/web/tool/4.6.0/ovf-tool
@@ -277,6 +289,8 @@ locals {
       version                = 20 // Hardware Version - https://kb.vmware.com/s/article/1003746
       // Arbitrary key/values to enter into the virtual machine VMX file
       vmx_data = {
+        "firmware"                              = "efi"
+        "mks.enable3d"                          = "FALSE"
         "usb_xhci.present"                      = "TRUE"
         "ethernet0.linkStatePropagation.enable" = "TRUE"
         "sata1.present"                         = "TRUE"

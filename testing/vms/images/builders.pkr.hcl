@@ -9,11 +9,11 @@ build {
   }
 
   provisioner "shell" {
-    pause_before = "30s"
-    execute_command = "echo '${var.user_password}' | {{ .Vars }} sudo -S -E /bin/bash -eux '{{ .Path }}'"
+    pause_before      = "30s"
+    execute_command   = "echo '${var.user_password}' | {{ .Vars }} sudo -S -E /bin/bash -eux '{{ .Path }}'"
     expect_disconnect = true
     env = {
-      USER_PASSWORD = var.user_password
+      USER_PASSWORD   = var.user_password
       DEBIAN_FRONTEND = "noninteractive"
     }
     scripts = [
