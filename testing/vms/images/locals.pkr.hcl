@@ -11,16 +11,19 @@ locals {
     // parallels = "parallels"
   }
   architectures = {
-    arm64   = "arm64"
     aarch64 = "aarch64"
-    x86_64  = "x86_64"
+    amd64   = "amd64"
+    x86_64  = "amd64"
+    unknown = "unknown"
   }
   os_installers = {
     unknown = {
-      iso              = ""
-      checksum         = { sha256 = "", file = "" }
-      build_command    = []
-      shutdown_command = ""
+      iso               = { local = "", remote = "" }
+      checksum          = { sha256 = "", file = "" }
+      build_command     = []
+      boot_key_interval = ""
+      boot_wait         = ""
+      shutdown_command  = ""
     }
     ubuntu_20045_aarch64 = {
       iso = {
@@ -28,8 +31,8 @@ locals {
         remote = "https://cdimage.ubuntu.com/releases/20.04/release/ubuntu-20.04.5-live-server-arm64.iso"
       }
       checksum = {
-        sha256 = "e42d6373dd39173094af5c26cbf2497770426f42049f8b9ea3e60ce35bebdedf"
         file   = "https://cdimage.ubuntu.com/releases/20.04/release/SHA256SUMS"
+        sha256 = "e42d6373dd39173094af5c26cbf2497770426f42049f8b9ea3e60ce35bebdedf"
       }
       build_command = [
         "c<wait>",
@@ -47,18 +50,18 @@ locals {
         "initrd /casper/initrd<enter><wait>",
         "boot<wait5><enter>"
       ]
-      boot_wait         = "10s"
       boot_key_interval = "25ms"
+      boot_wait         = "10s"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
-    ubuntu_20046_x86_64 = {
+    ubuntu_20046_amd64 = {
       iso = {
         local  = ""
         remote = "https://releases.ubuntu.com/20.04/ubuntu-20.04.6-live-server-amd64.iso"
       }
       checksum = {
-        sha256 = "b8f31413336b9393ad5d8ef0282717b2ab19f007df2e9ed5196c13d8f9153c8b"
         file   = "https://releases.ubuntu.com/20.04/SHA256SUMS"
+        sha256 = "b8f31413336b9393ad5d8ef0282717b2ab19f007df2e9ed5196c13d8f9153c8b"
       }
       build_command = [
         "c<wait>",
@@ -76,7 +79,7 @@ locals {
         "initrd /casper/initrd<enter><wait5>",
         "boot<wait5><enter>"
       ]
-      boot_key_interval = "100ms"
+      boot_key_interval = "50ms"
       boot_wait         = "5s"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
@@ -86,25 +89,40 @@ locals {
         remote = "https://cdimage.ubuntu.com/releases/22.04/release/ubuntu-22.04.2-live-server-arm64.iso"
       }
       checksum = {
-        sha256 = ""
         file   = "https://cdimage.ubuntu.com/releases/22.04/release/SHA256SUMS"
+        sha256 = "12eed04214d8492d22686b72610711882ddf6222b4dc029c24515a85c4874e95"
       }
       build_command     = []
       boot_key_interval = "25ms"
       boot_wait         = "10s"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
-    ubuntu_22042_x84_64 = {
+    ubuntu_22042_amd64 = {
       iso = {
-        local  = ""
         remote = "https://releases.ubuntu.com/22.04/ubuntu-22.04.2-live-server-amd64.iso"
+        local  = ""
       }
       checksum = {
-        sha256 = ""
         file   = "https://releases.ubuntu.com/22.04/SHA256SUMS"
+        sha256 = "5e38b55d57d94ff029719342357325ed3bda38fa80054f9330dc789cd2d43931"
       }
-      build_command     = []
-      boot_key_interval = "100ms"
+      build_command = [
+        "c<wait>",
+        // "search --file /casper/vmlinuz<enter>",
+        "search --set=root --file /casper/vmlinuz<enter><wait5>",
+        // "set gfxpayload=text<enter>", // keep, auto, or text
+        // "insmod all_video<enter>",
+        "linux /casper/vmlinuz",
+        // " root=/dev/cd0",
+        // " console=ttyS0",
+        " initrd=/casper/initrd",
+        " debconf/frontend=noninteractive",
+        // " cloud-config-url='http://{{ .HTTPIP }}:{{ .HTTPPort }}/'",
+        " autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter><wait5>",
+        "initrd /casper/initrd<enter><wait5>",
+        "boot<wait5><enter>"
+      ]
+      boot_key_interval = "50ms"
       boot_wait         = "5s"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
@@ -117,9 +135,9 @@ locals {
     guest_os_type = {
       generic              = "Linux"
       ubuntu_20045_aarch64 = "Ubuntu20_LTS_64"
-      ubuntu_20046_x86_64  = "Ubuntu20_LTS_64"
+      ubuntu_20046_amd64   = "Ubuntu20_LTS_64"
       ubuntu_22042_aarch64 = "Ubuntu22_LTS_64"
-      ubuntu_22042_x84_64  = "Ubuntu22_LTS_64"
+      ubuntu_22042_amd64   = "Ubuntu22_LTS_64"
     }
     version_file = "/opt/virtualbox/.vbox_version"
   }
@@ -127,9 +145,9 @@ locals {
     guest_os_type = {
       generic              = "other-64"
       ubuntu_20045_aarch64 = "arm-ubuntu-64"
-      ubuntu_20046_x86_64  = "ubuntu-64"
+      ubuntu_20046_amd64   = "ubuntu-64"
       ubuntu_22042_aarch64 = "arm-ubuntu-64"
-      ubuntu_22042_x84_64  = "ubuntu-64"
+      ubuntu_22042_amd64   = "ubuntu-64"
     }
     remote_cache_datastore = "/opt/vmware/cache"
     remote_cache_directory = "/opt/vmware/cache/assets"
@@ -139,20 +157,30 @@ locals {
       uploaded_file = "/opt/vmware/vmware_tools_{{ .Flavor }}.iso"
     }
   }
+  qemu = {
+    binary = {
+      unknown = "qemu-system-unknown"
+      aarch64 = "qemu-system-aarch64"
+      arm64   = "qemu-system-aarch64"
+      amd64   = "qemu-system-x86_64"
+      x86_64  = "qemu-system-x86_64"
+    }
+  }
 
   //
   // Constants
   //
 
-  build_dir_rel           = "${path.root}/build/${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}-test-subiquity" // TODO
+  guest_os_arch           = lookup(local.architectures, var.vm_os.arch, local.architectures.unknown)
+  guest_os_key            = "${var.vm_os.name}_${replace(var.vm_os.version, ".", "")}_${local.guest_os_arch}"
+  build_dir_rel           = "${path.root}/build/${var.vm_os.name}-${var.vm_os.version}-${local.guest_os_arch}"
   build_dir_abs           = abspath(local.build_dir_rel)
   config_dir              = abspath("${path.root}/config")
   cloudinit_config_dir    = abspath("${local.config_dir}/cloudinit")
-  guest_os_key            = "${var.vm_os.name}_${replace(var.vm_os.version, ".", "")}_${lookup(local.architectures, var.vm_os.arch, "unknown")}"
   provisioning_config_dir = abspath("${local.config_dir}/provisioning")
   vagrant_boxes_dir       = abspath("${path.root}/../boxes")
   vagrant_config_dir      = abspath("${local.config_dir}/vagrant")
-  vm_human_name           = "${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}"
+  vm_human_name           = "${var.vm_os.name}-${var.vm_os.version}-${local.guest_os_arch}"
   vm_instance_id          = substr(strrev(sha512(uuidv4())), 0, 16)
 
   //
@@ -175,6 +203,7 @@ locals {
   //
   // Sources config
   //
+
   builders = {
     packer = {
       boot_command      = local.os_installer.build_command
@@ -254,7 +283,7 @@ locals {
       hard_drive_nonrotational  = true
       iso_interface             = "sata"
       nested_virt               = true
-      nic_type                  = "82545EM"
+      nic_type                  = "82540EM"
       nvme_port_count           = 1
       rtc_time_base             = "local"
       sata_port_count           = 3
@@ -295,6 +324,11 @@ locals {
         "ethernet0.linkStatePropagation.enable" = "TRUE"
         "sata1.present"                         = "TRUE"
         "floppy0.present"                       = "TRUE"
+        "powertype.poweroff"                    = "hard"
+        "powertype.poweron"                     = "hard"
+        "powertype.reset"                       = "hard"
+        "powertype.suspend"                     = "hard"
+        "softPowerOff"                          = "FALSE"
       }
       vmx_data_post                  = {}
       vmx_remove_ethernet_interfaces = var.vm_is_vagrant_box
@@ -321,7 +355,7 @@ locals {
         // Override network bus for vmnet on Mac (hack)
         // var.host_machine.is_mac && var.host_machine.mac.use_vmnet ? ["-device", "virtio-net-device,netdev=user.0"] : [],
       ]
-      binary               = "qemu-system-${lookup(local.architectures, var.vm_os.arch, "unknown")}"
+      binary               = lookup(local.qemu.binary, local.guest_os_arch, local.qemu.binary.unknown)
       cpu_model            = "host"
       cdrom_interface      = null // virtio-scsi if having problems
       disk_additional_size = []   // Additional disks to create

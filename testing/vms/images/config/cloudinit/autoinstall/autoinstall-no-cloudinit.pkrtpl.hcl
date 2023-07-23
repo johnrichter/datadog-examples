@@ -36,6 +36,10 @@ autoinstall:
 
   # Driver install sources
   source:
+
+    # What server version to install
+    id: "ubuntu-server-minimal"
+
     # Whether the installer should search for available third-party drivers. When set to false,
     # it disables the drivers screen and section.
     search_drivers: false

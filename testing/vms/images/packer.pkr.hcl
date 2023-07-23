@@ -5,6 +5,10 @@ packer {
       version = ">= 1.0.0"
       source  = "github.com/hashicorp/qemu"
     }
+    vagrant = {
+      version = ">= 1.0.0"
+      source  = "github.com/hashicorp/vagrant"
+    }
     virtualbox = {
       version = ">= 1.0.0"
       source  = "github.com/hashicorp/virtualbox"

@@ -14,7 +14,7 @@ source "virtualbox-iso" "vm" {
   format                    = local.builders.virtualbox.format
   gfx_accelerate_3d         = local.builders.virtualbox.gfx_accelerate_3d
   gfx_controller            = local.builders.virtualbox.gfx_controller
-  gfx_efi_resolution        = local.builders.virtualbox.gfx_efi_resolution
+  // gfx_efi_resolution        = local.builders.virtualbox.gfx_efi_resolution
   gfx_vram_size             = local.builders.virtualbox.gfx_vram_size
   guest_additions_interface = local.builders.virtualbox.guest_additions_interface
   guest_additions_mode      = local.builders.virtualbox.guest_additions_mode
@@ -32,18 +32,19 @@ source "virtualbox-iso" "vm" {
   rtc_time_base             = local.builders.virtualbox.rtc_time_base
   sata_port_count           = local.builders.virtualbox.sata_port_count
   vboxmanage_post           = local.builders.virtualbox.vboxmanage_post
+  virtualbox_version_file   = local.builders.virtualbox.virtualbox_version_file
 
   //
   // Packer
   //
 
-  boot_command      = local.builders.packer.boot_command
-  boot_wait         = local.builders.packer.boot_wait
-  boot_key_interval = local.builders.packer.boot_key_interval
-  communicator      = local.builders.packer.communicator
-  cpus              = local.builders.packer.cpus
-  headless          = local.builders.packer.headless
-  http_bind_address = local.builders.packer.http_bind_address
+  boot_command           = local.builders.packer.boot_command
+  boot_wait              = local.builders.packer.boot_wait
+  boot_keygroup_interval = local.builders.packer.boot_key_interval
+  communicator           = local.builders.packer.communicator
+  cpus                   = local.builders.packer.cpus
+  headless               = local.builders.packer.headless
+  http_bind_address      = local.builders.packer.http_bind_address
   http_content = {
     "/meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var, local = local })
     "/network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var, local = local })
@@ -54,7 +55,7 @@ source "virtualbox-iso" "vm" {
   iso_urls                     = local.builders.packer.iso_urls
   keep_registered              = local.builders.packer.keep_registered
   memory                       = local.builders.packer.memory
-  output_directory             = local.builders.packer.output_directory
+  output_directory             = "${local.builders.packer.output_directory}-virtualbox"
   pause_before_connecting      = local.builders.packer.pause_before_connecting
   post_shutdown_delay          = local.builders.packer.post_shutdown_delay
   shutdown_command             = local.builders.packer.shutdown_command
@@ -73,7 +74,6 @@ source "virtualbox-iso" "vm" {
   ssh_timeout                  = local.builders.packer.ssh_timeout
   ssh_username                 = local.builders.packer.ssh_username
   usb                          = local.builders.packer.usb
-  virtualbox_version_file      = local.builders.packer.virtualbox_version_file
   vm_name                      = local.builders.packer.vm_name
   vrdp_bind_address            = local.builders.packer.vrdp_bind_address
 }
@@ -122,7 +122,7 @@ source "vmware-iso" "vm" {
   iso_urls                     = local.builders.packer.iso_urls
   keep_registered              = local.builders.packer.keep_registered
   memory                       = local.builders.packer.memory
-  output_directory             = local.builders.packer.output_directory
+  output_directory             = "${local.builders.packer.output_directory}-vmware"
   pause_before_connecting      = local.builders.packer.pause_before_connecting
   shutdown_command             = local.builders.packer.shutdown_command
   shutdown_timeout             = local.builders.packer.shutdown_timeout
@@ -226,7 +226,7 @@ source "qemu" "vm" {
   iso_skip_cache               = local.builders.packer.iso_skip_cache
   iso_urls                     = local.builders.packer.iso_urls
   memory                       = local.builders.packer.memory
-  output_directory             = local.builders.packer.output_directory
+  output_directory             = "${local.builders.packer.output_directory}-qemu"
   pause_before_connecting      = local.builders.packer.pause_before_connecting
   qmp_enable                   = local.builders.packer.qmp_enable
   qmp_socket_path              = local.builders.packer.qmp_socket_path
