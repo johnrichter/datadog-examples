@@ -130,7 +130,7 @@ locals {
   }
   vagrant = {
     cloud = {
-      box_namespace = "jrichter.io"
+      box_namespace = "jrichter-io"
     }
   }
   virtualbox = {
