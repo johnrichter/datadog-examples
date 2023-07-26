@@ -70,12 +70,15 @@ variable "vm_is_vagrant_box" {
   type        = bool
   description = "The VM will be built into a Vagrant box"
 }
+variable "vagrant_cloud_access_token" {
+  type        = string
+  description = "Access token for uploading boxes. Semver. Defaults to env('VAGRANT_CLOUD_TOKEN')"
+  default     = env("VAGRANT_CLOUD_TOKEN")
+}
 variable "vagrant" {
   type = object({
     min_version = string
     cloud = object({
-      // Access token for uploading boxes. Semver
-      access_token = string
       // E.g. jrichter.io/jammy64
       box_tag = string
       // Do not upload the box to Vagrant Cloud

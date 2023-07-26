@@ -49,7 +49,7 @@ locals {
       ]
       boot_key_interval = "25ms"
       boot_wait         = "10s"
-      codename          = "focal64"
+      codename          = "focal-arm64"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
     ubuntu_20046_amd64 = {
@@ -74,7 +74,7 @@ locals {
       ]
       boot_key_interval = "50ms"
       boot_wait         = "5s"
-      codename          = "focal64"
+      codename          = "focal-amd64"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
     ubuntu_22042_aarch64 = {
@@ -99,7 +99,7 @@ locals {
       ]
       boot_key_interval = "25ms"
       boot_wait         = "10s"
-      codename          = "jammy64"
+      codename          = "jammy-arm64"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
     ubuntu_22042_amd64 = {
@@ -124,7 +124,7 @@ locals {
       ]
       boot_key_interval = "50ms"
       boot_wait         = "5s"
-      codename          = "jammy64"
+      codename          = "jammy-amd64"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
   }
@@ -184,8 +184,6 @@ locals {
   config_dir              = abspath("${path.root}/config")
   cloudinit_config_dir    = abspath("${local.config_dir}/cloudinit")
   provisioning_config_dir = abspath("${local.config_dir}/provisioning")
-  vagrant_boxes_dir       = abspath("${path.root}/../boxes")
-  vagrant_config_dir      = abspath("${local.config_dir}/vagrant")
   vm_human_name           = "${var.vm_os.name}-${var.vm_os.version}-${local.guest_os_arch}"
   vm_instance_id          = substr(strrev(sha512(uuidv4())), 0, 16)
 
@@ -216,6 +214,8 @@ locals {
   // Constants
   //
 
+  vagrant_boxes_dir     = abspath("${path.root}/../boxes")
+  vagrant_config_dir    = abspath("${local.config_dir}/vagrant")
   vagrant_cloud_box_tag = "${local.vagrant.cloud.box_namespace}/${local.os_installer.codename}"
 
   //
