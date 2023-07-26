@@ -157,24 +157,6 @@ source "vmware-iso" "vm" {
     "/user-data"   = templatefile("${local.cloudinit_config_dir}/autoinstall/autoinstall-with-cloudinit.pkrtpl.hcl", { var = var, local = local })
     "/vendor-data" = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var, local = local })
   }
-
-  // floppy_label = "CIDATA"
-  // floppy_content = {
-  //   "meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var, local = local })
-  //   "network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var, local = local })
-  //   "user-data"      = templatefile("${local.cloudinit_config_dir}/user-data.pkrtpl.hcl", { var = var, local = local })
-  //   "vendor-data"    = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var, local = local })
-  // }
-
-  // For Cloud-Init's NoCloud datasource. It'll automatically look for a volume labeled 'CIDATA'
-  // https://cloudinit.readthedocs.io/en/latest/reference/datasources/nocloud.html#method-1-local-filesystem-labeled-filesystem
-  // cd_label = "CIDATA"
-  // cd_content = {
-  //   "meta-data"      = templatefile("${local.cloudinit_config_dir}/metadata.pkrtpl.hcl", { var = var, local = local })
-  //   "network-config" = templatefile("${local.cloudinit_config_dir}/network-config.pkrtpl.hcl", { var = var, local = local })
-  //   "user-data"      = templatefile("${local.cloudinit_config_dir}/user-data.pkrtpl.hcl", { var = var, local = local })
-  //   "vendor-data"    = templatefile("${local.cloudinit_config_dir}/vendordata.pkrtpl.hcl", { var = var, local = local })
-  // }
 }
 
 source "qemu" "vm" {

@@ -22,15 +22,6 @@ apt:
     - "backports"
     - "proposed"
 
-  # Specify configuration for apt
-  conf: |
-    APT {
-        Get {
-            Assume-Yes 'true';
-            Fix-Broken 'true';
-        }
-    }
-
 # This module configures the final message that cloud-init writes. The message is specified a
 # a jinja template with the following variables set
 #   * version: cloud-init version
@@ -64,20 +55,11 @@ growpart:
 
 # Resize a filesystem to use all avaliable space on partition. Will ensure that if the root
 # partition has been resized the root filesystem will be resized along with it. False to disable
-resize_rootfs: "noblock"
-
-# Install hotplug udev rules if supported and enabled. When hotplug is enabled, newly added
-# network devices will be added to the system by cloud-init
-updates:
-  network:
-    when:
-      - "boot"
-      - "hotplug"
+resize_rootfs: true
 
 # Enable and configure ntp
 ntp:
   enabled: ${jsonencode(var.ntp_enabled)}
-  ntp_client: "auto"
 
 # A list of packages to install during boot. Each entry in the list can be either a package name
 # or a list with two entries, the first being the package name and the second being the specific
@@ -119,18 +101,18 @@ random_seed:
   # This data will be written to file before data from the datasource. When using a multiline
   # value or specifying binary data, be sure to follow yaml syntax and use the | and !binary
   # yaml format specifiers when appropriate
-  data: "${sha512(uuidv4())}"
+  data: >-
+    ${sha512(uuidv4())}
+    ${sha512(uuidv4())}
+    ${sha512(uuidv4())}
+    ${sha512(uuidv4())}
+    ${sha512(uuidv4())}
+    ${sha512(uuidv4())}
+    ${sha512(uuidv4())}
+    ${sha512(uuidv4())}
 
   # Used to decode data provided. Allowed values are raw, base64, b64, gzip, or gz
   encoding: "raw"
-
-  # Execute this command to seed random. The command will have RANDOM_SEED_FILE in its
-  # environment set to the value of file above
-  command: ["sh", "-c", "dd if=/dev/urandom of=$RANDOM_SEED_FILE"]
-
-  # If true, and command is not available to be run then an exception is raised and cloud-init
-  # will record failure. Otherwise, only debug error is mentioned
-  command_required: true
 
 # The hostname to set
 hostname: "${var.hostname}"
@@ -170,7 +152,7 @@ chpasswd:
 
 # Groups to add to the system. Groups are added before users, so any users in a group list
 # must already exist on the system
-groups: ${jsonencode(var.system_groups)}
+# groups: ${jsonencode(var.system_groups)}
 
 # Users to add to the system. the reserved string default which represents the primary admin
 # user used to access the system. The default user varies per distribution and is generally

@@ -36,7 +36,6 @@ autoinstall:
 
   # Driver install sources
   source:
-
     # What server version to install
     id: "ubuntu-server-minimal"
 
@@ -180,15 +179,6 @@ autoinstall:
     # Required for ubuntu 20.04 since it can't unmount the cdrom on reboot
     # https://bugs.launchpad.net/subiquity/+bug/1901397
     # https://github.com/hashicorp/packer-plugin-qemu/issues/66#issuecomment-1466049817
-    # curtin in-target --target=/target -- sudo sed -i 's|nocloud-net;seedfrom=http://.*/|vmware|' /etc/default/grub
-    # curtin in-target --target=/target -- update-grub
-    # curtin in-target --target=/target -- rm -f /etc/cloud/cloud.cfg.d/99-installer.cfg
-    # curtin in-target --target=/target -- sudo rm -f /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg
-    # curtin in-target --target=/target -- cloud-init clean
-    # curtin in-target --target=/target -- echo -e "GRUB_TIMEOUT='10'\n" >> /etc/default/grub
-    # curtin in-target --target=/target -- echo -e "GRUB_CMDLINE_LINUX_DEFAULT='ds=nocloud-net;s=file://tmp/cloud/'\n" >> /etc/default/grub
-    # sudo rm -f /target/etc/cloud/cloud.cfg"
-    # sudo rm -f /target/etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg
     - |
       echo 'GRUB_TIMEOUT=10' | tee -a /target/etc/default/grub
       echo 'GRUB_TIMEOUT_STYLE="menu"' | tee -a /target/etc/default/grub
@@ -198,11 +188,6 @@ autoinstall:
       if [ -d /sys/firmware/efi ]; then
         /target/bin/efibootmgr -o $(/target/bin/efibootmgr | /target/bin/perl -n -e '/Boot(.+)\* ubuntu/ && print $1')
       fi
-    # - "curtin in-target --target=/target -- sudo cloud-init clean"
-    # - "sudo rm -f /target/etc/cloud/cloud.cfg.d/99-installer.cfg"
-    # - "sudo rm -f /target/etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg"
-    # - "sudo rm -f /target/etc/cloud/ds-identify.cfg"
-    # - "sudo rm -f /target/etc/netplan/00-installer-config.yaml"
 
   # Shell commands to run after the install has failed. They are run in the installer environment,
   # and the target system (or as much of it as the installer managed to configure) will be mounted

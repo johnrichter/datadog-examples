@@ -3,7 +3,7 @@ variable "enabled_hypervisors" {
   description = "What builders should we use? vbox, vmware, qemu, parallels"
 }
 variable "keep_vm_artifact" {
-  type = bool
+  type        = bool
   description = "Keep the resulting VM and do not delete it"
 }
 variable "host_machine" {
@@ -70,14 +70,23 @@ variable "vm_is_vagrant_box" {
   type        = bool
   description = "The VM will be built into a Vagrant box"
 }
-variable "min_vagrant_version" {
-  type        = string
-  description = "Minimum version of Vagrant required to run this box. Semver."
+variable "vagrant" {
+  type = object({
+    min_version = string
+    cloud = object({
+      // Access token for uploading boxes. Semver
+      access_token = string
+      // E.g. jrichter.io/jammy64
+      box_tag = string
+      // Do not upload the box to Vagrant Cloud
+      skip_upload = bool
+      // Box version description markdown
+      version_description = string
+    })
+  })
+  description = "Vagrant and Vagrant Cloud config"
 }
-variable "vagrant_cloud_access_token" {
-  type        = string
-  description = "Vagrant Cloud access token for uploading boxes"
-}
+
 variable "hostname" {
   type        = string
   description = "The host's name"
@@ -103,9 +112,9 @@ variable "ssh_delete_host_keys" {
   description = "Remove any host ssh keys that may have been included in the base image/OS"
 }
 variable "packages" {
-  type        = object({
+  type = object({
     essentials = list(string)
-    extras = list(string)
+    extras     = list(string)
   })
   description = "List of packages to install on boot"
 }

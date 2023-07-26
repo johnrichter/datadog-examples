@@ -242,26 +242,26 @@ autoinstall:
     # Set true to reboot the system if required by presence of /var/run/reboot-required
     package_reboot_if_required: ${jsonencode(var.packages_reboot_if_required)}
 
-    # # Provide random seed data
-    # random_seed:
-    #   # File to write random data to
-    #   file: "/dev/urandom"
+    # Provide random seed data
+    random_seed:
+      # File to write random data to
+      file: "/dev/urandom"
 
-    #   # This data will be written to file before data from the datasource. When using a multiline
-    #   # value or specifying binary data, be sure to follow yaml syntax and use the | and !binary
-    #   # yaml format specifiers when appropriate
-    #   data: "${sha512(uuidv4())}"
+      # This data will be written to file before data from the datasource. When using a multiline
+      # value or specifying binary data, be sure to follow yaml syntax and use the | and !binary
+      # yaml format specifiers when appropriate
+      data: >-
+        ${sha512(uuidv4())}
+        ${sha512(uuidv4())}
+        ${sha512(uuidv4())}
+        ${sha512(uuidv4())}
+        ${sha512(uuidv4())}
+        ${sha512(uuidv4())}
+        ${sha512(uuidv4())}
+        ${sha512(uuidv4())}
 
-    #   # Used to decode data provided. Allowed values are raw, base64, b64, gzip, or gz
-    #   encoding: "raw"
-
-    #   # Execute this command to seed random. The command will have RANDOM_SEED_FILE in its
-    #   # environment set to the value of file above
-    #   command: ["sh", "-c", "dd if=/dev/urandom of=$RANDOM_SEED_FILE"]
-
-    #   # If true, and command is not available to be run then an exception is raised and cloud-init
-    #   # will record failure. Otherwise, only debug error is mentioned
-    #   command_required: true
+      # Used to decode data provided. Allowed values are raw, base64, b64, gzip, or gz
+      encoding: "raw"
 
     # The hostname to set
     hostname: "${var.hostname}"

@@ -21,6 +21,7 @@ locals {
     unknown = {
       iso               = { local = "", remote = "" }
       checksum          = { sha256 = "", file = "" }
+      codename          = ""
       build_command     = []
       boot_key_interval = ""
       boot_wait         = ""
@@ -37,17 +38,18 @@ locals {
       }
       build_command = [
         "c<wait>",
-        "search --set=root --file /casper/vmlinuz<enter><wait>",
+        "search --set=root --file /casper/vmlinuz<enter><wait5>",
         "linux /casper/vmlinuz",
         " initrd=/casper/initrd",
         " debconf/frontend=noninteractive",
         // " cloud-config-url='http://{{ .HTTPIP }}:{{ .HTTPPort }}/'",
-        " autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter><wait>",
-        "initrd /casper/initrd<enter><wait>",
+        " autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter><wait5>",
+        "initrd /casper/initrd<enter><wait5>",
         "boot<wait5><enter>"
       ]
       boot_key_interval = "25ms"
       boot_wait         = "10s"
+      codename          = "focal64"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
     ubuntu_20046_amd64 = {
@@ -72,18 +74,17 @@ locals {
       ]
       boot_key_interval = "50ms"
       boot_wait         = "5s"
+      codename          = "focal64"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
     ubuntu_22042_aarch64 = {
       iso = {
-        local  = "/Users/john.richter/Downloads/ubuntu-22.04.2-live-server-arm64.iso"
+        local  = ""
         remote = "https://cdimage.ubuntu.com/releases/22.04/release/ubuntu-22.04.2-live-server-arm64.iso"
       }
       checksum = {
-        file = ""
-        // file   = "https://cdimage.ubuntu.com/releases/22.04/release/SHA256SUMS"
-        // sha256 = "12eed04214d8492d22686b72610711882ddf6222b4dc029c24515a85c4874e95"
-        sha256 = ""
+        file   = "https://cdimage.ubuntu.com/releases/22.04/release/SHA256SUMS"
+        sha256 = "12eed04214d8492d22686b72610711882ddf6222b4dc029c24515a85c4874e95"
       }
       build_command = [
         "c<wait>",
@@ -98,6 +99,7 @@ locals {
       ]
       boot_key_interval = "25ms"
       boot_wait         = "10s"
+      codename          = "jammy64"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
     }
     ubuntu_22042_amd64 = {
@@ -122,7 +124,13 @@ locals {
       ]
       boot_key_interval = "50ms"
       boot_wait         = "5s"
+      codename          = "jammy64"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
+    }
+  }
+  vagrant = {
+    cloud = {
+      box_namespace = "jrichter.io"
     }
   }
   virtualbox = {
@@ -203,6 +211,12 @@ locals {
       }
     }
   )
+
+  //
+  // Constants
+  //
+
+  vagrant_cloud_box_tag = "${local.vagrant.cloud.box_namespace}/${local.os_installer.codename}"
 
   //
   // Sources config
@@ -300,15 +314,14 @@ locals {
       virtualbox_version_file = local.virtualbox.version_file
     }
     vmware = {
-      cdrom_adapter_type   = "sata"
-      cleanup_remote_cache = true
-      disk_adapter_type    = "nvme"
-      disk_additional_size = []    // Additional disks to create
-      disk_size            = 21475 // ~20GiB in MB
-      disk_type_id         = 1     // Growable virtual disk split into 2GB files (split sparse).
-      display_name         = local.vm_human_name
-      // Packer will create a vmx and then export that vm to an ovf or ova
-      format                 = "ova"
+      cdrom_adapter_type     = "sata"
+      cleanup_remote_cache   = true
+      disk_adapter_type      = "nvme"
+      disk_additional_size   = []    // Additional disks to create
+      disk_size              = 21475 // ~20GiB in MB
+      disk_type_id           = 1     // Growable virtual disk split into 2GB files (split sparse).
+      display_name           = local.vm_human_name
+      format                 = "vmx"
       guest_os_type          = lookup(local.vmware.guest_os_type, local.guest_os_key, local.vmware.guest_os_type.generic)
       network                = "nat"    // Defaults to VMnet0..N
       network_adapter_type   = "e1000e" // https://kb.vmware.com/s/article/1001805
