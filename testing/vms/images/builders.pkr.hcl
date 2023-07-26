@@ -9,12 +9,13 @@ build {
   }
 
   provisioner "shell" {
-    pause_before      = "30s"
+    pause_before      = "0s"
     execute_command   = "echo '${var.user_password}' | {{ .Vars }} sudo -S -E /bin/bash -eux '{{ .Path }}'"
     expect_disconnect = true
     env = {
-      USER_PASSWORD   = var.user_password
       DEBIAN_FRONTEND = "noninteractive"
+      PACKAGES_TO_INSTALL = join(" ", var.packages.extras)
+      USER_PASSWORD   = var.user_password
     }
     scripts = [
       for f in fileset("${local.provisioning_config_dir}", "${var.vm_os.name}/**/*.sh") : "${local.provisioning_config_dir}/${f}"
@@ -34,6 +35,12 @@ build {
     //   version      = "${local.version}"
     // }
   }
+  post-processor "shell-local" {
+      inline_shebang = "/bin/env -S bash -ex"
+      inline = [
+        var.keep_vm_artifact ? "echo 'Keeping VM artifact'" : "rm -rf ${local.builders.packer.output_directory}*"
+      ]
+    }
 }
 
 // Looks like the ssh host keys are not generating properly on reboot which causes a hang. Last thing

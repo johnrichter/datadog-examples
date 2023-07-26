@@ -82,7 +82,7 @@ ntp:
 # A list of packages to install during boot. Each entry in the list can be either a package name
 # or a list with two entries, the first being the package name and the second being the specific
 # package version to install
-packages: ${jsonencode(var.packages)}
+packages: ${jsonencode(var.packages.essentials)}
 
 # Set true to update packages. Happens before upgrade or install
 package_update: ${jsonencode(var.packages_update)}

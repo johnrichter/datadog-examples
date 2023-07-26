@@ -106,35 +106,10 @@ autoinstall:
       # remove_duplicate_entries to False. This setting is ignored if update_nvram is False.
       remove_duplicate_entries: true
 
-  # Configure the initial user for the system. This is the only config key that must be present
-  # (unless the user-data section is present, in which case it is optional).
-  # identity:
-  # The hostname for the system
-  # hostname: "${var.hostname}"
-
-  # The real name for the user. This field is optional
-  # realname: "${var.user_realname}"
-
-  # The user name to create
-  # username: "${var.user_name}"
-
-  # The password for the new user, encrypted. This is required for use with sudo, even if SSH
-  # access is configured. The crypted password string must conform to what passwd expects.
-  # Depending on the special characters in the password hash, quoting may be required, so it’s
-  # safest to just always include the quotes around the hash. Several tools can generate the
-  # crypted password, such as `mkpasswd` from the whois package, or `openssl passwd`
-  # password: ${var.user_password_crypted}
-
   # Configure SSH for the installed system
   ssh:
     # Whether to install OpenSSH server in the target system.
     install-server: true
-
-    # A list of SSH public keys to install in the initial user’s account
-    authorized-keys: ${jsonencode(var.user_ssh_authorized_key_blobs)}
-
-    # Allow login via password. Defaults to true if authorized_keys is empty, false otherwise
-    allow-pw: ${jsonencode(var.ssh_enable_password_authentication)}
 
   # Configure whether common restricted packages (including codecs) from [multiverse] should be
   # installed
@@ -176,15 +151,6 @@ autoinstall:
     # Required for ubuntu 20.04 since it can't unmount the cdrom on reboot
     # https://bugs.launchpad.net/subiquity/+bug/1901397
     # https://github.com/hashicorp/packer-plugin-qemu/issues/66#issuecomment-1466049817
-    # curtin in-target --target=/target -- sudo sed -i 's|nocloud-net;seedfrom=http://.*/|vmware|' /etc/default/grub
-    # curtin in-target --target=/target -- update-grub
-    # curtin in-target --target=/target -- rm -f /etc/cloud/cloud.cfg.d/99-installer.cfg
-    # curtin in-target --target=/target -- sudo rm -f /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg
-    # curtin in-target --target=/target -- cloud-init clean
-    # curtin in-target --target=/target -- echo -e "GRUB_TIMEOUT='10'\n" >> /etc/default/grub
-    # curtin in-target --target=/target -- echo -e "GRUB_CMDLINE_LINUX_DEFAULT='ds=nocloud-net;s=file://tmp/cloud/'\n" >> /etc/default/grub
-    # sudo rm -f /target/etc/cloud/cloud.cfg"
-    # sudo rm -f /target/etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg
     - |
       echo 'GRUB_TIMEOUT=10' | tee -a /target/etc/default/grub
       echo 'GRUB_TIMEOUT_STYLE="menu"' | tee -a /target/etc/default/grub
@@ -194,16 +160,12 @@ autoinstall:
       if [ -d /sys/firmware/efi ]; then
         /target/bin/efibootmgr -o $(/target/bin/efibootmgr | /target/bin/perl -n -e '/Boot(.+)\* ubuntu/ && print $1')
       fi
-    # - "curtin in-target --target=/target -- sudo cloud-init clean"
-    # - "sudo rm -f /target/etc/cloud/cloud.cfg.d/99-installer.cfg"
-    # - "sudo rm -f /target/etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg"
-    # - "sudo rm -f /target/etc/cloud/ds-identify.cfg"
-    # - "sudo rm -f /target/etc/netplan/00-installer-config.yaml"
 
   # Shell commands to run after the install has failed. They are run in the installer environment,
   # and the target system (or as much of it as the installer managed to configure) will be mounted
   # at /target. Logs will be available at /var/log/installer in the live session
   # error-commands:
+  # This causes an error for some reason
   # - "curtin in-target --target=/target -- cloud-init schema --system"
 
   user-data:
@@ -226,15 +188,6 @@ autoinstall:
       disable_suites:
         - "backports"
         - "proposed"
-
-      # Specify configuration for apt
-      conf: |
-        APT {
-            Get {
-                Assume-Yes 'true';
-                Fix-Broken 'true';
-            }
-        }
 
     # This module configures the final message that cloud-init writes. The message is specified a
     # a jinja template with the following variables set
@@ -269,25 +222,16 @@ autoinstall:
 
     # Resize a filesystem to use all avaliable space on partition. Will ensure that if the root
     # partition has been resized the root filesystem will be resized along with it. False to disable
-    resize_rootfs: "noblock"
-
-    # Install hotplug udev rules if supported and enabled. When hotplug is enabled, newly added
-    # network devices will be added to the system by cloud-init
-    updates:
-      network:
-        when:
-          - "boot"
-          - "hotplug"
+    resize_rootfs: true
 
     # Enable and configure ntp
     ntp:
       enabled: ${jsonencode(var.ntp_enabled)}
-      ntp_client: "auto"
 
     # A list of packages to install during boot. Each entry in the list can be either a package name
     # or a list with two entries, the first being the package name and the second being the specific
     # package version to install
-    packages: ${jsonencode(var.packages)}
+    packages: ${jsonencode(var.packages.essentials)}
 
     # Set true to update packages. Happens before upgrade or install
     package_update: ${jsonencode(var.packages_update)}
@@ -298,26 +242,26 @@ autoinstall:
     # Set true to reboot the system if required by presence of /var/run/reboot-required
     package_reboot_if_required: ${jsonencode(var.packages_reboot_if_required)}
 
-    # Provide random seed data
-    random_seed:
-      # File to write random data to
-      file: "/dev/urandom"
+    # # Provide random seed data
+    # random_seed:
+    #   # File to write random data to
+    #   file: "/dev/urandom"
 
-      # This data will be written to file before data from the datasource. When using a multiline
-      # value or specifying binary data, be sure to follow yaml syntax and use the | and !binary
-      # yaml format specifiers when appropriate
-      data: "${sha512(uuidv4())}"
+    #   # This data will be written to file before data from the datasource. When using a multiline
+    #   # value or specifying binary data, be sure to follow yaml syntax and use the | and !binary
+    #   # yaml format specifiers when appropriate
+    #   data: "${sha512(uuidv4())}"
 
-      # Used to decode data provided. Allowed values are raw, base64, b64, gzip, or gz
-      encoding: "raw"
+    #   # Used to decode data provided. Allowed values are raw, base64, b64, gzip, or gz
+    #   encoding: "raw"
 
-      # Execute this command to seed random. The command will have RANDOM_SEED_FILE in its
-      # environment set to the value of file above
-      command: ["sh", "-c", "dd if=/dev/urandom of=$RANDOM_SEED_FILE"]
+    #   # Execute this command to seed random. The command will have RANDOM_SEED_FILE in its
+    #   # environment set to the value of file above
+    #   command: ["sh", "-c", "dd if=/dev/urandom of=$RANDOM_SEED_FILE"]
 
-      # If true, and command is not available to be run then an exception is raised and cloud-init
-      # will record failure. Otherwise, only debug error is mentioned
-      command_required: true
+    #   # If true, and command is not available to be run then an exception is raised and cloud-init
+    #   # will record failure. Otherwise, only debug error is mentioned
+    #   command_required: true
 
     # The hostname to set
     hostname: "${var.hostname}"
@@ -348,10 +292,6 @@ autoinstall:
     # Disable root login options
     disable_root_opts: >-
       no-port-forwarding,no-agent-forwarding,no-X11-forwarding,command="echo 'Please login as the user \"${var.user_name}\" rather than the user \"$DISABLE_USER\".';echo;sleep 10;exit 142"
-
-    # The timezone to use as represented in /usr/share/zoneinfo
-    # Currently set via autoinit
-    # timezone: "US/Central"
 
     # Create users and passwords
     chpasswd:

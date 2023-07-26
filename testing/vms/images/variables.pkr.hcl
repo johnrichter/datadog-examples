@@ -2,6 +2,10 @@ variable "enabled_hypervisors" {
   type        = list(string)
   description = "What builders should we use? vbox, vmware, qemu, parallels"
 }
+variable "keep_vm_artifact" {
+  type = bool
+  description = "Keep the resulting VM and do not delete it"
+}
 variable "host_machine" {
   type = object({
     is_mac = bool
@@ -99,7 +103,10 @@ variable "ssh_delete_host_keys" {
   description = "Remove any host ssh keys that may have been included in the base image/OS"
 }
 variable "packages" {
-  type        = list(string)
+  type        = object({
+    essentials = list(string)
+    extras = list(string)
+  })
   description = "List of packages to install on boot"
 }
 variable "packages_update" {

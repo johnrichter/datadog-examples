@@ -12,6 +12,7 @@ locals {
   }
   architectures = {
     aarch64 = "aarch64"
+    arm64   = "aarch64"
     amd64   = "amd64"
     x86_64  = "amd64"
     unknown = "unknown"
@@ -36,13 +37,8 @@ locals {
       }
       build_command = [
         "c<wait>",
-        // "search --file /casper/vmlinuz<enter>",
         "search --set=root --file /casper/vmlinuz<enter><wait>",
-        // "set gfxpayload=text<enter>", // keep, auto, or text
-        // "insmod all_video<enter>",
         "linux /casper/vmlinuz",
-        // " root=/dev/cd0",
-        // " console=ttyS0",
         " initrd=/casper/initrd",
         " debconf/frontend=noninteractive",
         // " cloud-config-url='http://{{ .HTTPIP }}:{{ .HTTPPort }}/'",
@@ -65,13 +61,8 @@ locals {
       }
       build_command = [
         "c<wait>",
-        // "search --file /casper/vmlinuz<enter>",
         "search --set=root --file /casper/vmlinuz<enter><wait5>",
-        // "set gfxpayload=text<enter>", // keep, auto, or text
-        // "insmod all_video<enter>",
         "linux /casper/vmlinuz",
-        // " root=/dev/cd0",
-        // " console=ttyS0",
         " initrd=/casper/initrd",
         " debconf/frontend=noninteractive",
         // " cloud-config-url='http://{{ .HTTPIP }}:{{ .HTTPPort }}/'",
@@ -85,14 +76,26 @@ locals {
     }
     ubuntu_22042_aarch64 = {
       iso = {
-        local  = ""
+        local  = "/Users/john.richter/Downloads/ubuntu-22.04.2-live-server-arm64.iso"
         remote = "https://cdimage.ubuntu.com/releases/22.04/release/ubuntu-22.04.2-live-server-arm64.iso"
       }
       checksum = {
-        file   = "https://cdimage.ubuntu.com/releases/22.04/release/SHA256SUMS"
-        sha256 = "12eed04214d8492d22686b72610711882ddf6222b4dc029c24515a85c4874e95"
+        file = ""
+        // file   = "https://cdimage.ubuntu.com/releases/22.04/release/SHA256SUMS"
+        // sha256 = "12eed04214d8492d22686b72610711882ddf6222b4dc029c24515a85c4874e95"
+        sha256 = ""
       }
-      build_command     = []
+      build_command = [
+        "c<wait>",
+        "search --set=root --file /casper/vmlinuz<enter><wait5>",
+        "linux /casper/vmlinuz",
+        " initrd=/casper/initrd",
+        " debconf/frontend=noninteractive",
+        // " cloud-config-url='http://{{ .HTTPIP }}:{{ .HTTPPort }}/'",
+        " autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter><wait5>",
+        "initrd /casper/initrd<enter><wait5>",
+        "boot<wait5><enter>"
+      ]
       boot_key_interval = "25ms"
       boot_wait         = "10s"
       shutdown_command  = "echo '${var.user_password}' | sudo -S shutdown -P now"
@@ -108,13 +111,8 @@ locals {
       }
       build_command = [
         "c<wait>",
-        // "search --file /casper/vmlinuz<enter>",
         "search --set=root --file /casper/vmlinuz<enter><wait5>",
-        // "set gfxpayload=text<enter>", // keep, auto, or text
-        // "insmod all_video<enter>",
         "linux /casper/vmlinuz",
-        // " root=/dev/cd0",
-        // " console=ttyS0",
         " initrd=/casper/initrd",
         " debconf/frontend=noninteractive",
         // " cloud-config-url='http://{{ .HTTPIP }}:{{ .HTTPPort }}/'",
@@ -195,7 +193,13 @@ locals {
     local.resolved_os_installer,
     {
       checksum = {
-        uri = local.resolved_os_installer.checksum.sha256 != "" ? "sha256:${local.resolved_os_installer.checksum.sha256}" : "file:${local.resolved_os_installer.checksum.file}"
+        uri = (
+          local.resolved_os_installer.checksum.sha256 != "" ? "sha256:${local.resolved_os_installer.checksum.sha256}" : (
+            local.resolved_os_installer.checksum.file != "" ? "file:${local.resolved_os_installer.checksum.file}" : (
+              "none"
+            )
+          )
+        )
       }
     }
   )
@@ -243,7 +247,7 @@ locals {
       ssh_port                     = 22
       ssh_private_key_file         = null // Noop if ssh_agent_auth is set
       ssh_pty                      = false
-      ssh_timeout                  = "150m" // Noop if ssh_handshake_attempts is set
+      ssh_timeout                  = "30m" // Noop if ssh_handshake_attempts is set
       ssh_username                 = var.user_name
       threads                      = 1
       usb                          = true
@@ -304,7 +308,7 @@ locals {
       disk_type_id         = 1     // Growable virtual disk split into 2GB files (split sparse).
       display_name         = local.vm_human_name
       // Packer will create a vmx and then export that vm to an ovf or ova
-      format                 = "vmx"
+      format                 = "ova"
       guest_os_type          = lookup(local.vmware.guest_os_type, local.guest_os_key, local.vmware.guest_os_type.generic)
       network                = "nat"    // Defaults to VMnet0..N
       network_adapter_type   = "e1000e" // https://kb.vmware.com/s/article/1001805

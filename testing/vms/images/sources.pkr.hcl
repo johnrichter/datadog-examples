@@ -3,17 +3,17 @@ source "virtualbox-iso" "vm" {
   // Virtualbox specific
   //
 
-  acpi_shutdown             = local.builders.virtualbox.acpi_shutdown
-  audio_controller          = local.builders.virtualbox.audio_controller
-  bundle_iso                = local.builders.virtualbox.bundle_iso
-  chipset                   = local.builders.virtualbox.chipset
-  disk_additional_size      = local.builders.virtualbox.disk_additional_size
-  disk_size                 = local.builders.virtualbox.disk_size
-  export_opts               = local.builders.virtualbox.export_opts
-  firmware                  = local.builders.virtualbox.firmware
-  format                    = local.builders.virtualbox.format
-  gfx_accelerate_3d         = local.builders.virtualbox.gfx_accelerate_3d
-  gfx_controller            = local.builders.virtualbox.gfx_controller
+  acpi_shutdown        = local.builders.virtualbox.acpi_shutdown
+  audio_controller     = local.builders.virtualbox.audio_controller
+  bundle_iso           = local.builders.virtualbox.bundle_iso
+  chipset              = local.builders.virtualbox.chipset
+  disk_additional_size = local.builders.virtualbox.disk_additional_size
+  disk_size            = local.builders.virtualbox.disk_size
+  export_opts          = local.builders.virtualbox.export_opts
+  firmware             = local.builders.virtualbox.firmware
+  format               = local.builders.virtualbox.format
+  gfx_accelerate_3d    = local.builders.virtualbox.gfx_accelerate_3d
+  gfx_controller       = local.builders.virtualbox.gfx_controller
   // gfx_efi_resolution        = local.builders.virtualbox.gfx_efi_resolution
   gfx_vram_size             = local.builders.virtualbox.gfx_vram_size
   guest_additions_interface = local.builders.virtualbox.guest_additions_interface
