@@ -29,15 +29,15 @@ build {
       output               = abspath("${local.vagrant_boxes_dir}/${var.vm_os.name}-${var.vm_os.version}-${var.vm_os.arch}-{{.Provider}}.box")
       vagrantfile_template = abspath("${local.vagrant_config_dir}/Vagrantfile")
     }
-    post-processor "vagrant-cloud" {
-      access_token        = var.vagrant_cloud_access_token
-      box_tag             = var.vagrant.cloud.box_tag != "" ? var.vagrant.cloud.box_tag : local.vagrant_cloud_box_tag
-      no_release          = var.vagrant.cloud.skip_upload
-      keep_input_artifact = true
-      version             = var.vm_version
-      version_description = <<EOT
-        ${var.vm_description}${var.vagrant.cloud.version_description}
-      EOT
-    }
+    // post-processor "vagrant-cloud" {
+    //   access_token        = var.vagrant_cloud_access_token
+    //   box_tag             = var.vagrant.cloud.box_tag != "" ? var.vagrant.cloud.box_tag : local.vagrant_cloud_box_tag
+    //   no_release          = var.vagrant.cloud.skip_upload
+    //   keep_input_artifact = true
+    //   version             = var.vm_version
+    //   version_description = <<EOT
+    //     ${var.vm_description}${var.vagrant.cloud.version_description}
+    //   EOT
+    // }
   }
 }
