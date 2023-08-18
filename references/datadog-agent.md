@@ -1,4 +1,4 @@
-# Getting the default cluster agent config
+# Getting the default agent config
 
 1. Clone the Agent repo and `cd` into it
 2. Change to the latest tag, e.g. `7.43.0`
