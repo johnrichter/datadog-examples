@@ -9,8 +9,3 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - run: "echo Hello world!"
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Datadog Service Catalog Metadata Provider"
-        uses: "arcxp/datadog-service-catalog-metadata-provider@v2.0.0"
