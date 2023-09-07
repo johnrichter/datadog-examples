@@ -68,7 +68,6 @@ git clone --recursive git@github.com:johnrichter/datadog-examples.git
 - Hypervisors
   - vSphere
     - [ ] vSphere integration example
-    - [ ] Terraform to set up home lab vSphere cluster
 - Config Mangement
   - [ ] Ansible
     - [ ] Installing the Datadog Agent
@@ -90,7 +89,6 @@ git clone --recursive git@github.com:johnrichter/datadog-examples.git
     - [ ] APM Auto-injection install flow
 - Docker
   - [ ] Compose example
-  - [ ] Testing environment
   - Diagrams
     - [ ] Architecture Diagram
     - [ ] APM Auto-injection install flow
@@ -122,9 +120,3 @@ git clone --recursive git@github.com:johnrichter/datadog-examples.git
   - Diagrams
     - [ ] Architecture Diagram
     - [ ] APM Auto-injection install flow
-
-## Testing labs
-
-- [ ] Docker
-- [ ] vSphere
-- [ ] Kubernetes
