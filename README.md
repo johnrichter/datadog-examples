@@ -44,8 +44,6 @@ git clone --recursive git@github.com:johnrichter/datadog-examples.git
 
 # TODO
 
-## Examples
-
 **Hosts**
 
 - Diagrams
