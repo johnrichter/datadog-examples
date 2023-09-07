@@ -31,13 +31,12 @@ Other great Datadog example configurations and applications can be found in thes
 │   # Examples of how to get started with Datadog and
 │   # configure Datadog products for various use cases and
 │   # requirements
-├── examples
-│   # Simple lab environments that can be used for testing
-│   # the provided examples and other Datadog products
-└── testing
+└── examples
 ```
 
-This repo uses submodules. Use recursive clone to download all submodules.
+The test benches that used to exist in this repo have been moved to [test-benches](https://github.com/johnrichter/test-benches).
+
+**This repo uses submodules. Use recursive clone to download all submodules.**
 
 ```bash
 git clone --recursive git@github.com:johnrichter/datadog-examples.git

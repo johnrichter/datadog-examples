@@ -1,3 +1,0 @@
-roles:
-  - name: datadog.datadog
-    version: ">=4.0.0"

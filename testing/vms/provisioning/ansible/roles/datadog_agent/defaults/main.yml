@@ -1,9 +1,0 @@
----
-datadog_agent_api_key: "{{ lookup('env', 'DD_API_KEY') }}"
-datadog_agent_site: "{{ lookup('env', 'DD_SITE') | default('datadoghq.com') }}"
-datadog_agent_env: "{{ lookup('env', 'DD_ENV') | default('youshouldsetthis') }}"
-datadog_agent_tags: "{{ lookup('env', 'DD_TAGS') | default([]) }}"
-# Only used for script install method
-datadog_agent_host_tags: "{{ lookup('env', 'DD_HOST_TAGS') | default('') }}"
-datadog_agent_install_via_script: false
-datadog_agent_install_via_official_role: true

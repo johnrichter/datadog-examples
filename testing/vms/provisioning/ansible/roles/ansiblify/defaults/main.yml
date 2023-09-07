@@ -1,8 +1,0 @@
----
-ansiblify_password_salt: "{{ lookup('env', 'ANSIBLIFY_PASSWORD_SALT') | default('ansible') }}"
-ansiblify_ansible_group_name: ansible
-ansiblify_ansible_user_name: ansible
-ansiblify_ansible_user_password: "{{ lookup('env', 'ANSIBLIFY_USER_PASSWORD') | default('ansible') }}"
-ansiblify_ansible_user_ssh_key_passphrase: "{{ lookup('env', 'ANSIBLIFY_USER_SSH_KEY_PASSPHRASE') | default('ansible') }}"
-# Local directory to copy all host ssh keys to
-ansiblify_local_ssh_key_dir: "{{ playbook_dir }}/inventory/ssh"
