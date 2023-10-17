@@ -15,6 +15,7 @@ Other great Datadog example configurations and applications can be found in thes
 - [Alex Fernandes' Datadog Labs](https://github.com/yafernandes/datadog-experience)
 - [Boyan Syarov's Datadog Examples](https://github.com/ncracker?tab=repositories&q=dd)
 - [Lloyd Williams' Datadog Examples](https://github.com/lloydwilliams/datadog)
+- [Pejman Tabassomi's Datadog Examples](https://github.com/ptabasso2?tab=repositories&q=datadog)
 - [Datadog on Databricks](https://github.com/levihernandez/datadog-databricks)
 - [Storedog](https://github.com/DataDog/storedog)
   - A complete full-stack app with Datadog monitoring that can be used for testing and playing around with Datadog.
