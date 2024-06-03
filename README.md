@@ -21,6 +21,8 @@ Other great Datadog example configurations and applications can be found in thes
   - A complete full-stack app with Datadog monitoring that can be used for testing and playing around with Datadog.
 - [eCommerce Workshop](https://github.com/DataDog/ecommerce-workshop)
   - An eCommerce app to demonstrate how to apply observability principles
+- [OTEL Recipes](https://otelrecipes.com/recipes)
+  - Example apps from the Open Telemetry project that can be instrumented with OTEL/Datadog
 
 ## Structure
 
